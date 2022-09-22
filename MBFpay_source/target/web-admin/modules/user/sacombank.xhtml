@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:func="http://telsoft.com.vn/functions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:o="http://omnifaces.org/ui">
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:panel header="#{PP_LOGCHANGE.filter_option}" styleClass="box-primary">
+                    <h:panelGroup id="panel_filter_options" layout="grid" columns="6"
+                                  styleClass="ui-panelgrid-blank">
+                        <div class="ui-g">
+
+                            <!--                            File Type -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="file_type" value="File Type"/>
+                                    <p:selectCheckboxMenu id="file_type"
+                                                          value="#{sacombankTransactionController.selectedFileTypes}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="STB 89" itemValue="0"/>
+                                        <f:selectItem itemLabel="STB 99" itemValue="1"/>
+                                        <f:selectItem itemLabel="STB 99_MM" itemValue="2"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="file_type"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-6 ui-lg-9">
+                            </div>
+
+                            <!--                            Transaction Date From -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="start_date" value="From Date"/>
+                                    <p:calendar value="#{sacombankTransactionController.transactionDateFrom}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="start_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="start_date"/>
+                                </div>
+                            </div>
+
+                            <!--                            Transaction Date To -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="end_date" value="To Date"/>
+                                    <p:calendar value="#{sacombankTransactionController.transactionDateTo}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="end_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="end_date"/>
+                                    <o:validateOrder type="lte" components="start_date end_date"
+                                                     message="#{PP_COMMONS.sta_end_date_error}"
+                                                     showMessageFor="start_date"/>
+                                </div>
+                            </div>
+
+                            <!--                            Search by ID -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="material">
+                                        <p:outputLabel for="search_field" value="Search Input"/>
+                                        <p:inputText id="search_field"
+                                                     placeholder="Enter TransactionID/TransactionRef/..."
+                                                     value="#{sacombankTransactionController.searchInput}"
+                                        >
+                                        </p:inputText>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </h:panelGroup>
+                </p:panel>
+
+
+                <h:panelGroup id="pnl_control">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-4"></div>
+
+                        <!--                        Search -->
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton process="@this :form_main:panel_filter_options" id="btn_filter"
+                                             actionListener="#{sacombankTransactionController.handleSearch}"
+                                             update="panel_filter_options, table_app, pnl_control"
+                                             value="Tìm kiếm" icon="fa fa-search"
+                                             styleClass="btn-primary" style="width: auto;"
+                                             oncomplete="clearFilters('tableApp');"/>
+                        </div>
+
+                        <!--                        Download Excel -->
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton value="#{PP_MNGREPORT.download_excel}" ajax="false"
+                                             onclick="PrimeFaces.monitorDownload(downloadStart, downloadStop);"
+                                             styleClass="btn-auto btn-success" icon="fa fa-file-excel-o"
+                                             disabled="#{sacombankTransactionController.mlistApp.size() == 0}">
+                                <p:fileDownload
+                                        value="#{sacombankTransactionController.exportFile()}"/>
+                            </p:commandButton>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4">
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+
+                <!--                Data table -->
+                <div class="grid-padding">
+
+                    <p:panel header="Danh sách giao dịch SACOMBANK" styleClass="box-info"
+                             rendered="#{not sacombankTransactionController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="true"
+                                     id="table_app"
+                                     widgetVar="tableApp"
+                                     value="#{sacombankTransactionController.mlistApp}"
+                                     var="app"
+                                     rowIndexVar="rowIndex"
+                                     emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{sacombankTransactionController.isDisplayBtnConfirm}"
+                                     rowKey="#{app.id}"
+                                     selection="#{sacombankTransactionController.mselectedApp}"
+                                     rowSelectMode="checkbox"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks}
+                                      {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,#{sacombankTransactionController.mlistApp.size()}"
+                                     paginator="true"
+                                     rows="10"
+                                     styleClass="material"
+                                     tableStyle="table-layout: auto;"
+                                     resizableColumns="true"
+                                     editable="true"
+                                     editMode="cell">
+
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column rowspan="2" colspan="2" style="font-size: large"
+                                              headerText="Total: #{sacombankTransactionController.mlistApp.size()}"/>
+
+                                    <p:column colspan="1" headerText="Transaction ID"
+                                              sortBy="#{app.transactionID}" filterBy="#{app.transactionID}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Transaction Date" sortBy="#{app.transactionDate}"
+                                              filterBy="#{app.transactionDate}" filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Effective Date"
+                                              sortBy="#{app.valueDate}"
+                                              filterBy="#{app.valueDate}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Transaction Remarks" sortBy="#{app.transactionRemarks}"
+                                              filterBy="#{app.transactionRemarks}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Bank Reference ID"
+                                              sortBy="#{app.bankReferenceID}"
+                                              filterBy="#{app.bankReferenceID}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Debit Amount" sortBy="#{app.debitAmount}"
+                                              filterBy="#{app.debitAmount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Credit Amount" sortBy="#{app.creditAmount}"
+                                              filterBy="#{app.creditAmount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Running Balance" sortBy="#{app.runningBalance}"
+                                              filterBy="#{app.runningBalance}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="File Name" sortBy="#{app.fileName}"
+                                              filterBy="#{app.fileName}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Log Date"
+                                              sortBy="#{app.logDateTime}"
+                                              filterBy="#{app.logDateTime}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Import Date"
+                                              sortBy="#{app.importDateTime}"
+                                              filterBy="#{app.importDateTime}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="File Type" sortBy="#{app.fileType}"
+                                              filterBy="#{app.fileType}"
+                                              filterMatchMode="contains"/>
+                                </p:row>
+                            </p:columnGroup>
+
+                            <p:column selectionMode="multiple"/>
+                            <!--                            STT -->
+                            <p:column sortBy="#{rowIndex}" filterBy="#{rowIndex}" filterMatchMode="contains">
+                                #{rowIndex + 1}
+                            </p:column>
+
+                            <p:column>
+                                <h:outputText value="#{app.transactionID}" style="font-weight:bold"/>
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.transactionDate)}
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.valueDate)}
+                            </p:column>
+
+                            <p:column>
+                                #{app.transactionRemarks}
+                            </p:column>
+
+                            <p:column>
+                                #{app.bankReferenceID}
+                            </p:column>
+
+                            <p:column>
+                                #{app.debitAmount}
+                            </p:column>
+
+                            <p:column>
+                                #{app.creditAmount}
+                            </p:column>
+
+                            <p:column>
+                                #{app.runningBalance}
+                            </p:column>
+
+                            <p:column>
+                                #{app.fileName}
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.logDateTime)}
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.importDateTime)}
+                            </p:column>
+
+                            <p:column>
+                                #{app.fileType}
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+
+
+</html>

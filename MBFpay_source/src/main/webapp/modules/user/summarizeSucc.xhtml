@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:func="http://telsoft.com.vn/functions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:o="http://omnifaces.org/ui">
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:panel header="#{PP_LOGCHANGE.filter_option}" styleClass="box-primary">
+                    <h:panelGroup id="panel_filter_options" layout="grid" columns="6" styleClass="ui-panelgrid-blank">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <div class="ui-material">
+                                    <p:outputLabel for="profile_id" value="#{PP_SOURCEDATA.profile_id}"/>
+                                    <p:selectOneMenu maxlength="22" id="profile_id"
+                                                     value="#{summarizeSuccController.mProfileID}">
+                                        <f:selectItem itemLabel="--Lựa chọn--" itemValue=""/>
+                                        <f:selectItems value="#{summarizeSuccController.mlistProfilePartner}"
+                                                       var="it"
+                                                       itemLabel="#{it.code}" itemValue="#{it.profile_id}"/>
+                                    </p:selectOneMenu>
+                                    <p:message for="profile_id"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <div class="material">
+                                    <p:outputLabel for="start_date" value="#{PP_COMMONS.sta_date}"/>
+                                    <p:calendar value="#{summarizeSuccController.mdStartDate}" pattern="dd/MM/yyyy"
+                                                mask="true" id="start_date" mode="popup" navigator="true"
+                                                required="true"
+                                                requiredMessage="#{PP_COMMONS.sta_date}#{PP_COMMONS.can_not_be_empty}"/>
+                                    <p:message for="start_date"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <div class="material">
+                                    <p:outputLabel for="end_date" value="#{PP_COMMONS.end_date}"/>
+                                    <p:calendar value="#{summarizeSuccController.mdEndDate}" pattern="dd/MM/yyyy"
+                                                mask="true" id="end_date" mode="popup" navigator="true" required="true"
+                                                requiredMessage="#{PP_COMMONS.end_date}#{PP_COMMONS.can_not_be_empty}"/>
+                                    <p:message for="end_date"/>
+                                    <o:validateOrder type="lte" components="start_date end_date"
+                                                     message="#{PP_COMMONS.sta_end_date_error}"
+                                                     showMessageFor="start_date"/>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </p:panel>
+
+                <h:panelGroup id="pnl_control">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-4"></div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton process="@this :form_main:panel_filter_options" id="btn_search"
+                                             actionListener="#{summarizeSuccController.handleSearch}"
+                                             update="panel_filter_options, table_app, pnl_control"
+                                             value="#{PP_LOGCHANGE.search}" icon="fa fa-search"
+                                             styleClass="btn-primary" style="width: auto;"
+                                             oncomplete="clearFilters('tableApp');"/>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton value="#{PP_MNGREPORT.download_excel}" ajax="false"
+                                             onclick="PrimeFaces.monitorDownload(downloadStart, downloadStop);"
+                                             styleClass="btn-auto btn-success" icon="fa fa-file-excel-o"
+                                             disabled="#{summarizeSuccController.mlistApp.size() == 0}">
+                                <p:fileDownload
+                                        value="#{summarizeSuccController.exportFile()}"/>
+                            </p:commandButton>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4">
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+                <div class="grid-padding">
+                    <p:panel header="#{PP_SUMMARIZESUCC.app_list}" styleClass="box-info"
+                             rendered="#{not summarizeSuccController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom" paginatorAlwaysVisible="true"
+                                     id="table_app" widgetVar="tableApp" value="#{summarizeSuccController.mlistApp}"
+                                     var="app" rowIndexVar="rowIndex" emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{summarizeSuccController.isDisplayBtnConfirm}" rowKey="#{app.profile_id}"
+                                     selection="#{summarizeSuccController.mselectedApp}" rowSelectMode="checkbox"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15,#{summarizeSuccController.mlistApp.size()}"
+                                     paginator="true" rows="10" styleClass="material no-border"
+                                     tableStyle="table-layout: auto;" resizableColumns="true">
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column headerText="STT"
+                                              sortBy="#{rowIndex}" filterBy="#{rowIndex}"
+                                              filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.profile_id}"
+                                              sortBy="#{app.code}"
+                                              filterBy="#{app.code}" filterMatchMode="contains"/>
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.invoice_order_id}"
+                                              sortBy="#{app.invoice_order_id}" filterBy="#{app.invoice_order_id}" filterMatchMode="contains"/>
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.partner_trans_id}"
+                                              sortBy="#{app.partner_trans_id}"
+                                              filterBy="#{app.partner_trans_id}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.pay_type_name}" sortBy="#{app.pay_type_name}"
+                                              filterBy="#{app.pay_type_name}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.partner_code}" sortBy="#{app.partner_code}"
+                                                filterBy="#{app.partner_code}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.amount}" sortBy="#{app.amount}" filterBy="#{app.amount}"/>
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.payment_amount}" sortBy="#{app.payment_amount}"
+                                              filterBy="#{app.payment_amount}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.grand_amount}" sortBy="#{app.grand_amount}"
+                                              filterBy="#{app.grand_amount}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.quantity}" sortBy="#{app.quantity}"
+                                              filterBy="#{app.quantity}" filterMatchMode="contains"/>
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.related_account}"
+                                              sortBy="#{app.related_account}" filterBy="#{app.related_account}"
+                                              filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.account_name}" sortBy="#{app.account_name}"
+                                              filterBy="#{app.account_name}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.init_time}" sortBy="#{app.init_time}"
+                                              filterBy="#{app.init_time}" filterMatchMode="contains"/>
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.created_time}" sortBy="#{app.created_time}"
+                                              filterBy="#{app.created_time}" filterMatchMode="contains" />
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.order_status_code}"
+                                              sortBy="#{app.order_status_code}" filterBy="#{app.order_status_code}"
+                                              filterMatchMode="contains"/>
+                                    <p:column headerText="#{PP_SUMMARIZESUCC.approve_status}" sortBy="#{app.approve_status}"
+                                              filterBy="#{app.approve_status}" filterMatchMode="contains"/>
+                                </p:row>
+                                <p:row>
+                                    <p:column colspan="6"
+                                              style="text-align:right; align-content: end; font-weight: bold;"
+                                              headerText="Tổng:"/>
+                                    <p:column style="text-align:left"
+                                              headerText="#{summarizeSuccController.lastAmountTotal}"/>
+                                    <p:column style="text-align:left"
+                                              headerText="#{summarizeSuccController.paymentAmountTotal}"/>
+                                    <p:column style="text-align:left"
+                                              headerText="#{summarizeSuccController.grandAmountTotal}"/>
+                                    <p:column style="text-align:left"
+                                              headerText="#{summarizeSuccController.lastQuantityTotal}"/>
+                                </p:row>
+                            </p:columnGroup>
+                            <p:column>
+                                #{rowIndex + 1}
+                            </p:column>
+                            <p:column>
+                                #{app.code}
+                            </p:column>
+
+                            <p:column>
+                                #{app.invoice_order_id}
+                            </p:column>
+                            <p:column>
+                                #{app.partner_trans_id}
+                            </p:column>
+
+                            <p:column>
+                                #{app.pay_type_name}
+                            </p:column>
+
+                            <p:column>
+                                #{app.partner_code}
+                            </p:column>
+
+                            <p:column>
+                                #{app.amount}
+                            </p:column>
+
+                            <p:column>
+                                #{app.payment_amount}
+                            </p:column>
+
+                            <p:column>
+                                #{app.grand_amount}
+                            </p:column>
+
+                            <p:column>
+                                #{app.quantity}
+                            </p:column>
+
+                            <p:column>
+                                #{app.related_account}
+                            </p:column>
+
+                            <p:column>
+                                #{app.account_name}
+                            </p:column>
+
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.init_time)}
+                            </p:column>
+
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.created_time)}
+                            </p:column>
+
+                            <p:column headerText="#{PP_SUMMARIZESUCC.order_status_code}"
+                                      sortBy="#{app.order_status_code}" filterBy="#{app.order_status_code}"
+                                      filterMatchMode="contains">
+                                #{app.order_status_code}
+                            </p:column>
+
+                            <p:column>
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('tableApp').filter()" styleClass="custom-filter">
+                                        <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                        <f:selectItem itemLabel="#{PP_SUMMARIZESUCC.label_approve_status_0}"
+                                                      itemValue="#{PP_SUMMARIZESUCC.value_approve_status_0}"/>
+                                        <f:selectItem itemLabel="#{PP_SUMMARIZESUCC.label_approve_status_1}"
+                                                      itemValue="#{PP_SUMMARIZESUCC.value_approve_status_1}"/>
+
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText styleClass="label label-warning" rendered="#{app.approve_status eq '0'}"
+                                              value="#{PP_SUMMARIZESUCC.label_approve_status_0}"/>
+                                <h:outputText styleClass="label label-success" rendered="#{app.approve_status eq '1'}"
+                                              value="#{PP_SUMMARIZESUCC.label_approve_status_1}"/>
+
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+                    <p:panel header="#{PP_SUMMARIZESUCC.app_info}" styleClass="box-primary"
+                             rendered="#{summarizeSuccController.isDisplayBtnConfirm}">
+                        <p:focus context=":form_main:panel_add_app"/>
+                        <h:panelGroup id="panel_add_app">
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="status"
+                                                       value="#{PP_SUMMARIZESUCC.approve_status}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="2"
+                                                         id="status"
+                                                         value="#{summarizeSuccController.mtmpApp.approve_status}"
+                                                         disabled="#{summarizeSuccController.isDISABLE}"
+                                                         required="true">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItem itemLabel="#{PP_SUMMARIZESUCC.label_approve_status_0}"
+                                                          itemValue="#{PP_SUMMARIZESUCC.label_approve_status_0}"/>
+                                            <f:selectItem itemLabel="#{PP_SUMMARIZESUCC.label_approve_status_1}"
+                                                          itemValue="#{PP_SUMMARIZESUCC.label_approve_status_1}"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="status"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </p:panel>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+</html>

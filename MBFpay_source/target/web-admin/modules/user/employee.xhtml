@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+>
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <p:outputPanel>
+            <p:selectCheckboxMenu value="#{employeeBean.selectedColumns}"
+                                  label="Table Columns">
+                <f:selectItems value="#{employeeBean.columnMap.entrySet()}"
+                               var="entry"
+                               itemValue="#{entry.key}"
+                               itemLabel="#{entry.value}"/>
+
+                <p:ajax event="change" update="table"/>
+            </p:selectCheckboxMenu>
+            <br/>
+
+            <p:dataTable id="table" var="emp" value="#{employeeBean.employeeList}">
+                <p:columns value="#{employeeBean.selectedColumns}" var="colKey">
+                    <f:facet name="header">
+                        <h:outputText value="#{employeeBean.columnMap[colKey]}"/>
+                    </f:facet>
+                    <h:outputText value="#{emp[colKey]}"/>
+                </p:columns>
+            </p:dataTable>
+        </p:outputPanel>
+    </ui:composition>
+</h:body>
+</html>

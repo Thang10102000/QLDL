@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+>
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <p:outputPanel>
+            <p:dataTable id="table" var="emp"
+                         value="#{datatableSelectColumnController.employeeList}"
+                         widgetVar="table">
+
+                <p:ajax event="filter" listener="#{datatableSelectColumnController.listenFilter}" />
+
+                <p:column headerText="Model" filterBy="#{emp.id}" filterValue="#{datatableSelectColumnController.filterValues}" filterMatchMode="exact">
+                    <f:facet name="filter">
+                        <p:selectOneMenu id="option" value="#{datatableSelectColumnController.selectedOption}" onkeyup="PF('table').filter();">
+                            <p:ajax event="valueChange" listener="#{datatableSelectColumnController.valueChange}" />
+                            <f:selectItem itemValue="1" itemLabel="1" />
+                            <f:selectItem itemValue="2"  itemLabel="2"/>
+                        </p:selectOneMenu>
+                    </f:facet>
+                    <h:outputText value="#{emp.id}"/>
+                    <!--                    <p:panel id="test1">-->
+                    <!--                        <h:outputText value="#{emp.id}"/>-->
+                    <!--                        <p:contextMenu for="test1" widgetVar="cMenu">-->
+                    <!--                            <p:menuitem value="Edit Cell" icon="ui-icon-search"-->
+                    <!--                                        onclick="product.showCellEditor();return false;"/>-->
+                    <!--                            <p:menuitem value="Hide Menu" icon="ui-icon-close"-->
+                    <!--                                        onclick="PF('cMenu').hide()"/>-->
+                    <!--                        </p:contextMenu>-->
+                    <!--                    </p:panel>-->
+                </p:column>
+                <p:column headerText="MANUFAC" style="width:20%">
+                    <p:panel id="test2">
+                        <h:outputText value="#{emp.name}"/>
+<!--                        <p:contextMenu for="test2" widgetVar="cMenu2">-->
+<!--                            <p:menuitem value="Edit Cell" icon="ui-icon-search"-->
+<!--                                        onclick="product.showCellEditor();return false;"/>-->
+<!--                            <p:menuitem value="Hide Menu" icon="ui-icon-close"-->
+<!--                                        onclick="PF('cMenu2').hide()"/>-->
+<!--                            <p:menuitem value="Hide Menu" icon="ui-icon-close"-->
+<!--                                        onclick="PF('cMenu2').hide()"/>-->
+<!--                        </p:contextMenu>-->
+                    </p:panel>
+                </p:column>
+                <p:column headerText="Model" style="width:30%">
+                    <p:panel id="test3">
+                        <h:outputText value="#{emp.address}"/>
+<!--                        <p:contextMenu rendered="#{emp.address eq 'SENT'}" for="test3" widgetVar="cMenu4">-->
+<!--                            <p:menuitem value="Edit Cell" icon="ui-icon-search"-->
+<!--                                        onclick="product.showCellEditor();return false;"/>-->
+<!--                            <p:menuitem value="Hide Menu" icon="ui-icon-close"-->
+<!--                                        onclick="PF('cMenu4').hide()"/>-->
+<!--                        </p:contextMenu>-->
+<!--                        <p:contextMenu rendered="#{emp.address eq 'WAITING'}" for="test3" widgetVar="cMenu3">-->
+
+<!--                            <p:menuitem value="Hide Menu" icon="ui-icon-close"-->
+<!--                                        onclick="PF('cMenu3').hide()"/>-->
+<!--                        </p:contextMenu>-->
+                    </p:panel>
+                </p:column>
+            </p:dataTable>
+        </p:outputPanel>
+    </ui:composition>
+</h:body>
+</html>

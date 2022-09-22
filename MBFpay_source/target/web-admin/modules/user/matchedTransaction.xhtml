@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:func="http://telsoft.com.vn/functions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:o="http://omnifaces.org/ui">
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:panel header="#{PP_LOGCHANGE.filter_option}" styleClass="box-primary">
+                    <h:panelGroup id="panel_filter_options" layout="grid" columns="6"
+                                  styleClass="ui-panelgrid-blank">
+                        <div class="ui-g">
+                            <!--                            Partner Code -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="partner_code" value="Partner Code"/>
+                                    <p:selectCheckboxMenu id="partner_code"
+                                                          value="#{matchedTransactionController.selectedPaymentAcceptors}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItems
+                                                value="#{matchedTransactionController.partnerCodeList}"
+                                                var="it"
+                                                itemLabel="#{it.subCode}" itemValue="#{it.subCode}"/>
+                                        <f:selectItem itemLabel="--Blank--" itemValue="Blank"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="partner_code"/>
+                                </div>
+                            </div>
+
+                            <!--                            Bank Code -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="bank_code" value="Bank Code"/>
+                                    <p:selectCheckboxMenu id="bank_code"
+                                                          value="#{matchedTransactionController.selectedBankCodes}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItems
+                                                value="#{matchedTransactionController.bankList}"
+                                                var="it"
+                                                itemLabel="#{it.subCode}" itemValue="#{it.subCode}"/>
+                                        <f:selectItem itemLabel="--Blank--" itemValue="Blank"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="bank_code"/>
+                                </div>
+                            </div>
+
+                            <!--                            Order Status Code -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="order_status_code" value="Order Status Code"/>
+                                    <p:selectCheckboxMenu id="order_status_code"
+                                                          value="#{matchedTransactionController.selectedOrderStatusCodes}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="WAIT_PAY" itemValue="WAIT_PAY"/>
+                                        <f:selectItem itemLabel="SUCCESS" itemValue="SUCCESS"/>
+                                        <f:selectItem itemLabel="FAILURE" itemValue="FAILURE"/>
+                                        <f:selectItem itemLabel="FAILURE_REFUND" itemValue="FAILURE_REFUND"/>
+                                        <f:selectItem itemLabel="WAIT_REFUND" itemValue="WAIT_REFUND"/>
+                                        <f:selectItem itemLabel="INIT" itemValue="INIT"/>
+                                        <f:selectItem itemLabel="CANCEL" itemValue="CANCEL"/>
+                                        <f:selectItem itemLabel="UNKNOWN" itemValue="UNKNOWN"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="order_status_code"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                            </div>
+
+                            <!--                            From Date -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="start_date" value="From Date"/>
+                                    <p:calendar value="#{matchedTransactionController.mdStartDate}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="start_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="start_date"/>
+                                </div>
+                            </div>
+                            <!--                            To Date -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="end_date" value="To Date"/>
+                                    <p:calendar value="#{matchedTransactionController.mdEndDate}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="end_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="end_date"/>
+                                    <o:validateOrder type="lte" components="start_date end_date"
+                                                     message="#{PP_COMMONS.sta_end_date_error}"
+                                                     showMessageFor="start_date"/>
+                                </div>
+                            </div>
+
+                            <!--                            Adjusted Date From -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="adjusted_date_from" value="Adjusted Date From"/>
+                                    <p:calendar value="#{matchedTransactionController.adjustedFromDate}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="adjusted_date_from" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="adjusted_date_from"/>
+                                </div>
+                            </div>
+                            <!--                            Adjusted Date To -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="adjusted_date_to" value="Adjusted Date To"/>
+                                    <p:calendar value="#{matchedTransactionController.adjustedToDate}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="adjusted_date_to" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="adjusted_date_to"/>
+                                    <o:validateOrder type="lte" components="adjusted_date_from adjusted_date_to"
+                                                     message="#{PP_COMMONS.sta_end_date_error}"
+                                                     showMessageFor="adjusted_date_from"/>
+                                </div>
+                            </div>
+
+                            <!--                            Process Status -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="process_status_field" value="Process Status"/>
+                                    <p:selectCheckboxMenu id="process_status_field"
+                                                          value="#{matchedTransactionController.selectedProcessStatus}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="Chưa xử lý" itemValue="0"/>
+                                        <f:selectItem itemLabel="Bổ sung" itemValue="1"/>
+                                        <f:selectItem itemLabel="Giảm trừ" itemValue="3"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="process_status_field"/>
+                                </div>
+                            </div>
+
+                            <!--                            Confirm Status -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="confirm_status_field" value="Confirm Status"/>
+                                    <p:selectCheckboxMenu id="confirm_status_field"
+                                                          value="#{matchedTransactionController.selectedConfirmStatus}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="Chờ xử lý" itemValue="0"/>
+                                        <f:selectItem itemLabel="Chờ xác nhận" itemValue="1"/>
+                                        <f:selectItem itemLabel="Chờ điều chỉnh lại" itemValue="2"/>
+                                        <f:selectItem itemLabel="Đã xác nhận" itemValue="3"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="confirm_status_field"/>
+                                </div>
+                            </div>
+
+                            <!--                            Refund Status -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="refund_status_field" value="Refund Status"/>
+                                    <p:selectCheckboxMenu id="refund_status_field"
+                                                          value="#{matchedTransactionController.selectedRefundStatus}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="Chưa hoàn tiền" itemValue="0"/>
+                                        <f:selectItem itemLabel="Đã hoàn tiền" itemValue="1"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="refund_status_field"/>
+                                </div>
+                            </div>
+
+                            <!--                            Ticket Update Status -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="ticket_name_field" value="Ticket Update Status"/>
+                                    <p:selectCheckboxMenu id="ticket_name_field"
+                                                          value="#{matchedTransactionController.selectedTicketStatus}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="Chưa cập nhật" itemValue="0"/>
+                                        <f:selectItem itemLabel="Đã cập nhật" itemValue="1"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="ticket_name_field"/>
+                                </div>
+                            </div>
+
+                            <!--                            Final Status -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="final_status" value="Final Status"/>
+                                    <p:selectCheckboxMenu id="final_status"
+                                                          value="#{matchedTransactionController.selectedFinalStatus}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="Unchecked" itemValue="0"/>
+                                        <f:selectItem itemLabel="Reconcile" itemValue="1"/>
+                                        <f:selectItem itemLabel="Unreconcile" itemValue="2"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="final_status"/>
+                                </div>
+                            </div>
+
+                            <!--                            Search by ID -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="material">
+                                        <p:outputLabel for="search_field" value="Invoice Order ID"/>
+                                        <p:inputText id="search_field"
+                                                     placeholder="Nhập ID giao dịch"
+                                                     value="#{matchedTransactionController.transactionID}"
+                                        >
+                                        </p:inputText>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </h:panelGroup>
+                </p:panel>
+
+
+                <h:panelGroup id="pnl_control">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-4"></div>
+
+                        <!--                        Search -->
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton process="@this :form_main:panel_filter_options" id="btn_filter"
+                                             actionListener="#{matchedTransactionController.handleSearch}"
+                                             update="panel_filter_options, table_app, pnl_control"
+                                             value="Tìm kiếm" icon="fa fa-search"
+                                             styleClass="btn-primary" style="width: auto;"
+                                             oncomplete="clearFilters('tableApp');"/>
+                        </div>
+
+                        <!--                        Download Excel -->
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton value="#{PP_MNGREPORT.download_excel}" ajax="false"
+                                             onclick="PrimeFaces.monitorDownload(downloadStart, downloadStop);"
+                                             styleClass="btn-auto btn-success" icon="fa fa-file-excel-o"
+                                             disabled="#{matchedTransactionController.mlistApp.size() == 0}">
+                                <p:fileDownload
+                                        value="#{matchedTransactionController.exportFile()}"/>
+                            </p:commandButton>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4">
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+
+                <!--                Data table -->
+                <div class="grid-padding">
+
+                    <p:panel header="Danh sách giao dịch cân khớp" styleClass="box-info"
+                             rendered="#{not matchedTransactionController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="true"
+                                     id="table_app"
+                                     widgetVar="tableApp"
+                                     value="#{matchedTransactionController.mlistApp}"
+                                     var="app"
+                                     rowIndexVar="rowIndex"
+                                     emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{matchedTransactionController.isDisplayBtnConfirm}"
+                                     rowKey="#{app.invoiceOrderID}"
+                                     selection="#{matchedTransactionController.mselectedApp}"
+                                     rowSelectMode="checkbox"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks}
+                                      {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,#{matchedTransactionController.mlistApp.size()}"
+                                     paginator="true"
+                                     rows="10"
+                                     styleClass="material"
+                                     tableStyle="table-layout: auto;"
+                                     resizableColumns="true"
+                                     editable="true"
+                                     editMode="cell">
+
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+                            <p:ajax event="cellEdit" listener="#{matchedTransactionController.onCellEdit}"
+                                    update=":form_main:pnl_control" oncomplete="PF('tableApp').filter();"/>
+
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column rowspan="2" colspan="2" style="font-size: large"
+                                              headerText="Total: #{matchedTransactionController.mlistApp.size()}"/>
+
+                                    <p:column colspan="1" headerText="FinalStatus"
+                                              sortBy="#{app.finalStatus}"
+                                              filterBy="#{app.finalStatus}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="RefundStatus"
+                                              sortBy="#{app.refundStatus}"
+                                              filterBy="#{app.refundStatus}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="TicketName"
+                                              sortBy="#{app.ticketName}"
+                                              filterBy="#{app.ticketName}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="ProcessStatus"
+                                              sortBy="#{app.processStatus}"
+                                              filterBy="#{app.processStatus}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="UserProcess"
+                                              sortBy="#{app.userProcess}"
+                                              filterBy="#{app.userProcess}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="ConfirmStatus"
+                                              sortBy="#{app.confirmStatus}"
+                                              filterBy="#{app.confirmStatus}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="UserConfirm"
+                                              sortBy="#{app.userConfirm}"
+                                              filterBy="#{app.userConfirm}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="AdjustDate"
+                                              sortBy="#{app.adjustDate}"
+                                              filterBy="#{app.adjustDate}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="InvoiceOrderID"
+                                              sortBy="#{app.invoiceOrderID}" filterBy="#{app.invoiceOrderID}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="BankCode" sortBy="#{app.bankCode}"
+                                              filterBy="#{app.bankCode}" filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="BankReferenceID"
+                                              sortBy="#{app.bankReferenceID}"
+                                              filterBy="#{app.bankReferenceID}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="PartnerCode" sortBy="#{app.partnerCode}"
+                                              filterBy="#{app.partnerCode}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="PartnerReferenceID"
+                                              sortBy="#{app.partnerReferenceID}"
+                                              filterBy="#{app.partnerReferenceID}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="PayTypeName" sortBy="#{app.payTypeName}"
+                                              filterBy="#{app.payTypeName}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Amount" sortBy="#{app.amount}"
+                                              filterBy="#{app.amount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Quantity" sortBy="#{app.quantity}"
+                                              filterBy="#{app.quantity}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="GrandAmount" sortBy="#{app.grandAmount}"
+                                              filterBy="#{app.grandAmount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="PaymentAmount"
+                                              sortBy="#{app.paymentAmount}"
+                                              filterBy="#{app.paymentAmount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="OrderStatusCode"
+                                              sortBy="#{app.orderStatusCode}"
+                                              filterBy="#{app.orderStatusCode}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="CreatedTime" sortBy="#{app.createdTime}"
+                                              filterBy="#{app.createdTime}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="MappingCode"
+                                              sortBy="#{app.forcontrolCode}"
+                                              filterBy="#{app.forcontrolCode}"
+                                              filterMatchMode="contains"/>
+                                </p:row>
+                                <p:row>
+                                    <p:column colspan="14"
+                                              headerText=""/>
+                                    <p:column colspan="1"
+                                              headerText="#{matchedTransactionController.totalAmount}"/>
+                                    <p:column colspan="1"
+                                              headerText="#{matchedTransactionController.totalQuantity}"/>
+                                    <p:column colspan="1"
+                                              headerText="#{matchedTransactionController.totalGrandAmount}"/>
+                                    <p:column colspan="1"
+                                              headerText="#{matchedTransactionController.totalPaymentAmount}"/>
+                                </p:row>
+                            </p:columnGroup>
+
+                            <p:column selectionMode="multiple"/>
+                            <!--                            STT -->
+                            <p:column sortBy="#{rowIndex}" filterBy="#{rowIndex}" filterMatchMode="contains">
+                                #{rowIndex + 1}
+                            </p:column>
+
+                            <!--                           Final Status - Trạng thái Kiểm tra-->
+                            <p:column>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.finalStatus eq '0'}"
+                                              value="Unchecked"/>
+                                <h:outputText styleClass="label label-success"
+                                              rendered="#{app.finalStatus eq '1'}"
+                                              value="Reconcile"/>
+                                <h:outputText styleClass="label label-danger"
+                                              rendered="#{app.finalStatus eq '2'}"
+                                              value="Unreconcile"/>
+                            </p:column>
+
+                            <!--                            Refund Status - Trạng thái hoàn tiền -->
+                            <p:column>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.refundStatus eq '0'}"
+                                              value="Chưa hoàn tiền"/>
+                                <h:outputText styleClass="label label-success"
+                                              rendered="#{app.refundStatus eq '1'}"
+                                              value="Đã hoàn tiền"/>
+                                &nbsp;<p:commandLink id="update_refund_status_btn"
+                                                     rendered="#{matchedTransactionController.isAllowUpdate
+                                               and app.refundStatus eq '0'}"
+                                                     actionListener="#{matchedTransactionController.changeStateProcess(app)}"
+                                                     process="@this" styleClass="fa fa-pencil"
+                                                     oncomplete="PF('updateRefundStatusDialog').show()"
+                                                     update=":form_main:panel_center">
+                            </p:commandLink>&nbsp;&nbsp;
+                                <p:tooltip for="update_refund_status_btn" value="Cập nhận trạng thái hoàn tiền"/>
+                            </p:column>
+
+                            <!--                            Ticket Name -->
+                            <p:column headerText="TicketName">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{app.ticketName}"/>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputText value="#{app.ticketName}"
+                                                     style="width:100%"/>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+
+                            <!--                           Process Status - Trạng thái điều chỉnh-->
+                            <p:column>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.processStatus eq '0'}"
+                                              value="Chưa xử lý"/>
+                                <h:outputText styleClass="label label-success"
+                                              rendered="#{app.processStatus eq '1'}"
+                                              value="Bổ sung"/>
+                                <h:outputText styleClass="label label-danger"
+                                              rendered="#{app.processStatus eq '2'}"
+                                              value="Hủy bỏ"/>
+                                <h:outputText styleClass="label label-danger"
+                                              rendered="#{app.processStatus eq '3'}"
+                                              value="Giảm trừ"/>
+                                &nbsp;<p:commandLink id="process_btn"
+                                                     rendered="#{matchedTransactionController.isAllowUpdate
+                                               and (app.confirmStatus eq '0' or app.confirmStatus eq '2')
+                                               and matchedTransactionController.userTitle eq '0'}"
+                                                     actionListener="#{matchedTransactionController.changeStateProcess(app)}"
+                                                     process="@this" styleClass="fa fa-pencil"
+                                                     oncomplete="PF('processDialog').show()"
+                                                     update=":form_main:panel_center">
+                            </p:commandLink>&nbsp;&nbsp;
+                                <p:tooltip for="process_btn" value="Điều chỉnh giao dịch"/>
+                            </p:column>
+
+                            <!--                            User Process - User thực hiện điều chỉnh -->
+                            <p:column>
+                                #{app.userProcess}
+                            </p:column>
+
+                            <!--                           Confirm Status - Trạng thái xác nhận điều chỉnh-->
+                            <p:column>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.confirmStatus eq '0'}"
+                                              value="Chờ xử lý"/>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.confirmStatus eq '1'}"
+                                              value="Chờ xác nhận"/>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.confirmStatus eq '2'}"
+                                              value="Chờ điều chỉnh lại"/>
+                                <h:outputText styleClass="label label-success"
+                                              rendered="#{app.confirmStatus eq '3'}"
+                                              value="Đã xác nhận"/>
+                                &nbsp;<p:commandLink id="confirm_process_btn"
+                                                     rendered="#{matchedTransactionController.isAllowUpdate
+                                               and app.confirmStatus eq '1' and matchedTransactionController.userTitle eq '1'}"
+                                                     actionListener="#{matchedTransactionController.changeStateProcess(app)}"
+                                                     process="@this" styleClass="fa fa-pencil"
+                                                     oncomplete="PF('confirmProcessDialog').show()"
+                                                     update=":form_main:panel_center">
+                            </p:commandLink>&nbsp;&nbsp;
+                                <p:tooltip for="confirm_process_btn" value="Xác nhận điều chỉnh"/>
+                            </p:column>
+
+                            <!--                            User Approve - User xác nhận điều chỉnh -->
+                            <p:column>
+                                #{app.userConfirm}
+                            </p:column>
+
+                            <!--                            Adjust date time - Thời gian điều chỉnh -->
+                            <p:column>
+                                #{func:getDateTimeStr(app.adjustDate)}
+                            </p:column>
+
+                            <!--                            MBFP transaction id-->
+                            <p:column>
+                                <h:outputText value="#{app.invoiceOrderID}" style="font-weight:bold"/>
+                            </p:column>
+
+                            <!--                            Bank code -->
+                            <p:column>
+                                #{app.bankCode}
+                            </p:column>
+
+                            <!--        Bank reference ID -->
+                            <p:column>
+                                #{app.bankReferenceID}
+                            </p:column>
+
+                            <!--                            Partner_code -->
+                            <p:column>
+                                #{app.partnerCode}
+                            </p:column>
+
+                            <!--        Partner Reference ID -->
+                            <p:column>
+                                #{app.partnerReferenceID}
+                            </p:column>
+
+                            <!--        Pay type -->
+                            <p:column>
+                                #{app.payTypeName}
+                            </p:column>
+
+                            <!--                            Amount -->
+                            <p:column>
+                                #{app.amount}
+                            </p:column>
+
+                            <!--                            Quantity -->
+                            <p:column>
+                                #{app.quantity}
+                            </p:column>
+
+                            <!--                            Grand Amount -->
+                            <p:column>
+                                #{app.grandAmount}
+                            </p:column>
+
+                            <!--                            Payment Amount -->
+                            <p:column>
+                                #{app.paymentAmount}
+                            </p:column>
+
+                            <!--        Status -->
+                            <p:column>
+                                <!--                                #{app.orderStatusCode}-->
+                                <h:outputText styleClass="label label-default"
+                                              rendered="#{app.orderStatusCode eq 'UNKNOWN'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-success"
+                                              rendered="#{app.orderStatusCode eq 'SUCCESS'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.orderStatusCode eq 'WAIT_REFUND'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-danger"
+                                              rendered="#{app.orderStatusCode eq 'FAILURE'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.orderStatusCode eq 'FAILURE_REFUND'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-info"
+                                              rendered="#{app.orderStatusCode eq 'CANCEL'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-warning"
+                                              rendered="#{app.orderStatusCode eq 'WAIT_PAY'}"
+                                              value="#{app.orderStatusCode}"/>
+                                <h:outputText styleClass="label label-default"
+                                              rendered="#{app.orderStatusCode eq 'INIT'}"
+                                              value="#{app.orderStatusCode}"/>
+                            </p:column>
+
+                            <!--        Created time -->
+                            <p:column>
+
+                                #{func:getDateTimeStr(app.createdTime)}
+                            </p:column>
+
+                            <!--                            For control code -->
+                            <p:column>
+                                #{app.forcontrolCode}
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                    <!--                    Update refund status -->
+                    <p:confirmDialog styleClass="shadowfix" id="updateRefundStatusDialog"
+                                     message="Cập nhật trạng thái hoàn tiền"
+                                     header=""
+                                     severity="alert"
+                                     widgetVar="updateRefundStatusDialog">
+                        <p:commandButton icon="ui-icon-circle-check" styleClass="btn-green" process="@this"
+                                         id="already_refund" value="Đã hoàn tiền"
+                                         update="panel_center"
+                                         actionListener="#{matchedTransactionController.updateRefundStatus(1)}"
+                                         oncomplete="PF('updateRefundStatusDialog').hide();PF('tableApp').filter();"/>
+                    </p:confirmDialog>
+
+                    <!--                    Handle confirm process -->
+                    <p:confirmDialog styleClass="shadowfix" id="confirmProcessDialog"
+                                     message="Xác nhận xử lý điều chỉnh"
+                                     header="Xác nhận?"
+                                     severity="alert"
+                                     widgetVar="confirmProcessDialog">
+                        <p:commandButton icon="ui-icon-circle-check" styleClass="btn-green" process="@this"
+                                         id="approve" value="Xác nhận"
+                                         update="panel_center"
+                                         actionListener="#{matchedTransactionController.confirmProcess(1)}"
+                                         oncomplete="PF('confirmProcessDialog').hide();PF('tableApp').filter();"/>
+                        <p:commandButton icon="ui-icon-circle-check" styleClass="btn-red" process="@this"
+                                         id="reject"
+                                         value="Từ chối" update="panel_center"
+                                         actionListener="#{matchedTransactionController.confirmProcess(2)}"
+                                         oncomplete="PF('confirmProcessDialog').hide();PF('tableApp').filter();"/>
+                    </p:confirmDialog>
+
+                    <!--                    Handle process transaction-->
+                    <p:confirmDialog styleClass="shadowfix" id="processDialog"
+                                     message=""
+                                     header="Điều chỉnh giao dịch"
+                                     severity="alert"
+                                     widgetVar="processDialog">
+                        <p:commandButton icon="ui-icon-circle-check" styleClass="btn-danger" process="@this"
+                                         id="add" value="Giảm trừ"
+                                         update="panel_center"
+                                         actionListener="#{matchedTransactionController.processTransaction(3)}"
+                                         oncomplete="PF('processDialog').hide();PF('tableApp').filter();"/>
+                    </p:confirmDialog>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+
+
+</html>

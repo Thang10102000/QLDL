@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+>
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <p:outputPanel id="panel_center">
+                <p:panel header="#{PP_MNGAPP.app_info}" styleClass="box-primary">
+                    <p:focus context=":form_main:panel_add_app"/>
+                    <p:outputPanel id="panel_add_app">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                <div class="ui-material">
+                                    <p:inputText maxlength="255" id="app_name" value="#{appsController.mtmpApp.name}" disabled="#{appsController.isDISABLE}" required="true" requiredMessage="#{PP_MNGAPP.app_name_cannot_empty}"/>
+                                    <p:outputLabel for="app_name" value="#{PP_MNGAPP.app_name}"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                <div class="ui-material">
+                                    <p:inputText maxlength="50" id="app_code" value="#{appsController.mtmpApp.code}" validator="ValidatorAlphaNum" validatorMessage="#{PP_MNGAPP.app_code}#{PP_COMMONS.is_not_valid}" disabled="#{appsController.isDISABLE}" required="true" requiredMessage="#{PP_MNGAPP.app_code_cannot_empty}">
+                                        <p:keyFilter regEx="/[a-z0-9_]/i"/>
+                                    </p:inputText>
+                                    <p:outputLabel for="app_code" value="#{PP_MNGAPP.app_code}"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                <div class="ui-material">
+                                    <p:inputText maxlength="5" id="ord" value="#{appsController.mtmpApp.ord}" disabled="#{appsController.isDISABLE}">
+                                        <p:keyFilter regEx="/[0-9_]/i"/>
+                                    </p:inputText>
+                                    <p:outputLabel for="ord" value="#{PP_MNGAPP.app_ord}"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                <div class="ui-material">
+                                    <p:selectOneMenu id="app_status" value="#{appsController.mtmpApp.status}" disabled="#{appsController.isDISABLE}">
+                                        <f:selectItem itemLabel="#{PP_COMMONS.enable}" itemValue="1"/>
+                                        <f:selectItem itemLabel="#{PP_COMMONS.disable}" itemValue="0"/>
+                                    </p:selectOneMenu>
+                                    <p:outputLabel for="app_status" value="#{PP_MNGAPP.app_status}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </p:outputPanel>
+
+                    <p:outputPanel id="pnl_control">
+                        <p:outputPanel rendered="#{not appsController.isDisplayBtnConfirm}">
+                            <p:panelGrid columns="4" layout="grid" styleClass="ui-panelgrid-blank" style="max-width: 600px; margin: auto">
+                                <p:commandButton id="btn_add" rendered="#{appsController.isAllowInsert}" actionListener="#{appsController.changeStateAdd()}" process="@this" styleClass="btn-primary" value="#{PP_COMMONS.add}" update="panel_center" icon="fa fa-plus"/>
+                                <p:commandButton id="btn_copy" rendered="#{appsController.isAllowInsert}" actionListener="#{appsController.changeStateCopy()}" disabled="#{not appsController.isSelectedApp}" process="@this" styleClass=" btn-info" value="#{PP_COMMONS.copy}" update="panel_center" icon="fa fa-clone"/>
+                                <p:commandButton id="btn_edit" rendered="#{appsController.isAllowUpdate}" actionListener="#{appsController.changeStateEdit()}" disabled="#{not appsController.isSelectedApp}" process="@this" styleClass=" btn-warning" value="#{PP_COMMONS.edit}" update="panel_center" icon="fa fa-pencil"/>
+                                <p:commandButton id="btn_del" rendered="#{appsController.isAllowDelete}" actionListener="#{appsController.handleDelete()}" disabled="#{not appsController.isSelectedApp}" process="@this" styleClass=" btn-danger" value="#{PP_COMMONS.del}" update="panel_center" icon="fa fa-trash">
+                                    <p:confirm header="#{PP_COMMONS.delete_dialog_header}" message="#{PP_COMMONS.confirm_delete}"/>
+                                </p:commandButton>
+                            </p:panelGrid>
+                        </p:outputPanel>
+
+                        <p:outputPanel rendered="#{appsController.isDisplayBtnConfirm}">
+                            <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank" style="max-width: 300px; margin: auto">
+                                <p:commandButton id="btn_ok" actionListener="#{appsController.handleOK()}" process="@this :form_main:panel_add_app" styleClass=" btn-success" value="#{PP_COMMONS.ok}" update="panel_center" icon="ui-icon fa fa-check-circle"/>
+                                <p:commandButton id="btn_cancel" actionListener="#{appsController.handleCancel()}" process="@this" styleClass=" back" value="#{PP_COMMONS.back}" update="panel_center" icon="fa fa-undo">
+                                    <p:resetInput target="panel_add_app"/>
+                                </p:commandButton>
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:outputPanel>
+                </p:panel>
+
+                <p:panel header="#{PP_MNGAPP.app_list}" styleClass="box-info" style="margin-top: 10px;">
+                    <p:dataTable id="table_app" widgetVar="tableApp" value="#{appsController.mlistApp}" var="app"
+                                 emptyMessage="#{PP_COMMONS.empty_message}" disabledSelection="#{appsController.isDisplayBtnConfirm}" selectionMode="multiple" rowKey="#{app.appId}" selection="#{appsController.mselectedApp}"
+                                 styleClass="no-border">
+
+                        <p:ajax event="rowSelect" listener="#{appsController.onRowSelect}" process="@this" update=":form_main:panel_add_app" resetValues="true" />
+                        <p:ajax event="rowUnselect" listener="#{appsController.onRowSelect}" update=":form_main:panel_add_app" resetValues="true"/>
+
+                        <p:column headerText="#{PP_MNGAPP.app_code}" >
+                            #{app.code}
+                        </p:column>
+
+                        <p:column headerText="#{PP_MNGAPP.app_name}" priority="1" >
+                            #{app.name}
+                        </p:column>
+
+                        <p:column headerText="#{PP_MNGAPP.app_ord}" priority="3" >
+                            #{app.ord}
+                        </p:column>
+
+                        <p:column headerText="#{PP_MNGAPP.app_status}" priority="2" >
+                            <h:outputText styleClass="label label-success" rendered="#{app.status eq '1'}" value="#{PP_COMMONS.enable}"/>
+                            <h:outputText styleClass="label label-warning" rendered="#{app.status ne '1'}" value="#{PP_COMMONS.disable}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </div>
+    </ui:composition>
+</h:body>
+</html>

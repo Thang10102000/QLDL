@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:func="http://telsoft.com.vn/functions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:o="http://omnifaces.org/ui">
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:panel header="#{PP_LOGCHANGE.filter_option}" styleClass="box-primary">
+                    <h:panelGroup id="panel_filter_options" layout="grid" columns="6"
+                                  styleClass="ui-panelgrid-blank">
+                        <div class="ui-g">
+                            <!--                            Partner -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="partner_code" value="Mã đối tác"/>
+                                    <p:selectOneMenu maxlength="22" id="partner_code"
+                                                     value="#{fileUploadController.partnerCode}">
+                                        <f:selectItem itemLabel="--TẤT CẢ--" itemValue="All"/>
+                                        <f:selectItems
+                                                value="#{fileUploadController.partnerCodeList}"
+                                                var="it"
+                                                itemLabel="#{it}" itemValue="#{it}"/>
+                                    </p:selectOneMenu>
+                                    <p:message for="partner_code"/>
+                                </div>
+                            </div>
+
+                            <!--                            Ngày bắt đầu -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="from_date" value="#{PP_COMMONS.sta_date}"/>
+                                    <p:calendar value="#{fileUploadController.fromDate}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="from_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="to_date"/>
+                                </div>
+                            </div>
+                            <!--                            Ngày kết thúc -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="to_date" value="#{PP_COMMONS.end_date}"/>
+                                    <p:calendar value="#{fileUploadController.toDate}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="to_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="to_date"/>
+                                    <o:validateOrder type="lte" components="from_date to_date"
+                                                     message="#{PP_COMMONS.sta_end_date_error}"
+                                                     showMessageFor="from_date"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-6 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="material">
+                                        <p:outputLabel for="search_field" value="Search Input"/>
+                                        <p:inputText id="search_field"
+                                                     value="#{fileUploadController.searchInput}"
+                                        >
+                                        </p:inputText>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </h:panelGroup>
+                </p:panel>
+
+
+                <h:panelGroup id="pnl_control">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-4"></div>
+
+                        <!--                        Search -->
+
+
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton process="@this :form_main:panel_filter_options" id="btn_filter"
+                                             actionListener="#{fileUploadController.handleSearch}"
+                                             update="panel_filter_options, table_app, pnl_control"
+                                             value="Tìm kiếm" icon="fa fa-search"
+                                             styleClass="btn-primary" style="width: auto;"
+                                             oncomplete="clearFilters('tableApp');"/>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4">
+                        </div>
+                    </div>
+
+
+                </h:panelGroup>
+
+
+                <!--                Data table -->
+                <div class="grid-padding">
+
+                    <p:panel header="Danh sách file đã upload" styleClass="box-info"
+                             rendered="#{not fileUploadController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="true"
+                                     id="table_app"
+                                     widgetVar="tableApp"
+                                     value="#{fileUploadController.mlistApp}"
+                                     var="app"
+                                     rowIndexVar="rowIndex"
+                                     emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{fileUploadController.isDisplayBtnConfirm}"
+                                     rowKey="#{app.profileID}"
+                                     rowSelectMode="checkbox"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks}
+                                      {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,#{fileUploadController.mlistApp.size()}"
+                                     paginator="true"
+                                     rows="10"
+                                     styleClass="material"
+                                     tableStyle="table-layout: auto;"
+                                     resizableColumns="true">
+
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column rowspan="2" colspan="2" style="font-size: large"
+                                              headerText="Total: #{fileUploadController.mlistApp.size()}"/>
+                                    <p:column colspan="1" headerText="Partner Code"
+                                              sortBy="#{app.partnerCode}" filterBy="#{app.partnerCode}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="User Upload" sortBy="#{app.user_name}"
+                                              filterBy="#{app.user_name}" filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="File Name" sortBy="#{app.file_name}"
+                                              filterBy="#{app.file_name}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Directory"
+                                              sortBy="#{app.data_dir}"
+                                              filterBy="#{app.data_dir}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Upload Time"
+                                              sortBy="#{app.insert_datetime}"/>
+                                </p:row>
+                            </p:columnGroup>
+
+                            <!--                            <p:column selectionMode="multiple"/>-->
+                            <!--                            STT -->
+                            <p:column sortBy="#{rowIndex}" filterBy="#{rowIndex}"
+                                      filterMatchMode="contains" colspan="2">
+                                #{rowIndex + 1}
+                            </p:column>
+
+                            <!--                            Partner Code-->
+                            <p:column>
+                                #{app.partnerCode}
+                            </p:column>
+
+                            <!--                            User Upload -->
+                            <p:column>
+                                #{app.user_name}
+                            </p:column>
+
+                            <!--                            File Name -->
+                            <p:column>
+                                #{app.file_name}
+                            </p:column>
+
+                            <!--        Directory -->
+                            <p:column>
+                                #{app.data_dir}
+                            </p:column>
+
+                            <!--        Upload Time -->
+                            <p:column>
+                                #{func:getDateTimeStr(app.insert_datetime)}
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+
+</html>

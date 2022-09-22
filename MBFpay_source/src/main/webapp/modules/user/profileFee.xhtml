@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:sticky target="pnl_control"/>
+                <h:panelGroup id="pnl_control">
+                    <h:panelGroup rendered="#{not profileFeeController.isDisplayBtnConfirm}">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_add" rendered="#{profileFeeController.isAllowInsert}"
+                                                 actionListener="#{profileFeeController.changeStateAdd()}"
+                                                 process="@this" styleClass="btn-primary" value="#{PP_COMMONS.add}"
+                                                 update="panel_center" icon="fa fa-plus"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-8"></div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_del2"
+                                                 rendered="#{profileFeeController.isAllowDelete and not profileFeeController.isDisplayBtnConfirm}"
+                                                 actionListener="#{profileFeeController.handleDelete()}"
+                                                 disabled="#{not profileFeeController.isSelectedApp}" process="@this"
+                                                 styleClass="btn-danger" value="#{PP_COMMONS.del}" update="panel_center"
+                                                 icon="fa fa-trash">
+                                    <p:confirm header="#{PP_COMMONS.delete_dialog_header}"
+                                               message="#{PP_COMMONS.confirm_delete}"/>
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{profileFeeController.isDisplayBtnConfirm}">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-8"></div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_cancel" rendered="#{profileFeeController.isDisplayBtnConfirm}"
+                                                 actionListener="#{profileFeeController.handleCancel()}" process="@this"
+                                                 value="#{PP_COMMONS.back}" update="panel_center" icon="fa fa-undo">
+                                    <p:resetInput target="panel_add_app"/>
+                                </p:commandButton>
+                            </div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_ok" rendered="#{profileFeeController.isDisplayBtnConfirm}"
+                                                 actionListener="#{profileFeeController.handleOK()}"
+                                                 process="@this :form_main:panel_add_app" styleClass=" btn-success"
+                                                 value="#{PP_COMMONS.ok}" update="panel_center"
+                                                 icon="fa fa-check-circle"/>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </h:panelGroup>
+                <div class="ui-g">
+                    <div class="ui-g-12 ui-md-12 ui-lg-4 no-pad-y">
+                        <p:panel header="#{PP_PROFILEFEE.app_list}" styleClass="box-info"
+                                 rendered="#{not profileFeeController.isDisplayBtnConfirm}">
+                            <p:dataTable paginatorPosition="bottom" paginatorAlwaysVisible="true"
+                                         id="table_app1" widgetVar="tableApp1" value="#{profileFeeController.mlistProfilePartner}"
+                                         var="app" emptyMessage="#{PP_COMMONS.empty_message}" disabledSelection="#{profileFeeController.isDisplayBtnConfirm}"
+                                         rowKey="#{app.profile_id}" selection="#{profileFeeController.mselectedProfilePartner}" rowSelectMode="checkbox" selectionMode="single"
+                                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15,20,#{profileFeeController.mlistProfilePartner.size()}" paginator="true" rows="10" styleClass="material no-border"
+                                         tableStyle="table-layout: auto;" resizableColumns="true">
+                                <p:ajax global="false" event="rowSelectCheckbox" listener="#{profileFeeController.onRowSelect()}"
+                                        process="@this" update=":form_main:panel_center"/>
+                                <p:ajax global="false" event="rowUnselectCheckbox" listener="#{profileFeeController.onRowSelect()}"
+                                        process="@this" update=":form_main:panel_center"/>
+                                <p:ajax global="false" event="rowSelect" listener="#{profileFeeController.onRowSelect()}"
+                                        process="@this" update=":form_main:panel_center"/>
+                                <p:ajax global="false" event="rowUnselect" listener="#{profileFeeController.onRowSelect()}"
+                                        process="@this" update=":form_main:panel_center"/>
+                                <p:ajax global="false" event="toggleSelect" process="@this" update="@this"/>
+                                <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                                <p:ajax global="false" event="sort"/>
+                                <p:ajax global="false" event="page"/>
+
+                                <p:column selectionMode="single" style="width:16px;text-align:center"/>
+
+                                <p:column headerText="#{PP_PROFILEPARTNER.code}" sortBy="#{app.code}" filterBy="#{app.code}"
+                                          filterMatchMode="contains">
+                                    #{app.code}
+                                </p:column>
+                                <p:column headerText="#{PP_PROFILEPARTNER.status}" sortBy="#{app.status}"
+                                          filterBy="#{app.status}" filterMatchMode="contains">
+                                    <f:facet name="filter">
+                                        <p:selectOneMenu onchange="PF('tableApp1').filter()" styleClass="custom-filter">
+                                            <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                            <f:selectItem itemLabel="#{PP_COMMONS.enable}" itemValue="1"/>
+                                            <f:selectItem itemLabel="#{PP_COMMONS.disable}" itemValue="0"/>
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                    <h:outputText styleClass="label label-success" rendered="#{app.status eq '1'}"
+                                                  value="#{PP_COMMONS.enable}"/>
+                                    <h:outputText styleClass="label label-warning" rendered="#{app.status ne '1'}"
+                                                  value="#{PP_COMMONS.disable}"/>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                    </div>
+                    <div class="ui-g-12 ui-md-12 ui-lg-8 no-pad-y">
+                        <div class="grid-padding">
+                            <p:panel header="#{PP_PROFILEFEE.app_list}" styleClass="box-info"
+                                     rendered="#{not profileFeeController.isDisplayBtnConfirm}">
+                                <p:dataTable paginatorPosition="bottom" paginatorAlwaysVisible="true"
+                                             id="table_app" widgetVar="tableApp" value="#{profileFeeController.mlistApp}" var="app"
+                                             emptyMessage="#{PP_COMMONS.empty_message}" disabledSelection="#{profileFeeController.isDisplayBtnConfirm}"
+                                             rowKey="#{app.fee_id}" selection="#{profileFeeController.mselectedApp}" rowSelectMode="checkbox"
+                                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                             rowsPerPageTemplate="5,10,15,20,#{profileFeeController.mselectedApp.size()}" paginator="true" rows="10" styleClass="material no-border"
+                                             tableStyle="table-layout: auto;" resizableColumns="true">
+
+                                    <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                            update=":form_main:pnl_control"/>
+                                    <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                            update=":form_main:pnl_control"/>
+                                    <p:ajax global="false" event="toggleSelect" process="table_app"
+                                            update=":form_main:pnl_control"/>
+                                    <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                                    <p:ajax global="false" event="sort"/>
+                                    <p:ajax global="false" event="page"/>
+
+                                    <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                                    <p:column headerText="#{PP_PROFILEFEE.fee_type}" sortBy="#{app.fee_type}"
+                                              filterBy="#{app.fee_type}" filterMatchMode="contains">
+                                        <f:facet name="filter">
+                                            <p:selectOneMenu onchange="PF('tableApp').filter()"
+                                                             styleClass="custom-filter">
+                                                <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                                <f:selectItems value="#{profileFeeController.payTypeList}"
+                                                               var="it"
+                                                               itemLabel="#{it.pay_type_name}"
+                                                              itemValue="#{it.pay_type}"/>
+
+                                            </p:selectOneMenu>
+                                        </f:facet>
+                                        <h:outputText value="#{profileFeeController.getPayTypeName(app.fee_type)}"/>
+
+                                    </p:column>
+                                    <p:column headerText="#{PP_PROFILEFEE.fee_amount1}" sortBy="#{app.fee_amount1}"
+                                              filterBy="#{app.fee_amount1}" filterMatchMode="contains">
+                                        <h:outputText styleClass="label label-warning"
+                                                      rendered="#{app.fee_kind1 eq '0'}"
+                                                      value="#{app.fee_amount1}%"/>
+                                        <h:outputText styleClass="label label-success"
+                                                      rendered="#{app.fee_kind1 eq '1'}"
+                                                      value="#{app.fee_amount1}"/>
+                                    </p:column>
+                                    <p:column headerText="#{PP_PROFILEFEE.fee_amount2}" sortBy="#{app.fee_amount2}"
+                                              filterBy="#{app.fee_amount2}" filterMatchMode="contains">
+                                        <h:outputText styleClass="label label-warning"
+                                                      rendered="#{app.fee_kind2 eq '0'}"
+                                                      value="#{app.fee_amount2}%"/>
+                                        <h:outputText styleClass="label label-success"
+                                                      rendered="#{app.fee_kind2 eq '1'}"
+                                                      value="#{app.fee_amount2}"/>
+                                    </p:column>
+                                    <p:column headerText="#{PP_PROFILEFEE.status}" sortBy="#{app.status}"
+                                              filterBy="#{app.status}" filterMatchMode="contains">
+                                        <h:outputText styleClass="label label-success" rendered="#{app.status eq '1'}"
+                                                      value="#{PP_COMMONS.enable}"/>
+                                        <h:outputText styleClass="label label-warning" rendered="#{app.status ne '1'}"
+                                                      value="#{PP_COMMONS.disable}"/>
+                                    </p:column>
+
+                                    <p:column width="80" style="text-align: center !important;">
+                                        <p:commandLink id="btn_view"
+                                                       actionListener="#{profileFeeController.changeStateView(app)}"
+                                                       process="@this" styleClass="fa fa-eye"
+                                                       update=":form_main:panel_center"
+                                                       resetValues="true"/>&nbsp;&nbsp;
+                                        <p:tooltip for="btn_view" value="#{PP_COMMONS.view}"/>
+
+                                        <p:commandLink id="btn_edit" rendered="#{profileFeeController.isAllowUpdate}"
+                                                       actionListener="#{profileFeeController.changeStateEdit(app)}"
+                                                       process="@this" styleClass="fa fa-pencil"
+                                                       update=":form_main:panel_center"/>&nbsp;&nbsp;
+                                        <p:tooltip for="btn_edit" value="#{PP_COMMONS.edit}"/>
+
+                                        <p:commandLink id="btn_copy"
+                                                       rendered="#{profileFeeController.isAllowInsert and not profileFeeController.isDisplayBtnConfirm}"
+                                                       actionListener="#{profileFeeController.changeStateCopy(app)}"
+                                                       process="@this" styleClass="fa fa-clone"
+                                                       update=":form_main:panel_center"/>&nbsp;&nbsp;
+                                        <p:tooltip for="btn_copy" value="#{PP_COMMONS.copy}"/>
+
+                                        <p:commandLink id="btn_del"
+                                                       rendered="#{profileFeeController.isAllowDelete and not profileFeeController.isDisplayBtnConfirm}"
+                                                       actionListener="#{profileFeeController.handleDelete(app)}"
+                                                       process="@this" styleClass="fa fa-trash"
+                                                       update=":form_main:panel_center">
+                                            <p:confirm header="#{PP_COMMONS.delete_dialog_header}"
+                                                       message="#{PP_COMMONS.confirm_delete}"/>
+                                        </p:commandLink>
+                                        <p:tooltip for="btn_del" value="#{PP_COMMONS.del}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>
+                        </div>
+                    </div>
+
+                    <p:panel header="#{PP_PROFILEFEE.app_info}" styleClass="box-primary"
+                             rendered="#{profileFeeController.isDisplayBtnConfirm}">
+                        <p:focus context=":form_main:panel_add_app"/>
+                        <h:panelGroup id="panel_add_app">
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="profile_id" value="#{PP_PROFILEFEE.profile_id}"/>
+                                        <p:selectOneMenu maxlength="22" id="profile_id"
+                                                         value="#{profileFeeController.mtmpApp.profile_id}"
+                                                         disabled="true" required="true">
+                                            <f:selectItem itemLabel="--Lựa chọn--" itemValue=""/>
+                                            <f:selectItems value="#{profileFeeController.mlistProfilePartner}" var="it"
+                                                           itemLabel="#{it.code}" itemValue="#{it.profile_id}"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="profile_id"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="fee_type" value="#{PP_PROFILEFEE.fee_type}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="3"
+                                                         id="fee_type" value="#{profileFeeController.mtmpApp.fee_type}"
+                                                         disabled="#{profileFeeController.isDISABLE}">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItems value="#{profileFeeController.payTypeList}"
+                                                           var="it"
+                                                           itemLabel="#{it.pay_type_name}"
+                                                           itemValue="#{it.pay_type}"/>
+
+                                            <!--<p:ajax global="false" event="change" listener="#{profileFeeController.onBranchChange}" update="district"/>-->
+                                        </p:selectOneMenu>
+                                        <p:message for="fee_type"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="fee_kind1" value="#{PP_PROFILEFEE.fee_kind1}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="3"
+                                                         id="fee_kind1"
+                                                         value="#{profileFeeController.mtmpApp.fee_kind1}"
+                                                         disabled="#{profileFeeController.isDISABLE}">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItem itemLabel="#{PP_PROFILEFEE.label_fee_kind1_0}"
+                                                          itemValue="#{PP_PROFILEFEE.value_fee_kind1_0}"/>
+                                            <f:selectItem itemLabel="#{PP_PROFILEFEE.label_fee_kind1_1}"
+                                                          itemValue="#{PP_PROFILEFEE.value_fee_kind1_1}"/>
+
+                                            <!--<p:ajax global="false" event="change" listener="#{profileFeeController.onBranchChange}" update="district"/>-->
+                                        </p:selectOneMenu>
+                                        <p:message for="fee_kind1"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="fee_amount1" value="#{PP_PROFILEFEE.fee_amount1}"/>
+                                        <p:inputText maxlength="100" id="fee_amount1"
+                                                     value="#{profileFeeController.mtmpApp.fee_amount1}"
+                                                     disabled="#{profileFeeController.isDISABLE}">
+
+                                        </p:inputText>
+                                        <p:message for="fee_amount1"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="fee_kind2" value="#{PP_PROFILEFEE.fee_kind2}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="3"
+                                                         id="fee_kind2"
+                                                         value="#{profileFeeController.mtmpApp.fee_kind2}"
+                                                         disabled="#{profileFeeController.isDISABLE}">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItem itemLabel="#{PP_PROFILEFEE.label_fee_kind2_0}"
+                                                          itemValue="#{PP_PROFILEFEE.value_fee_kind2_0}"/>
+                                            <f:selectItem itemLabel="#{PP_PROFILEFEE.label_fee_kind2_1}"
+                                                          itemValue="#{PP_PROFILEFEE.value_fee_kind2_1}"/>
+
+                                            <!--<p:ajax global="false" event="change" listener="#{profileFeeController.onBranchChange}" update="district"/>-->
+                                        </p:selectOneMenu>
+                                        <p:message for="fee_kind2"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="fee_amount2" value="#{PP_PROFILEFEE.fee_amount2}"/>
+                                        <p:inputText maxlength="100" id="fee_amount2"
+                                                     value="#{profileFeeController.mtmpApp.fee_amount2}"
+                                                     disabled="#{profileFeeController.isDISABLE}">
+
+                                        </p:inputText>
+                                        <p:message for="fee_amount2"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="status" value="#{PP_PROFILEFEE.status}"/>
+                                        <p:selectOneMenu maxlength="1" id="status"
+                                                         value="#{profileFeeController.mtmpApp.status}"
+                                                         disabled="#{profileFeeController.isDISABLE}" required="true">
+                                            <f:selectItem itemLabel="#{PP_COMMONS.enable}" itemValue="1"/>
+                                            <f:selectItem itemLabel="#{PP_COMMONS.disable}" itemValue="0"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="status"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </p:panel>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+</html>

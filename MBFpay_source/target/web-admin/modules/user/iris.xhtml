@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:func="http://telsoft.com.vn/functions"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:o="http://omnifaces.org/ui">
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:panel header="#{PP_LOGCHANGE.filter_option}" styleClass="box-primary">
+                    <h:panelGroup id="panel_filter_options" layout="grid" columns="6"
+                                  styleClass="ui-panelgrid-blank">
+                        <div class="ui-g">
+
+                            <!--                            Type -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="ui-material">
+                                    <p:outputLabel for="file_type" value="File Type"/>
+                                    <p:selectCheckboxMenu id="file_type"
+                                                          value="#{irisTransactionController.selectedTypes}"
+                                                          multiple="true" filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="Data" itemValue="data"/>
+                                        <f:selectItem itemLabel="Mã thẻ" itemValue="mã thẻ"/>
+                                        <f:selectItem itemLabel="TT trả sau" itemValue="tt trả sau"/>
+                                        <f:selectItem itemLabel="Topup" itemValue="topup"/>
+                                    </p:selectCheckboxMenu>
+                                    <p:message for="file_type"/>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-6 ui-lg-9">
+                            </div>
+
+                            <!--                            Transaction Date From -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="start_date" value="From Date"/>
+                                    <p:calendar value="#{irisTransactionController.transDateFrom}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="start_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="start_date"/>
+                                </div>
+                            </div>
+
+                            <!--                            Transaction Date To -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                                <div class="material">
+                                    <p:outputLabel for="end_date" value="To Date"/>
+                                    <p:calendar value="#{irisTransactionController.transDateTo}"
+                                                pattern="dd/MM/yyyy"
+                                                mask="true" id="end_date" mode="popup" navigator="true"
+                                    />
+                                    <p:message for="end_date"/>
+                                    <o:validateOrder type="lte" components="start_date end_date"
+                                                     message="#{PP_COMMONS.sta_end_date_error}"
+                                                     showMessageFor="start_date"/>
+                                </div>
+                            </div>
+
+                            <!--                            Search by ID -->
+                            <div class="ui-g-12 ui-md-6 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                    <div class="material">
+                                        <p:outputLabel for="search_field" value="Search Input"/>
+                                        <p:inputText id="search_field"
+                                                     placeholder="Enter TransactionID/TransactionRef/..."
+                                                     value="#{irisTransactionController.searchInput}"
+                                        >
+                                        </p:inputText>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </h:panelGroup>
+                </p:panel>
+
+
+                <h:panelGroup id="pnl_control">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-4"></div>
+
+                        <!--                        Search -->
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton process="@this :form_main:panel_filter_options" id="btn_filter"
+                                             actionListener="#{irisTransactionController.handleSearch}"
+                                             update="panel_filter_options, table_app, pnl_control"
+                                             value="Tìm kiếm" icon="fa fa-search"
+                                             styleClass="btn-primary" style="width: auto;"
+                                             oncomplete="clearFilters('tableApp');"/>
+                        </div>
+
+                        <!--                        Download Excel -->
+                        <div class="ui-g-12 ui-md-12 ui-lg-2">
+                            <p:commandButton value="#{PP_MNGREPORT.download_excel}" ajax="false"
+                                             onclick="PrimeFaces.monitorDownload(downloadStart, downloadStop);"
+                                             styleClass="btn-auto btn-success" icon="fa fa-file-excel-o"
+                                             disabled="#{irisTransactionController.mlistApp.size() == 0}">
+                                <p:fileDownload
+                                        value="#{irisTransactionController.exportFile()}"/>
+                            </p:commandButton>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4">
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+
+                <!--                Data table -->
+                <div class="grid-padding">
+
+                    <p:panel header="Danh sách giao dịch IRIS" styleClass="box-info"
+                             rendered="#{not irisTransactionController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="true"
+                                     id="table_app"
+                                     widgetVar="tableApp"
+                                     value="#{irisTransactionController.mlistApp}"
+                                     var="app"
+                                     rowIndexVar="rowIndex"
+                                     emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{irisTransactionController.isDisplayBtnConfirm}"
+                                     rowKey="#{app.id}"
+                                     selection="#{irisTransactionController.mselectedApp}"
+                                     rowSelectMode="checkbox"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks}
+                                      {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,#{irisTransactionController.mlistApp.size()}"
+                                     paginator="true"
+                                     rows="10"
+                                     styleClass="material"
+                                     tableStyle="table-layout: auto;"
+                                     resizableColumns="true"
+                                     editable="true"
+                                     editMode="cell">
+
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+
+                            <p:columnGroup type="header">
+                                <p:row>
+                                    <p:column rowspan="2" colspan="2" style="font-size: large"
+                                              headerText="Total: #{irisTransactionController.mlistApp.size()}"/>
+
+                                    <p:column colspan="1" headerText="Transaction ID"
+                                              sortBy="#{app.transactionID}" filterBy="#{app.transactionID}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Type" sortBy="#{app.type}"
+                                              filterBy="#{app.type}" filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Order Number"
+                                              sortBy="#{app.orderNumber}"
+                                              filterBy="#{app.orderNumber}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Product" sortBy="#{app.product}"
+                                              filterBy="#{app.product}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Amount"
+                                              sortBy="#{app.amount}"
+                                              filterBy="#{app.amount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Quantity" sortBy="#{app.quantity}"
+                                              filterBy="#{app.quantity}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Grand Amount" sortBy="#{app.grandAmount}"
+                                              filterBy="#{app.grandAmount}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Transaction Date" sortBy="#{app.transactionDateTime}"
+                                              filterBy="#{app.transactionDateTime}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Status" sortBy="#{app.status}"
+                                              filterBy="#{app.status}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Export Date"
+                                              sortBy="#{app.exportDateTime}"
+                                              filterBy="#{app.exportDateTime}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="File Name" sortBy="#{app.fileName}"
+                                              filterBy="#{app.fileName}"
+                                              filterMatchMode="contains"/>
+                                    <p:column colspan="1" headerText="Import Date"
+                                              sortBy="#{app.importDateTime}"
+                                              filterBy="#{app.importDateTime}"
+                                              filterMatchMode="contains"/>
+                                </p:row>
+                            </p:columnGroup>
+
+                            <p:column selectionMode="multiple"/>
+                            <!--                            STT -->
+                            <p:column sortBy="#{rowIndex}" filterBy="#{rowIndex}" filterMatchMode="contains">
+                                #{rowIndex + 1}
+                            </p:column>
+
+                            <p:column>
+                                <h:outputText value="#{app.transactionID}" style="font-weight:bold"/>
+                            </p:column>
+
+                            <p:column>
+                                #{app.type}
+                            </p:column>
+
+                            <p:column>
+                                #{app.orderNumber}
+                            </p:column>
+
+                            <p:column>
+                                #{app.product}
+                            </p:column>
+
+                            <p:column>
+                                #{app.amount}
+                            </p:column>
+
+                            <p:column>
+                                #{app.quantity}
+                            </p:column>
+
+                            <p:column>
+                                #{app.grandAmount}
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.transactionDateTime)}
+                            </p:column>
+
+                            <p:column>
+                                #{app.status}
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.exportDateTime)}
+                            </p:column>
+
+                            <p:column>
+                                #{app.fileName}
+                            </p:column>
+
+                            <p:column>
+                                #{func:getDateTimeStr(app.importDateTime)}
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+
+
+</html>

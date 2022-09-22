@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:func="http://telsoft.com.vn/functions"
+>
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:sticky target="pnl_control"/>
+                <h:panelGroup id="pnl_control">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12 ui-lg-8 no-pad-y">
+                            <p:panel
+                                    header="#{PP_FILEUPLOAD.upload_file}"
+                                    id="upload_file" styleClass="pnl-blue">
+                                <p:fileUpload fileUploadListener="#{uploadAdjustedFileController.handleFileUpload}"
+                                              mode="advanced"
+                                              process="@this :form_main:pnl_control"
+                                              dragDropSupport="false"
+                                              update=":form_main:panel_center table_app"
+                                              sizeLimit="10485760" fileLimit="1"
+                                              allowTypes="/(\.|\/)(txt|csv|xls|xlsx|zip|gzip)$/i"
+                                              label="#{PP_FILEUPLOAD.select_file}"
+                                              uploadLabel="#{PP_FILEUPLOAD.upload}"
+                                              cancelLabel="#{PP_COMMONS.cancel}"
+                                              invalidSizeMessage="#{PP_FILEUPLOAD.invalidSizeMessage}"
+                                              invalidFileMessage="#{PP_FILEUPLOAD.invalidFileMessage}"
+                                              fileLimitMessage="#{PP_FILEUPLOAD.fileLimitMessage}"/>
+                            </p:panel>
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+                <!--                uploaded file list -->
+                <div class="grid-padding">
+                    <p:panel header="#{PP_FILEUPLOAD.app_list}" styleClass="box-info"
+                             rendered="#{not fileUploadController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom" paginatorAlwaysVisible="true"
+                                     id="table_app" widgetVar="tableApp"
+                                     value="#{fileUploadController.mlistApp}"
+                                     var="app"
+                                     emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{fileUploadController.isDisplayBtnConfirm}"
+                                     rowKey="#{app.rowid}"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,20,30,#{fileUploadController.mlistApp.size()}"
+                                     paginator="true" rows="10" styleClass="material no-border"
+                                     tableStyle="table-layout: auto;" resizableColumns="true">
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+
+                            <!--                            <p:column headerText="Partner Code" sortBy="#{app.partnerCode}"-->
+                            <!--                                      filterBy="#{app.partnerCode}"-->
+                            <!--                                      filterMatchMode="contains">#{app.partnerCode}</p:column>-->
+                            <!--                            <p:column headerText="User Upload" sortBy="#{app.user_name}"-->
+                            <!--                                      filterBy="#{app.user_name}"-->
+                            <!--                                      filterMatchMode="contains">#{app.user_name}</p:column>-->
+                            <!--                            <p:column headerText="File Name" sortBy="#{app.file_name}"-->
+                            <!--                                      filterBy="#{app.file_name}"-->
+                            <!--                                      filterMatchMode="contains">#{app.file_name}</p:column>-->
+                            <!--                            <p:column headerText="Directory" sortBy="#{app.data_dir}"-->
+                            <!--                                      filterBy="#{app.data_dir}"-->
+                            <!--                                      filterMatchMode="contains">#{app.data_dir}</p:column>-->
+                            <!--                            <p:column-->
+                            <!--                                    headerText="Upload Time"-->
+                            <!--                                    sortBy="#{app.insert_datetime}">#{func:getDateTimeStr(app.insert_datetime)}-->
+                            <!--                            </p:column>-->
+                        </p:dataTable>
+                    </p:panel>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+</html>

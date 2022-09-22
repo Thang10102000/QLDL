@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:pe="http://primefaces.org/ui/extensions"
+      xmlns:func="http://telsoft.com.vn/functions"
+>
+<h:head>
+</h:head>
+<h:body>
+    <ui:composition>
+        <div class="ui-fluid">
+            <h:panelGroup id="panel_center">
+                <p:sticky target="pnl_control"/>
+                <h:panelGroup id="pnl_control">
+                    <h:panelGroup rendered="#{not sourceDataController.isDisplayBtnConfirm}">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_add" rendered="#{sourceDataController.isAllowInsert}"
+                                                 actionListener="#{sourceDataController.changeStateAdd()}"
+                                                 process="@this" styleClass="btn-primary" value="#{PP_COMMONS.add}"
+                                                 update="panel_center" icon="fa fa-plus"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-8"></div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_del2"
+                                                 rendered="#{sourceDataController.isAllowDelete and not sourceDataController.isDisplayBtnConfirm}"
+                                                 actionListener="#{sourceDataController.handleDelete()}"
+                                                 disabled="#{not sourceDataController.isSelectedApp}" process="@this"
+                                                 styleClass="btn-danger" value="#{PP_COMMONS.del}" update="panel_center"
+                                                 icon="fa fa-trash">
+                                    <p:confirm header="#{PP_COMMONS.delete_dialog_header}"
+                                               message="#{PP_COMMONS.confirm_delete}"/>
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{sourceDataController.isDisplayBtnConfirm}">
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-8"></div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_cancel" rendered="#{sourceDataController.isDisplayBtnConfirm}"
+                                                 actionListener="#{sourceDataController.handleCancel()}" process="@this"
+                                                 value="#{PP_COMMONS.back}" update="panel_center" icon="fa fa-undo">
+                                    <p:resetInput target="panel_add_app"/>
+                                </p:commandButton>
+                            </div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-2">
+                                <p:commandButton id="btn_ok" rendered="#{sourceDataController.isDisplayBtnConfirm}"
+                                                 actionListener="#{sourceDataController.handleOK()}"
+                                                 process="@this :form_main:panel_add_app" styleClass=" btn-success"
+                                                 value="#{PP_COMMONS.ok}" update="panel_center"
+                                                 icon="fa fa-check-circle"/>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </h:panelGroup>
+
+                <div class="grid-padding">
+                    <p:panel header="#{PP_SOURCEDATA.app_list}" styleClass="box-info"
+                             rendered="#{not sourceDataController.isDisplayBtnConfirm}">
+                        <p:dataTable paginatorPosition="bottom" paginatorAlwaysVisible="true"
+                                     id="table_app" widgetVar="tableApp" value="#{sourceDataController.mlistApp}"
+                                     var="app" emptyMessage="#{PP_COMMONS.empty_message}"
+                                     disabledSelection="#{sourceDataController.isDisplayBtnConfirm}"
+                                     rowKey="#{app.source_id}" selection="#{sourceDataController.mselectedApp}"
+                                     rowSelectMode="checkbox"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15,#{sourceDataController.mlistApp.size()}"
+                                     paginator="true" rows="10" styleClass="material no-border"
+                                     tableStyle="table-layout: auto;" resizableColumns="true">
+
+                            <p:ajax global="false" event="rowSelectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="rowUnselectCheckbox" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="toggleSelect" process="table_app"
+                                    update=":form_main:pnl_control"/>
+                            <p:ajax global="false" event="filter" ignoreAutoUpdate="true"/>
+                            <p:ajax global="false" event="sort"/>
+                            <p:ajax global="false" event="page"/>
+
+                            <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                            <p:column headerText="#{PP_SOURCEDATA.time}" sortBy="#{app.time}" filterBy="#{app.time}"
+                                      filterMatchMode="contains">
+                                #{func:getTimeStr(app.time)}
+                            </p:column>
+
+                            <p:column headerText="#{PP_SOURCEDATA.compress_data}" sortBy="#{app.compress_data}"
+                                      filterBy="#{app.compress_data}" filterMatchMode="contains">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('tableApp').filter()" styleClass="custom-filter">
+                                        <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_compress_data_Y}"
+                                                      itemValue="#{PP_SOURCEDATA.value_compress_data_Y}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_compress_data_N}"
+                                                      itemValue="#{PP_SOURCEDATA.value_compress_data_N}"/>
+
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText styleClass="label label-warning" rendered="#{app.compress_data eq 'Y'}"
+                                              value="#{PP_SOURCEDATA.label_compress_data_Y}"/>
+                                <h:outputText styleClass="label label-success" rendered="#{app.compress_data eq 'N'}"
+                                              value="#{PP_SOURCEDATA.label_compress_data_N}"/>
+
+                            </p:column>
+                            <p:column headerText="#{PP_SOURCEDATA.data_dir}" sortBy="#{app.data_dir}"
+                                      filterBy="#{app.data_dir}" filterMatchMode="contains">
+                                #{app.data_dir}
+                            </p:column>
+
+
+                            <p:column headerText="#{PP_SOURCEDATA.data_type}" sortBy="#{app.data_type}"
+                                      filterBy="#{app.data_type}" filterMatchMode="contains">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('tableApp').filter()" styleClass="custom-filter">
+                                        <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_data_type_txt}"
+                                                      itemValue="#{PP_SOURCEDATA.value_data_type_txt}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_data_type_xls}"
+                                                      itemValue="#{PP_SOURCEDATA.value_data_type_xls}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_data_type_xlsx}"
+                                                      itemValue="#{PP_SOURCEDATA.value_data_type_xlsx}"/>
+
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText styleClass="label label-warning" rendered="#{app.data_type eq 'txt'}"
+                                              value="#{PP_SOURCEDATA.label_data_type_txt}"/>
+                                <h:outputText styleClass="label label-success" rendered="#{app.data_type eq 'xls'}"
+                                              value="#{PP_SOURCEDATA.label_data_type_xls}"/>
+                                <h:outputText styleClass="label label-primary" rendered="#{app.data_type eq 'xlsx'}"
+                                              value="#{PP_SOURCEDATA.label_data_type_xlsx}"/>
+
+                            </p:column>
+
+                            <p:column headerText="#{PP_SOURCEDATA.source_code}" sortBy="#{app.source_code}"
+                                      filterBy="#{app.source_code}" filterMatchMode="contains">
+                                <f:facet name="filter">
+                                    <p:selectOneMenu onchange="PF('tableApp').filter()" styleClass="custom-filter">
+                                        <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_ftp}"
+                                                      itemValue="#{PP_SOURCEDATA.value_source_code_ftp}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_sftp}"
+                                                      itemValue="#{PP_SOURCEDATA.value_source_code_sftp}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_email}"
+                                                      itemValue="#{PP_SOURCEDATA.value_source_code_email}"/>
+                                        <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_web}"
+                                                      itemValue="#{PP_SOURCEDATA.value_source_code_web}"/>
+
+                                    </p:selectOneMenu>
+                                </f:facet>
+                                <h:outputText styleClass="label label-warning" rendered="#{app.source_code eq 'ftp'}"
+                                              value="#{PP_SOURCEDATA.label_source_code_ftp}"/>
+                                <h:outputText styleClass="label label-success" rendered="#{app.source_code eq 'sftp'}"
+                                              value="#{PP_SOURCEDATA.label_source_code_sftp}"/>
+                                <h:outputText styleClass="label label-primary" rendered="#{app.source_code eq 'email'}"
+                                              value="#{PP_SOURCEDATA.label_source_code_email}"/>
+                                <h:outputText styleClass="label label-default" rendered="#{app.source_code eq 'web'}"
+                                              value="#{PP_SOURCEDATA.label_source_code_web}"/>
+
+                            </p:column>
+                            <p:column headerText="#{PP_SOURCEDATA.profile_id}"
+                                      sortBy="#{sourceDataController.getProfileCode(app.profile_id)}"
+                                      filterBy="#{sourceDataController.getProfileCode(app.profile_id)}"
+                                      filterMatchMode="contains">
+                                #{sourceDataController.getProfileCode(app.profile_id)}
+                            </p:column>
+                            <p:column headerText="#{PP_SOURCEDATA.status}" sortBy="#{app.status}"
+                                      filterBy="#{app.status}" filterMatchMode="contains">
+                                <h:outputText styleClass="label label-success" rendered="#{app.status eq '1'}"
+                                              value="#{PP_COMMONS.enable}"/>
+                                <h:outputText styleClass="label label-warning" rendered="#{app.status ne '1'}"
+                                              value="#{PP_COMMONS.disable}"/>
+                            </p:column>
+
+                            <p:column width="80" style="text-align: center !important;">
+                                <p:commandLink id="btn_edit" rendered="#{sourceDataController.isAllowUpdate}"
+                                               actionListener="#{sourceDataController.changeStateEdit(app)}"
+                                               process="@this" styleClass="fa fa-pencil"
+                                               update=":form_main:panel_center"/>&nbsp;&nbsp;
+                                <p:tooltip for="btn_edit" value="#{PP_COMMONS.edit}"/>
+
+                                <p:commandLink id="btn_copy"
+                                               rendered="#{sourceDataController.isAllowInsert and not sourceDataController.isDisplayBtnConfirm}"
+                                               actionListener="#{sourceDataController.changeStateCopy(app)}"
+                                               process="@this" styleClass="fa fa-clone"
+                                               update=":form_main:panel_center"/>&nbsp;&nbsp;
+                                <p:tooltip for="btn_copy" value="#{PP_COMMONS.copy}"/>
+
+                                <p:commandLink id="btn_del"
+                                               rendered="#{sourceDataController.isAllowDelete and not sourceDataController.isDisplayBtnConfirm}"
+                                               actionListener="#{sourceDataController.handleDelete(app)}"
+                                               process="@this" styleClass="fa fa-trash"
+                                               update=":form_main:panel_center">
+                                    <p:confirm header="#{PP_COMMONS.delete_dialog_header}"
+                                               message="#{PP_COMMONS.confirm_delete}"/>
+                                </p:commandLink>
+                                <p:tooltip for="btn_del" value="#{PP_COMMONS.del}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+
+                    <p:panel header="#{PP_SOURCEDATA.app_info}" styleClass="box-primary"
+                             rendered="#{sourceDataController.isDisplayBtnConfirm}">
+                        <p:focus context=":form_main:panel_add_app"/>
+                        <h:panelGroup id="panel_add_app">
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="time" value="#{PP_SOURCEDATA.time}"/>
+                                        <p:calendar id="time" pattern="HH:mm:ss" navigator="true" timeOnly="true"
+                                                    mask="true" disabled="#{sourceDataController.isDISABLE}"
+                                                    value="#{sourceDataController.mtmpApp.time}" />
+                                        <p:message for="time"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="compress_data" value="#{PP_SOURCEDATA.compress_data}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="5"
+                                                         id="compress_data" required="true"
+                                                         value="#{sourceDataController.mtmpApp.compress_data}"
+                                                         disabled="#{sourceDataController.isDISABLE}">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_compress_data_Y}"
+                                                          itemValue="#{PP_SOURCEDATA.value_compress_data_Y}"/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_compress_data_N}"
+                                                          itemValue="#{PP_SOURCEDATA.value_compress_data_N}"/>
+
+                                            <!--<p:ajax global="false" event="change" listener="#{sourceDataController.onBranchChange}" update="district"/>-->
+                                        </p:selectOneMenu>
+                                        <p:message for="compress_data"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="data_dir" value="#{PP_SOURCEDATA.data_dir}"/>
+                                        <p:inputText maxlength="500" id="data_dir" required="true"
+                                                     value="#{sourceDataController.mtmpApp.data_dir}"
+                                                     disabled="#{sourceDataController.isDISABLE}">
+
+                                        </p:inputText>
+                                        <p:message for="data_dir"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="data_type" value="#{PP_SOURCEDATA.data_type}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="100"
+                                                         id="data_type" required="true"
+                                                         value="#{sourceDataController.mtmpApp.data_type}"
+                                                         disabled="#{sourceDataController.isDISABLE}">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_data_type_txt}"
+                                                          itemValue="#{PP_SOURCEDATA.value_data_type_txt}"/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_data_type_xls}"
+                                                          itemValue="#{PP_SOURCEDATA.value_data_type_xls}"/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_data_type_xlsx}"
+                                                          itemValue="#{PP_SOURCEDATA.value_data_type_xlsx}"/>
+
+                                            <!--<p:ajax global="false" event="change" listener="#{sourceDataController.onBranchChange}" update="district"/>-->
+                                        </p:selectOneMenu>
+                                        <p:message for="data_type"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="source_code" value="#{PP_SOURCEDATA.source_code}"/>
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" maxlength="50"
+                                                         id="source_code" required="true"
+                                                         value="#{sourceDataController.mtmpApp.source_code}"
+                                                         disabled="#{sourceDataController.isDISABLE}">
+                                            <f:selectItem itemLabel="" itemValue=""/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_ftp}"
+                                                          itemValue="#{PP_SOURCEDATA.value_source_code_ftp}"/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_sftp}"
+                                                          itemValue="#{PP_SOURCEDATA.value_source_code_sftp}"/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_email}"
+                                                          itemValue="#{PP_SOURCEDATA.value_source_code_email}"/>
+                                            <f:selectItem itemLabel="#{PP_SOURCEDATA.label_source_code_web}"
+                                                          itemValue="#{PP_SOURCEDATA.value_source_code_web}"/>
+
+                                            <!--<p:ajax global="false" event="change" listener="#{sourceDataController.onBranchChange}" update="district"/>-->
+                                        </p:selectOneMenu>
+                                        <p:message for="source_code"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="profile_id" value="#{PP_SOURCEDATA.profile_id}"/>
+                                        <p:selectOneMenu maxlength="22" id="profile_id"
+                                                         value="#{sourceDataController.mtmpApp.profile_id}"
+                                                         disabled="#{sourceDataController.isDISABLE}" required="true">
+                                            <f:selectItem itemLabel="--Lựa chọn--" itemValue=""/>
+                                            <f:selectItems value="#{sourceDataController.mlistProfilePartner}" var="it"
+                                                           itemLabel="#{it.code}" itemValue="#{it.profileID}"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="profile_id"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                    <div class="ui-material">
+                                        <p:outputLabel for="status" value="#{PP_SOURCEDATA.status}"/>
+                                        <p:selectOneMenu maxlength="1" id="status"
+                                                         value="#{sourceDataController.mtmpApp.status}"
+                                                         disabled="#{sourceDataController.isDISABLE}" required="true">
+                                            <f:selectItem itemLabel="#{PP_COMMONS.enable}" itemValue="1"/>
+                                            <f:selectItem itemLabel="#{PP_COMMONS.disable}" itemValue="0"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="status"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </p:panel>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:composition>
+</h:body>
+</html>
