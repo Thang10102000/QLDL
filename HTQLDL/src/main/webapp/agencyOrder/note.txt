@@ -1,2 +1,0 @@
-deploy bằng lệnh cskhtt:
-build file ear, coppy vào folder

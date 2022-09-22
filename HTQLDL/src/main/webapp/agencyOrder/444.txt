@@ -1,4 +1,0 @@
-số thuê bao đủ điều kiện cộng ưu đãi:
-+ đăng ký dịch vụ funring doanh nghiệp
-+ số lượt phát trên ngày < spam: count (called), thời lượng phát sum(duration), 
-+ số lượt phát trên tháng >= chính sách
