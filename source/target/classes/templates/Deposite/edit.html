@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/html-head">
+<meta charset="UTF-8">
+<title>Sửa</title>
+</head>
+<body>
+	<form th:action="@{/deposite/edit-deposits}" method="post" enctype="multipart/form-data"
+		id="fileUploadEditForm" th:object="${deposite}">
+		<table class="table table-condensed col">
+			<tr>
+				<td width="50%"><label for="agencyId">Đại lý <b class="required"> (*)</b>
+				</label> <select th:field="*{agencyD}" name="agencyId" id="agencyId"
+					class="form-control" disabled>
+						<option th:each="i : ${listAgency}" th:value="${i.id}"
+							th:text="${i.agencyName}"></option>
+				</select> <!-- Hidden data -->
+					<input type="hidden" name="id" class="form-control" th:field="*{id}" />
+					<input type="hidden" name="agencyD" class="form-control" th:field="*{agencyD}" />
+					<span id="agencyId_msg"></span></td>
+				<td><label for="status">Trạng thái<b
+						class="required"> (*)</b></label>
+					<select name="status" id="status" class="form-control" th:field="*{status}">
+					<option value=1>Hiệu lực</option>
+					<option value=0>Không hiệu lực</option>
+				</select> <span id="status_msg"></span></td>
+			</tr>
+			<tr>
+				<td><label for="startDate">Ngày bắt đầu<b
+						class="required"> (*)</b></label> <input type="text" name="startDate"
+					class="form-control" id="startDate" th:field="*{startDate}" />
+					<span id="startDate_msg"></span></td>
+				<td><label for="endDate">Ngày kết thúc<b
+						class="required"> (*)</b></label> <input type="text" id="endDate" name="endDate"
+					class="form-control" th:field="*{endDate}"/>
+					<span id="endDate_msg"></span></td>
+			</tr>
+			<tr>
+				<td>
+					<label for="contractId">Hợp đồng đại lý<b class="required"> (*)</b></label>
+					<select name="contractId" id="contractId" class="form-control" th:field="*{contractD}">
+						<option th:each="c :${lstContract}" th:value="${c.id}" th:text="${c.contractNo} +' - '+ ${c.agencyAC.agencyName}"></option>
+					</select>
+					<span id="agencyContractId_msg"></span>
+				</td>
+				<td>
+					<label for="depositNo">Số chứng thư<b class="required"> (*)</b></label>
+					<input type="text" name="depositNo" class="form-control"  id="depositNo" autocomplete="off" th:field="*{depositNo}" />
+					<span id="depositNo_msg"></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="depositsAmount">Số tiền bảo lãnh (VNĐ)<b class="required"> (*)</b></label>
+					<input type="text" name="depositsAmount" class="form-control" th:field="*{depositsAmount}" id="depositsAmount" autocomplete="off" data-type='currency' maxlength="14" />
+					<span id="depositsAmount_msg"></span>
+				</td>
+
+				<td>
+					<label for="receivedDate">Ngày ký <b class="required"> (*)</b></label>
+					<input type="text" name="receivedDate" class="form-control"  id="receivedDate" autocomplete="off" th:field="*{receivedDate}"/>
+					<span id="receivedDate_msg"></span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="customerName">Người đại diện </label>
+					<input type="text" name="customerName" class="form-control"  id="customerName" autocomplete="off"  th:field="*{customerName}"/>
+					<span id="customerName_msg"></span>
+				</td>
+				<td>
+					<label for="contractAddendum">Danh sách chứng thư </label><br>
+					<input type="file" name="files[]" multiple id="contractAddendum" accept="image/*"/>
+					<div>
+						<ul id="file-name">
+							<li  th:each="set : ${imgDeposit}">
+								<a style="color: blue;" th:text="${set.imagePath}" th:href="@{${set.imagePath}}"></a>
+							</li>
+						</ul>
+					</div>
+					<span id="file_msg"></span>
+				</td>
+			</tr>
+
+
+			<tr class='control'>
+				<td colspan='4' align='center'>
+					<button type="submit" class="btn btn-primary button-control"
+						name="doEdit" id="doEdit">
+						<i class="fa fa-plus-square"></i> Cập nhật
+					</button> <button type="button" id="doBack"
+					class="btn btn-primary button-control" data-dismiss="modal" ><i class="fa fa-undo"
+						aria-hidden="true"></i> Quay lại</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+
+	<script src="/vasonline/js/custom_service.js"></script>
+
+	<script type="text/javascript">
+		$(document).on("click","#doEdit",function() {	 
+			if ($("#agencyId").val() === "-1") {
+	            $("#agencyId_msg").text("Bạn chưa chọn đại lý");
+	            $('#agencyId_msg').attr('style', 'display:block;color: red');
+	            return false;
+	        }
+	    	if ($('#depositsAmount').val() == '') {
+	            $('#depositsAmount_msg').html('Vui lòng nhập số tiền bảo lãnh');
+	            $('#depositsAmount_msg').attr('style', 'display:block;color: red');
+	            return false;
+	        }
+	    	if ($('#startDate').val() == '') {
+	            $('#startDate_msg').html('Vui lòng nhập ngày hết hiệu lực');
+	            $('#startDate_msg').attr('style', 'display:block;color: red');
+	            return false;
+	        }
+	    	if ($('#endDate').val() == '') {
+	            $('#endDate_msg').html('Vui lòng nhập ngày kết thúc hiệu lực');
+	            $('#endDate_msg').attr('style', 'display:block;color: red');
+	            return false;
+	        }
+	    	if ($('#status').val() == '') {
+	            $('#status_msg').html('Vui lòng nhập trạng thái');
+	            $('#status_msg').attr('style', 'display:block;color: red');
+	            return false;
+	        }
+
+			//	check end date > start date
+			var ngaybatdau = $('#startDate').val();
+			var ngayketthuc = $('#endDate').val();
+			ngaybatdau = parseDate(ngaybatdau).getTime();
+			ngayketthuc = parseDate(ngayketthuc).getTime();
+
+			if (ngaybatdau > ngayketthuc) {
+				$('#endDate_msg').html('Vui lòng nhập ngày kết thúc lớn hơn ngày bắt đầu!');
+				$('#endDate_msg').attr('style', 'display:block;color: red');
+				return false;
+			}
+	 	});
+
+		$("#depositsAmount").on("keyup", function () {
+			$('#depositsAmount_msg').html('');
+		});
+		$("#agencyId, #status, #startDate, #endDate").on('change',function () {
+			$('#agencyId_msg').html('');
+			$('#status_msg').html('');
+			$('#startDate_msg').html('');
+			$('#endDate_msg').html('')
+		})
+	</script>
+	<script type="text/javascript">
+	 $(document).ready(function () {	
+		 $("#areaId").on("change", function (e) {
+	            let value = Array.from(e.target.selectedOptions, option => option.value);
+	            // $('input:hidden[name=brand]').val(value);
+	            var linkPost = "/vasonline/agency-list?idAgencyArea="+ value;
+
+	            $.ajax({
+	                url: linkPost,
+	                method: 'GET',
+	                success: function(data) {
+
+	                    var str ='<option value="">--Chọn đại lý--</option>';
+
+	                    for (let i = 0; i < data.length ; i++) {
+							if (data[i].status == 0){
+								str +='<option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+							}
+	                    }
+	                    $('#agencyId').html(str);
+
+	                },
+	                error: function(request) {
+	                    alert("The request failed: " + request.responseText);
+	                }
+	            });
+	        })
+		 
+		//Chi hien thi ten file
+			$( "#file-name li a" ).each(function( index ) {
+				var fileName = $(this).text();
+				$(this).html(fileName.trim().slice(fileName.trim().lastIndexOf('/')+1));
+			});
+
+			 
+			 // Date picker
+			 $('#startDate').datepicker({format: 'dd/mm/yyyy',todayHighlight: true});
+			 $("#endDate").datepicker({ format: "dd/mm/yyyy",todayHighlight: true});
+			 $("#receivedDate").datepicker({ format: "dd/mm/yyyy",todayHighlight: true});
+
+
+
+			// if ($("#agencyId").val() != ""){
+			// 	// $('input:hidden[name=brand]').val(value);
+			// 	var linkPost = "/vasonline/deposite/agency-contract-by-agency-id?agencyId="+ $("#agencyId").val();
+			//
+			// 	$.ajax({
+			// 		url: linkPost,
+			// 		method: 'GET',
+			// 		success: function(data) {
+			//
+			// 			var str ='<option value="">-- Chọn hợp đồng --</option>';
+			//
+			// 			for (let i = 0; i < data.length ; i++) {
+			// 				// if (data[i].status == 0){
+			// 				str +='<option value= "'+data[i].id+'" >'+ data[i].contractNo +' - ' +data[i].agencyAC.agencyName + '</option>'
+			// 				// }
+			// 			}
+			// 			$('#contractId').html(str);
+			//
+			// 		},
+			// 		error: function(request) {
+			// 			alert("The request failed: " + request.responseText);
+			// 		}
+			// 	});
+			// }
+
+		 });
+	</script>
+</body>
+</html>

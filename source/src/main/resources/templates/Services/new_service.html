@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thêm mới dịch vụ</title>
+</head>
+
+<body>
+    <form th:action="@{/new}" method="post">
+        <table class="table table-condensed col">
+            <tr>
+                <td><label for="serviceId">Mã dịch vụ <b class="required">(*)</b></label>
+                    <input type="text" name="serviceId" class="form-control"
+                      placeholder="Mã dịch vụ" id="serviceId" autocomplete="off">
+                    <span class="required" id="serviceIdMessage"></span>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="name">Tên dịch vụ <b class="required">(*)</b></label>
+                    <input type="text" name="serviceName" class="form-control"
+                           placeholder="Tên dịch vụ" id="name" autocomplete="off">
+                    <span class="required" id="serviceNameMessage"></span></td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="short_code">Đầu số dịch vụ <b class="required">(*)</b></label>
+                    <input type="number" name="shortCode" class="form-control"  placeholder="Đầu số dịch vụ" id="short_code" autocomplete="off">
+                    <span class="required" id="shortCodeMessage"></span>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="description">Mô tả</label> <textarea rows="1"
+                        type="text" name="description" class="form-control"
+                        placeholder="Mô tả" id="description" autocomplete="off"></textarea>
+                    <input type="hidden" id="createdBy" name="createdBy"
+                           th:value="${#request.userPrincipal.Principal.users.username}">
+                </td>
+            </tr>
+            <tr class='control'>
+                <td colspan='4' align='center'>
+                    <button type="submit" class="btn btn-primary button-control new"
+                            name="doNew" id="doNew">
+                        <i class="fa fa-plus-square"></i> Thêm mới
+                    </button>
+                    <a type="button" id="doBack"
+                       class="btn btn-primary button-control"  data-dismiss="modal"><i
+                            class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        $("#serviceId, #serviceName, #short_code").on('keydown',function () {
+            $("#serviceIdMessage,#serviceNameMessage,#shortCodeMessage").text();
+        })
+    });
+    $(document).on('click',".new", function () {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test($("#name").val())) {
+            $("#serviceNameMessage").text("Tên dịch vụ chứa ký tự đặc biệt");
+            $("#name").focus();
+            return false;
+        }
+        if (format.test($("#serviceId").val())) {
+            $("#serviceIdMessage").text("Mã dịch vụ chứa ký tự đặc biệt");
+            $("#serviceId").focus();
+            return false;
+        }
+        if ($("#serviceId").val() === '') {
+            $("#serviceIdMessage").text("Bạn chưa nhập mã dịch vụ");
+            $("#serviceId").focus();
+            return false;
+        }
+        if ($("#name").val() === '') {
+            $("#serviceNameMessage").text("Bạn chưa nhập tên dịch vụ");
+            $("#name").focus();
+            return false;
+        }
+        if ($("#short_code").val() === '') {
+            $("#shortCodeMessage").text("Bạn chưa nhập dầu số dịch vụ");
+            $("#short_code").focus();
+            return false;
+        }
+        if ($("#short_code").val() * 1 != $("#short_code").val()) {
+            $("#shortCodeMessage").text("Bạn nhập sai định dạng đầu số");
+            $("#short_code").focus();
+            return false;
+        }
+    })
+    var invalidChars = ["-", "+", "e", ",", "."];
+    $("#short_code").on("keydown", function (e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+
+</script>
+</body>
+
+</html>

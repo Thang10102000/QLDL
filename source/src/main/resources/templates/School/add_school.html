@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thêm mới gói cước</title>
+</head>
+<body>
+<form th:action="@{/create-school}" method="post" id="form">
+    <table class="table table-condensed col">
+        <tr>
+            <td><label for="schoolCode">Mã loại trường học<b class="required">(*)</b></label>
+                <input type="text" name="schoolCode" class="form-control" placeholder="Mã loại trường học" id="schoolCode"
+                 autocomplete="off"> <span class="required" id="messageSchoolCode"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="schoolType">Loại trường học <b class="required">(*)</b></label>
+                <input type="text" name="schoolType" class="form-control" placeholder="Loại trường học" id="schoolType"
+                       autocomplete="off"> <span class="required" id="messageSchoolType"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="description">Mô tả</label>
+                <textarea rows="1" name="description" class="form-control" placeholder="Mô tả" id="description" autocomplete="off"></textarea>
+            </td>
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button type="submit" class="btn btn-primary button-control new"
+                        name="doNew" id="doNew">
+                    <i class="fa fa-plus-square"></i> Thêm mới
+                </button>
+                <a type="button" id="doBack"
+                   class="btn btn-primary button-control" data-dismiss="modal"><i
+                        class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>
+            </td>
+        </tr>
+    </table>
+</form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        $(" #schoolCode, #schoolType").keydown(function () {
+            $("#messageSchoolCode").text("");
+            $("#messageSchoolType").text("");
+        })
+    });
+    $('#form').submit(function(){
+        $("#doNew", this)
+            .html("Đang xử lý...")
+            .attr('disabled', 'disabled');
+        return true;
+    });
+    $(document).on('click',".new", function () {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test($("#schoolType").val())) {
+            $("#messageSchoolType").text("Loại trường học chứa ký tự đặc biệt");
+            $("#schoolType").focus();
+            return false;
+        }
+        if (format.test($("#schoolCode").val())) {
+            $("#messageSchoolCode").text( "Mã loại trường học chứa ký tự đặc biệt");
+            $("#schoolCode").focus();
+            return false;
+        }
+        if ($("#schoolCode").val() === '') {
+            $("#messageSchoolCode").text("Bạn chưa nhập mã loại trường học");
+            $("#schoolCode").focus();
+            return false;
+        }
+        if ($("#schoolType").val() === '') {
+            $("#messageSchoolType").text("Bạn chưa nhập loại trường học");
+            $("#schoolType").focus();
+            return false;
+        }
+    })
+</script>
+</body>
+
+</html>

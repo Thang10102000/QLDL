@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Tra cứu api transaction log</title>
+</head>
+<body>
+<div class="wrapper" >
+    <!-- Sidebar  -->
+    <nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        <div class="div-navbar" th:replace="fragments/div-navbar"></div>
+        <div class="container-fluid">
+            <div class="heading">
+                <h4>TRA CỨU API TRANSACTION LOG</h4>
+            </div>
+            <div class="box box-primary">
+                <form>
+                    <table class="table table-condensed col">
+
+
+                        <tr>
+                            <td>
+                                <div style="position:relative">
+                                    <label for="createdDateFrom">Từ ngày</label>
+                                    <input type="text" name="createdDateFrom" class="form-control" placeholder="Ngày tạo từ"
+                                           id="createdDateFrom">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="position:relative">
+                                    <label for="createdDateTo">Đến ngày</label>
+                                    <input type="text" name="createdDateTo" class="form-control" placeholder="Ngày tạo đến"
+                                           id="createdDateTo">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class='control'>
+                            <td colspan='4' align='center'>
+                                <button type="button" class="btn btn-primary button-control"
+                                        name="doSearch" id="doSearch">
+                                    <i class="fa fa-search"></i> Tìm kiếm
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="list-service box box-primary">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr align="center">
+                        <th>Log id</th>
+                        <th>Ngày tạo</th>
+                        <th>Người tạo</th>
+                        <th>Request</th>
+                        <th>Response</th>
+                        <th>Response time</th>
+                        <th>URL</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item"><span id="totalPage"></span></li>
+                        <li class="page-item"><span id="pageSize"></span></li>
+                        <li class="page-item">
+                            <div class="form-group">
+                                <select class="form-control" name="selector"
+                                        onChange="resetPage()">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                    <option>200</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li class="page-item"><span>&nbsp;</span></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+                        <li class="page-item"><a id="prePage"></a></li>
+                        <li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+                        <li class="page-item"><a id="nexPage"></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/api-transaction-log-search.js"></script>
+<script src="/vasonline/js/moment.js"></script>
+<script src="/vasonline/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript">
+
+    $("#createdDateFrom").datetimepicker({
+        format:'DD/MM/YYYY HH:mm'
+    });
+    $("#createdDateTo").datetimepicker({
+        format:'DD/MM/YYYY HH:mm'
+    });
+    $(function () {
+        $("#doSearch").click();
+    })
+    $(document).ready(function() {
+        $('#sidebarCollapse').on('click', function() {
+            $('#sidebar').toggleClass('active');
+        });
+
+    });
+</script>
+</body>
+
+</html>

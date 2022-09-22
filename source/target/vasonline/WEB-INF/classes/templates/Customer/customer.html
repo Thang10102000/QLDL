@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Quản lý khách hàng</title>
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        <div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+        <div class="container-fluid ">
+            <div class="heading">
+                <h3>THÔNG TIN KHÁCH HÀNG</h3>
+            </div>
+            <div class="box box-primary">
+                <form>
+                    <table class="table table-condensed col">
+                        <tr>
+                            <td><label for="nameCus">Tên khách hàng</label> <input
+                                    type="text" name="nameCus" class="form-control"
+                                    placeholder="Tên khách hàng" id="nameCus" autocomplete="off">
+                            </td>
+                            <td><label for="school"> Loại trường học</label>
+                                <select style="text-transform: capitalize" name="school" id="school" class="form-control">
+                                    <option value= "">---Lựa chọn Loại trường----</option>
+                                    <option  th:each="lv : ${school}" th:value="${lv.id}"
+                                             th:text="${lv.schoolType}"></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="area">CTKV - TT</label>
+                                <select name="area" id="area" class="form-control" th:if="${#lists.size(areas) >= 2}">
+                                    <option value= "">---Lựa chọn khu vực----</option>
+                                    <option th:each="lv : ${areas}" th:value="${lv.areaId}"
+                                            th:text="${lv.areaName}"></option>
+                                </select>
+                                <select name="area" id="area" class="form-control" th:if="${#lists.size(areas) < 2}">
+                                    <option th:each="lv : ${areas}" th:value="${lv.areaId}"
+                                            th:text="${lv.areaName}"></option>
+                                </select>
+                            </td>
+                            <td width="50%"><label for="agencyCodeSearch" >Đại lý - AM/KAM </label>
+                                <select name="agencyCodeSearch" id="agencyCodeSearch" class="form-control" th:if="${agency == null}">
+                                    <option value="">--Chọn mã đại lý - AM/KAM--</option>
+                                </select>
+                                <select name="agencyCodeSearch" id="agencyCodeSearch" class="form-control" th:if="${agency != null}">
+                                    <option
+                                            th:each="ag : ${agency}"
+                                            th:value="${ag.agencyCode}"
+                                            th:text="${ag.agencyCode} +'-'+ ${ag.agencyName}"
+                                    ></option>
+                                </select>
+                                <span class="required" id="messageAgencyCodesl"></span>
+                            </td>
+                        </tr>
+                        <tr class='control'>
+                            <td colspan='4' align='center'>
+                                <button type="button" class="btn btn-primary button-control"
+                                        name="doSearch" id="doSearch">
+                                    <i class="fa fa-search"></i> Tìm kiếm
+                                </button>&nbsp;
+                                <button type="button" id="doNew" data-target="#modal-command-type-create" class="btn btn-primary button-control">
+                                    <i class="fa fa-plus-square"></i> Thêm mới</button>&nbsp;&nbsp;
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="list-service box box-primary">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr align="center">
+                        <th>Tên khách hàng</th>
+                        <th>Loại trường học</th>
+                        <th>CTKV - TT</th>
+                        <th>Địa chỉ</th>
+                        <th>Đại lý - AM/KAM</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày cập nhập</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item"><span id="totalPage"></span></li>
+                        <li class="page-item"><span id="pageSize"></span></li>
+                        <li class="page-item">
+                            <div class="form-group">
+                                <select class="form-control" name="selector"
+                                        onChange="resetPage()">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                    <option>200</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li class="page-item"><span>&nbsp;</span></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+                        <li class="page-item"><a id="prePage"></a></li>
+                        <li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+                        <li class="page-item"><a id="nexPage"></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--modal form create-->
+<div class="modal fade in" id="modal-command-type-create" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog modal-xl overflow-auto">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow" style="display: flex;">
+                <div class="title">
+                    <h4 class="modal-title">THÊM MỚI TT KHÁCH HÀNG</h4>
+                </div>
+                <button type="button" data-dismiss="modal" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="create_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--modal form edit-->
+<div class="modal fade in" id="modal-command-type-edit" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog modal-xl overflow-auto" style="width: 100%; margin-top: 50px;">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow" style="display: flex;">
+                <div class="title"><h4 class="modal-title">CHỈNH SỬA TT KHÁCH HÀNG</h4></div>
+                <button type="button" data-dismiss="modal" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="edit_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/customer.js"></script>
+<script type="text/javascript">
+    $("#agencyCodeSearch").select2();
+    let name = localStorage.getItem("name");
+    function messageSuccess(){
+        toastr.success('Thành công');
+    }
+    function messageFailed(){
+        toastr.error('Thất bại');
+    }
+    $(document).ready(function() {
+        $('#sidebarCollapse').on('click', function() {
+            $('#sidebar').toggleClass('active');
+        });
+        if (name != null){
+            $("#nameCus").val(name);
+        }
+        let messageResponse = '[[${message}]]';
+        if(messageResponse == 'success'){
+            messageSuccess();
+        }
+        if (messageResponse == 'failed'){
+            messageFailed();
+        }
+
+        if ($("#area").val() != '' && $("#agencyCodeSearch").val() == ''){
+            let linkUrl = "/vasonline/get-all-agency-by-area?areaId="+ $("#area").val();
+            $.ajax({
+                url: linkUrl,
+                method: 'GET',
+                success: function (data) {
+                    var str = '<option value= "">---Lựa chọn Đại lý - AM/KAM ----</option>';
+                    var strAm = '<option value= "">---Lựa chọn AM/KAM----</option>'
+                    for (let i = 0; i < data.length; i++) {
+                        // if(data[i].type == 0){
+                        str += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyCode + ' - ' +  data[i].agencyName + '</option>';
+                        // }
+                        // else {
+                        //     strAm += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>';
+                        // }
+
+                    }
+                    $("#agencyCodeSearch").html(str);
+                    // $("#amCode").html(strAm);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+    });
+    $("#area").on("change", function () {
+        let linkUrl = "/vasonline/get-all-agency-by-area?areaId="+ $("#area").val();
+        $.ajax({
+            url: linkUrl,
+            method: 'GET',
+            success: function (data) {
+                var str = '<option value= "">---Lựa chọn Đại lý - AM/KAM ----</option>';
+                // var strAm = '<option value= "">---Lựa chọn AM/KAM----</option>'
+                for (let i = 0; i < data.length; i++) {
+                    // if(data[i].type == 0){
+                    str += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyCode + ' - ' +  data[i].agencyName + '</option>';
+                    // }
+                    // else {
+                    //     strAm += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>';
+                    // }
+
+                }
+                $("#agencyCodeSearch").html(str);
+                // $("#amCode").html(strAm);
+            },
+            error: function (request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+
+    });
+    $(function() {
+        $("#doSearch").click();
+        localStorage.removeItem("name");
+    });
+</script>
+</body>
+
+</html>

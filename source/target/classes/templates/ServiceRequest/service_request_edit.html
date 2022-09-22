@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Cập nhật yêu cầu dịch vụ</title>
+</head>
+<body>
+	<form th:action="@{/service-request/edit}" method='POST' enctype="multipart/form-data">
+		<span th:text ="${#authentication.getPrincipal().getUsers().getLevelUsers().getLevelId()}" id="levelIdUser" hidden></span>
+		<table class="table table-sm" th:object="${srData}">
+			<tr style="display:none;">
+				<td><input type="text" class="form-control"
+					name="srId" id="srId" th:field="*{srId}"></td>
+			</tr>
+			<tr>
+				<td style="width: 50%;">
+					<label for="areaId">Công ty khu vực<b class="required">(*)</b></label>
+					<select name="areaId" id="areaId"
+						class="areaId select2 form-control" th:field="*{customer.areaCId.areaId}">
+						<option
+							th:each="area : ${agencyArea}"
+							th:value="${area.areaId}"
+							th:text="${area.areaName}">
+						</option>
+					</select>
+				</td>
+				<td><label for="customer_info">Khách hàng<b class="required">(*)</b></label>
+					<select name="customer_info" id="customer_info" class="form-control" th:field="*{customer.id}">
+						<option
+							th:each="cus : ${customers}"
+							th:value="${cus.id}"
+							th:text="${cus.name}">
+						</option>
+					</select></td>
+			</tr>
+			<tr>
+				<td>
+					<label for="service">Dịch vụ</label>
+					<select name="service" id="service" class="form-control" th:field="*{brandASR.brandGroupB.servicesBG.id}">
+						<option th:each="s : ${services}" 
+								th:value="${s.id}" 
+								th:text="${s.serviceName}">
+						</option>
+					</select>
+				</td>
+				<td>
+					<label for="package_gr">Nhóm gói cước</label>
+					<select name="package_gr" id="package_gr" class="form-control" th:field="*{brandASR.brandGroupB.id}">
+						<option th:each="pg : ${packageGroups}" 
+								th:value="${pg.id}" 
+								th:text="${pg.groupName}">
+						</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="policy_e">Chính sách<b class="required">(*)</b></label>
+					<select name="policy_e" id="policy_e" class="form-control" th:field="*{policy}">
+						<option value="MP">Miễn phí</option>
+						<option value="CK">Chiết khấu</option>
+						<option value="HH">Hoa hồng</option>
+					</select>
+				</td>
+				<td>
+					<label for="pkg">Gói cước<b class="required">(*)</b></label>
+					<select name="pkg" id="pkg" class="form-control" th:field="*{brandASR.id}">
+						<option th:each="p : ${packages}" 
+								th:value="${p.id}" 
+								th:text="${p.brandName}">
+						</option>
+					</select>
+				</td>
+
+			</tr>
+			<tr>
+				<td><label for="price">Giá bán<b class="required">(*)</b></label>
+					<input type="text" class="form-control"
+					name="price" id="price" th:field="*{price}"></td>
+				<td><label for="discount">Chiết khấu</label>
+					<input type="text" class="form-control"
+					name="discount" id="discount" th:field="*{discountCost}"></td>
+			</tr>
+			<tr>
+				<td><label for="quantity">Số lượng<b class="required">(*)</b></label>
+					<input type="text" class="form-control"
+					name="quantity" id="quantity" th:field="*{quantity}"></td>
+				<td><label for="amount">Thành tiền<b class="required">(*)</b></label>
+					<input type="text" class="form-control" th:field="*{amount}"
+					name="amount" id="amount" readonly></td>
+			</tr>
+			<tr>
+				<td>
+					<label for="contractFileUploader">Hợp đồng</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<input id="contractFileUploader" type="file" name="contract_files[]" multiple onchange="updateList()">
+					<div id="contractDivFiles"></div>
+					<table id="contractFiles">
+						<tr th:each="cf : ${contractFiles}">
+							<td th:text="${cf.filePath}"></td>
+							<td><a th:href="${cf.filePath}"><i class="fa fa-download"></i></a></td>
+							<td>
+								<a th:id="${cf.id}" class="deleteFile">
+									<i class="fa fa-trash-o"></i></a>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td>
+					<label for="payFileUploader">Hồ sơ thanh toán</label>
+					<input id="payFileUploader" type="file" name="pay_files[]" multiple onchange="updateList()">
+					<div id="payDivFiles"></div>
+					<table id="payFiles">
+						<tr th:each="pf : ${payFiles}">
+							<td th:text="${pf.filePath}"></td>
+							<td><a th:href="${pf.filePath}"><i class="fa fa-download"></i></a></td>
+							<td>
+								<a th:id="${pf.id}" class="deleteFile">
+									<i class="fa fa-trash-o"></i></a>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="scanFileUploader">Scan hợp đồng</label>
+					<input id="scanFileUploader" type="file" name="scan_files[]" multiple onchange="updateList()">
+					<div id="scanDivFiles"></div>
+					<table id="scanFiles">
+						<tr th:each="sf : ${scanFiles}">
+							<td th:text="${sf.filePath}"></td>
+							<td><a th:href="${sf.filePath}"><i class="fa fa-download"></i></a></td>
+							<td>
+								<a th:id="${sf.id}" class="deleteFile">
+									<i class="fa fa-trash-o"></i></a>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr class='control'>
+				<td colspan='4' align='center'>
+					<button class="btn btn-primary button-control" id="doUpdate"
+						type="submit">
+						<i class="fa fa-pencil-square-o"></i> Cập nhật
+					</button>&nbsp;
+					<a type="button" id="doBack"
+						class="btn btn-primary button-control"  data-dismiss="modal"><i
+						class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+				</td>
+			</tr>
+		</table>
+	</form>
+	<link rel="stylesheet" href="/vasonline/style/upload-file.css">
+	<script src="/vasonline/js/upload_multi-file.js"></script>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+		});
+		$("#doUpdate").on('click', function (e) {
+			if ($("#price").val() === '') {
+				toastr.error('Bạn chưa điền giá bán');
+				return false;
+			}
+			if ($("#quantity").val() === '') {
+				toastr.error('Bạn chưa điền số lượng');
+				return false;
+			}
+		});
+
+		$(".deleteFile").on("click", function (e) {
+			e.preventDefault();
+			var id = $(this).attr('id');
+			var r = confirm("Bạn muốn xóa file?");
+			if (r) {
+				$.ajax({
+					url: '/vasonline/delete-file-sr/' + id,
+					method: 'GET',
+					success: function (data) {
+						if (data == 'success') {
+							toastr.success('Thành công');
+							$('#modal-command-type-edit').modal('hide');
+						} else {
+							toastr.success('Thất bại');
+						}
+					},
+					error: function(jqXHR, exception){
+						if(jqXHR.status == 403){
+							toastr.success('Bạn không được phân quyền để thực hiện tác vụ');
+						}
+						else{
+							toastr.success('Lỗi hệ thống');
+						}
+						console.log(jqXHR, exception);
+					}
+				});
+			}
+		});
+
+		$("#service").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/brand-group-list?idService="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+
+					var str ='';
+					str +=' <option>-- Chọn nhóm gói cước --</option>'
+					for (let i = 0; i < data.length ; i++) {
+						str +=' <option value= "'+data[i].id+'" >'+data[i].groupName+'</option>'
+					}
+					$('#package_gr').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+		var lstBrand=[];
+		$("#package_gr").on("change", function (e) {
+			lstBrand=[]
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/brand-list?idBrand="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+					lstBrand=data;
+					var str ='';
+					str +=' <option value="">-- Chọn gói cước --</option>'
+					for (let i = 0; i < data.length ; i++) {
+						if ($("#policy_c").val() == 'CK' && data[i].priceDiscount > 0){
+							str +=' <option value= "'+data[i].id+'" >'+ data[i].brandId +'-'+data[i].brandName+'</option>'
+						}
+						if ($("#policy_c").val() == 'HH' && data[i].price > 0 && data[i].priceDiscount == 0){
+							str +=' <option value= "'+data[i].id+'" >'+ data[i].brandId +'-'+data[i].brandName+'</option>'
+						}
+						if ($("#policy_c").val() == 'MP' && data[i].price == 0 && data[i].priceDiscount == 0) {
+							str +=' <option value= "'+data[i].id+'" >'+ data[i].brandId +'-'+data[i].brandName+'</option>'
+						}
+
+					}
+					$('#pkg').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+
+		$("#pkg").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var policy = $('#policy_e').find(":selected").val();
+			var linkPost = "/vasonline/service-request/get-price-discount?policyCode="+policy.toString()+"&brandId="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+					let item = JSON.parse(data);
+					$('#price').val(item.price);
+					$('#discount').val(item.discount);
+					var quan = $('#quantity').val();
+					var pri = $('#price').val();
+					var amount = quan * pri;
+					$('#amount').val(amount);
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+
+		$("#policy_e").on("change", function (e) {
+			var str ='';
+			str +=' <option value="">-- Chọn gói cước --</option>'
+			//show brand theo policy
+			if (lstBrand.length > 0){
+				for (let i = 0; i < lstBrand.length ; i++) {
+					if ($("#policy_c").val() == 'CK' && lstBrand[i].priceDiscount > 0){
+						str +=' <option value= "'+lstBrand[i].id+'" >'+lstBrand[i].brandName+'</option>'
+					}
+					if ($("#policy_c").val() == 'HH' && lstBrand[i].price > 0 && lstBrand[i].priceDiscount == 0){
+						str +=' <option value= "'+lstBrand[i].id+'" >'+lstBrand[i].brandName+'</option>'
+					}
+					if ($("#policy_c").val() == 'MP' && lstBrand[i].price == 0 && lstBrand[i].priceDiscount == 0) {
+						str +=' <option value= "'+lstBrand[i].id+'" >'+lstBrand[i].brandName+'</option>'
+					}
+				}
+				$('#pkg').html(str);
+			}
+			if ($("#pkg").val() != null && $("#pkg").val() != '') {
+				let value = Array.from(e.target.selectedOptions, option => option.value);
+				var pkg = $('#pkg').find(":selected").val();
+				var linkPost = "/vasonline/service-request/get-price-discount?policyCode=" + value.toString() + "&brandId=" + pkg.toString();
+
+				$.ajax({
+					url: linkPost,
+					method: 'GET',
+					success: function (data) {
+						let item = JSON.parse(data);
+						$('#price').val(item.price);
+						$('#discount').val(item.discount);
+						var quan = $('#quantity').val();
+						var pri = $('#price').val();
+						var amount = quan * pri;
+						$('#amount').val(amount);
+					},
+					error: function (request) {
+						alert("The request failed: " + request.responseText);
+					}
+				});
+			}
+		});
+
+		$("#quantity").on("keyup", function (e) {
+			var quan = $('#quantity').val();
+			var pri = $('#price').val();
+			var amount = quan * pri;
+			$('#amount').val(amount);
+		});
+
+		$("#areaId").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkcustomer_info = "/vasonline/get-customer-area?areaId="+ value.toString();
+			$.ajax({
+				url: linkcustomer_info,
+				method: 'GET',
+				success: function(data) {
+
+					var str ='';
+					for (let i = 0; i < data.length ; i++) {
+						str +=' <option value= "'+data[i].id+'" >'+data[i].name+'</option>'
+					}
+					$('#customer_info').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

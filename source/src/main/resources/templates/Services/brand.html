@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	  lang="vi">
+<head th:replace="fragments/html-head">
+	<meta charset="utf-8">
+	<title>Quản lý gói cước</title>
+	<link href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div class="wrapper">
+	<!-- Sidebar  -->
+	<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+	<!-- Page Content  -->
+	<div id="content">
+		<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+		<div class="container-fluid ">
+			<div class="heading">
+				<h3>QUẢN LÝ GÓI CƯỚC</h3>
+			</div>
+			<div class="box box-primary">
+				<form>
+					<table class="table table-condensed col">
+						<tr>
+							<td><label for="brandIdSearch">Mã gói cước</label> <input
+									type="text" name="brandId" class="form-control"
+									placeholder="Mã gói cước" id="brandIdSearch" autocomplete="off">
+								<span class="required"
+									  id="messageBrandIdSearch"></span>
+							</td>
+
+							<td><label for="brandNameSearch">Tên gói cước</label>
+								<input type="text" class="form-control" name="brandName" id="brandNameSearch" placeholder="Tên gói cước" autocomplete="off">
+								<span class="required"
+									  id="messageBrandNameSearch"></span>
+							</td>
+							<td><label for="statusSearch">Trạng thái</label> <select
+									name="status" id="statusSearch" class="form-control">
+								<option value="">--Chọn dịch vụ--</option>
+								<option value="0">Hiệu lực</option>
+								<option value="1">Không hiệu lực</option>
+							</select></td>
+						</tr>
+						<tr>
+							<td>
+								<label for="brandTypeSearch">Loại gói cước</label>
+								<select name="brandType" id="brandTypeSearch" class="form-control">
+									<option value="">--Chọn dịch vụ--</option>
+									<option value="0">Trả trước</option>
+									<option value="1">Trả sau</option>
+								</select>
+							</td>
+							<td><label for="serviceSearch">Dịch vụ</label>
+								<select name="service" id="serviceSearch" class="form-control">
+									<option value="">--Chọn dịch vụ--</option>
+									<option th:each="se : ${service}" th:value="${se.id}" th:text="${se.serviceName}" ></option>
+								</select>
+							</td>
+							<td><label for="brandGroupNameSearch">Nhóm gói cước</label>
+								<select name="brandGroupName" id="brandGroupNameSearch" class="form-control">
+									<option value="">--Chọn dịch vụ--</option>
+									<option th:if="idBrandGroup != null" th:each="bg : ${brandGroup}" th:value="${bg.id}" th:text="${bg.getGroupName()}" ></option>
+								</select>
+							</td>
+
+						</tr>
+						<tr class='control'>
+							<td colspan='4' align='center'>
+								<button type="button" class="btn btn-primary button-control search"
+										name="doSearch" id="doSearch">
+									<i class="fa fa-search"></i> Tìm kiếm
+								</button>&nbsp; <button type="button" id="doNew"
+												   class="btn btn-primary button-control" data-target="#modal-command-type-create">
+								<i class="fa fa-plus-square"></i> Thêm mới</button>&nbsp;
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div class="list-service box box-primary">
+				<table class="table table-bordered">
+					<thead>
+					<tr align="center">
+						<th>Mã gói cước</th>
+						<th>Tên gói cước</th>
+						<th>Nhóm gói cước</th>
+						<th>Giá gói cước(VNĐ)</th>
+						<th>Tỷ lệ chiết khấu(%)</th>
+						<th>Giá chiết khấu(VNĐ)</th>
+						<th>Tỉ lệ hoa hồng(%)</th>
+						<th>Ngày tạo</th>
+						<th>Ngày cập nhập</th>
+						<th>Loại gói</th>
+						<th>Trạng thái</th>
+						<th>Hành động</th>
+					</tr>
+					</thead>
+					<tbody id="tableBody"></tbody>
+				</table>
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+						<li class="page-item"><span id="totalPage"></span></li>
+						<li class="page-item"><span id="pageSize"></span></li>
+						<li class="page-item">
+							<div class="form-group">
+								<select class="form-control" name="selector"
+										onChange="resetPage()">
+									<option>10</option>
+									<option>20</option>
+									<option>50</option>
+									<option>100</option>
+									<option>200</option>
+								</select>
+							</div>
+						</li>
+						<li class="page-item"><span>&nbsp;</span></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+						<li class="page-item"><a id="prePage"></a></li>
+						<li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+						<li class="page-item"><a id="nexPage"></a></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<-- create modal -->
+<div class="modal fade in" id="modal-command-type-create" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-xl overflow-auto">
+		<div class="modal-content">
+			<div class="modal-header bg-yellow" style="display: flex;">
+				<div class="title"><h4 class="modal-title">Thêm Mới</h4></div>
+				<button type="button" data-dismiss="modal" class="close" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="create_table">
+
+			</div>
+			<div class="modal-footer" style="text-align: center;">
+			</div>
+		</div>
+	</div>
+</div>
+<!--modal form edit-->
+<div class="modal fade in" id="modal-command-type-edit" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-xl overflow-auto">
+		<div class="modal-content">
+			<div class="modal-header bg-yellow" style="display: flex;">
+				<div class="title"><h4 class="modal-title">CHỈNH SỬA GÓI CƯỚC</h4></div>
+				<button type="button" data-dismiss="modal" class="close" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="edit_table">
+
+			</div>
+			<div class="modal-footer" style="text-align: center;">
+			</div>
+		</div>
+	</div>
+</div>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/brand-search.js"></script>
+<script type="text/javascript">
+	// get service id in localStorage
+	let idBrandGroup = localStorage.getItem("groupId");
+	let nameBrand = localStorage.getItem("nameBrand");
+	$(document).on("click", ".delete", function(e) {
+		e.preventDefault();
+		var r = confirm("Bạn muốn xóa gói cước?");
+		if (r == true) {
+			window.location = $(this).attr('href');
+		}
+	})
+
+	$(document).ready(function() {
+		$('#sidebarCollapse').on('click', function() {
+			$('#sidebar').toggleClass('active');
+		});
+		if (idBrandGroup != null){
+			$("#brandGroupNameSearch").val(idBrandGroup);
+		}
+		if (nameBrand != null){
+			$("#brandNameSearch").val(nameBrand);
+		}
+		let messageResponse = '[[${message}]]';
+		if(messageResponse == 'success'){
+			messageSuccess();
+		}
+		if (messageResponse == 'failed'){
+			messageFailed();
+		}
+	});
+	function messageSuccess(){
+		toastr.success('Thành công');
+	}
+	function messageFailed(){
+		toastr.error('Thất bại');
+	}
+	$(document).on("change","#serviceSearch",function(){
+
+		let link = "/vasonline/brand-group-list?idService="+ $("#serviceSearch").val();
+		$.ajax({
+			url: link,
+			method: 'GET',
+			success: function(data) {
+				//alert("success " + data);
+
+				var str ='<option value="">--Chọn dịch vụ--</option>';
+
+				for (let i = 0; i < data.length ; i++) {
+					//if (data[i].status == 0) {
+						str += ' <option value= "' + data[i].id + '" >' + data[i].groupName + '</option>';
+					//}
+
+
+				}
+				$('#brandGroupNameSearch').html(str);
+
+			},
+			error: function(request) {
+				alert("The request failed: " + request.responseText);
+			}
+		})
+	})
+	$(function() {
+		$('#doSearch').click();
+		localStorage.removeItem("groupId");
+		localStorage.removeItem("nameBrand");
+	});
+</script>
+</body>
+
+</html>

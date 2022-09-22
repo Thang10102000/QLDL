@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Chỉnh sửa gói cước</title>
+</head>
+
+<body>
+
+<form th:action="@{/edit-brand}" method="post" th:object="${brands}">
+    <table class="table table-condensed col">
+        <tr>
+            <td>
+                <label for="brandIdModal">Mã gói cước<b class="required">(*)</b></label>
+                <input type="text" name="brandId" th:field="*{brandId}" class="form-control"
+                       placeholder="Mã gói cước" id="brandIdModal" autocomplete="off" readonly>
+                <span class="required" id="messageBrandId"></span>
+            </td>
+            <td>
+                <label for="nameModal">Tên gói cước <b class="required">(*)</b></label>
+                <input type="text" name="brandName" th:field="*{brandName}" class="form-control"
+                       placeholder="Tên gói cước" id="nameModal" autocomplete="off">
+                <span class="required" id="messageBrandName"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="brandTypeModal">Loại gói cước <b class="required">(*)</b></label>
+                <select name="brandType" id="brandTypeModal" class="form-control">
+                    <option value="0" th:field="*{brandType}">Trả trước</option>
+                    <option value="1" th:field="*{brandType}">Trả sau</option>
+                </select>
+            </td>
+            <td>
+                <label for="statusModal">Trạng thái <b class="required">(*)</b></label>
+                <select name="status" id="statusModal" class="form-control">
+                    <option value="0" th:field="*{status}">Hiệu lực</option>
+                    <option value="1" th:field="*{status}">Không hiệu lực</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="activeDayModal">Số ngày hiệu lực<b class="required">(*)</b></label>
+                <input type="number" name="activeDay" th:field="*{activeDay}" class="form-control"
+                       placeholder="Số ngày hiệu lực" id="activeDayModal" autocomplete="off">
+                <span class="required" id="messageActiveDay"></span>
+
+            </td>
+            <td>
+                <label for="descriptionModal">Mô tả</label>
+                <textarea rows="1" type="text" name="description" th:field="*{description}" class="form-control"
+                          placeholder="Mô tả" id="descriptionModal" autocomplete="off"></textarea>
+
+            </td>
+        </tr>
+        <tr>
+            <td><label for="serviceModal">Dịch vụ</label>
+                <select name="service" id="serviceModal" class="form-control">
+<!--                    <option th:value="${serviceS.id}" th:text="${serviceS.serviceName}"></option>-->
+                    <option th:each="se : ${service}" th:value="${se.id}" th:text="${se.serviceName}" th:selected="${serviceS.id}"></option>
+                </select>
+            </td>
+            <td><label for="brandGroupBModal">Nhóm gói cước <b class="required">(*)</b></label>
+                <select name="brandGroupB" id="brandGroupBModal" class="form-control">
+                    <option th:value="*{brandGroupB.getId()}" th:text="*{brandGroupB.getGroupName()}"></option>
+                </select></td>
+            <td><input type="hidden" id="createdBy" name="createdBy"
+                       th:value="${#request.userPrincipal.Principal.users.username}"></td>
+        </tr>
+        <tr>
+            <td><label for="level">Quyền duyệt</label>
+                <select name="level" id="level" class="form-control" th:field="*{approvedBy}">
+                    <option value="0">MDS và Công ty khu vực</option>
+                    <option th:each="lv : ${levels}" th:value="${lv.levelId}"
+                            th:text="${lv.levelName}"></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" id="brandFreeModal" name="brandFree"> Gói miễn phí
+            </td>
+            <td><input type="hidden" name="id" id="id" th:field="*{id}"></td>
+        </tr>
+        <tr class="notFreeBrand" hidden>
+            <td><label for="typeDiscountCommission">Chọn loại tỉ lệ</label>
+                <select name="typeDiscountCommission" id="typeDiscountCommission" class="form-control">
+                    <option value="0">Tỉ lệ hoa hồng</option>
+                    <option value="1">Tỉ lệ chiết khấu</option>
+                </select>
+            </td>
+            <td class="commissionRateShow"><input type="checkbox" id="commissionDefault">
+                Tỉ lệ hoa hồng riêng
+            </td>
+            <td class="discountRateShow"><input type="checkbox" id="discountDefault">
+                Tỉ lệ chiết khấu riêng
+            </td>
+        </tr>
+        <tr class="priceBrandShow" hidden>
+            <td>
+                <label for="priceBrand">Giá gói cước<b class="required">(*)</b></label>
+                <input type="text" name="priceBrand" class="form-control" placeholder="Giá gói cước" data-type='currency' th:field="*{price}" id="priceBrand" autocomplete="off">
+                <span class="required" id="messagePriceBrand"></span></td>
+            <td id="commissionDataId" class=" commissionShowData" hidden><label for="dcPolicyId">Chính sách hoa hồng </label>
+                <select name="dcPolicyId" id="dcPolicyId" class="form-control">
+                    <option th:value="${dc.id}" th:text="${dc.policyName}"></option>
+                </select>
+            </td>
+            <td id="commissionData" hidden><label for="commissionRate">Tỉ lệ hoa hồng(%) </label>
+                <input type="number" name="commissionRate" class="form-control"  placeholder="Tỉ lệ hoa hồng" th:field="*{commissionRate}" id="commissionRate"  autocomplete="off">
+                <span class="required" id="messageCommission"></span>
+                <input type="hidden" id="tlfor" name="tlfor" value="1">
+            </td>
+            <td class="discountRateShow" hidden>
+                <label for="amountDiscount">Mức chiết khấu</label>
+                <input type="text" name="amountDiscount" class="form-control" placeholder="Mức chiết khấu"
+                       id="amountDiscount" autocomplete="off" min="1">
+            </td>
+        </tr>
+        <tr class="discountRateShow" hidden="true">
+            <td id="discountData" width="50%">
+                <label for="discountRate">Tỷ lệ chiết khấu(%) <b class="required">(*)</b></label>
+                <input type="number" name="discountRate" class="form-control" placeholder="Tỷ lệ chiết khấu"
+                       id="discountRate" th:field="*{discountRate}" autocomplete="off">
+                <span class="required" id="messageDiscount"></span>
+            </td>
+            <td>
+                <label for="priceDiscount">Giá chiết khấu</label>
+                <input type="text" name="priceDiscount" class="form-control" placeholder="Giá chiết khấu" th:field="*{priceDiscount}" id="priceDiscount" autocomplete="off">
+            </td>
+
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button type="submit" class="btn btn-primary button-control" id="doEdit"><i
+                        class="fa fa-pencil" aria-hidden="true"></i>
+                    Chỉnh sửa
+                </button>
+                <button type="button" id="doBack" data-dismiss="modal" class="btn btn-primary button-control" >
+                    <i class="fa fa-undo" aria-hidden="true"></i> Quay lại
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#brandFreeModal").prop("checked", true);
+        $("#commissionDefault").prop("checked", true);
+        $("#discountDefault").prop("checked", true);
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+
+        //tính mức chiết khấu
+        // if ($("#typeDiscountCommission").val() == '1'){
+            if ($("#discountRate").val() != "" && $("#priceBrand").val() != ""){
+                let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+                document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+            }
+            if($("#discountRate").val() == ""){
+                let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+                document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+            }
+            if($("#priceBrand").val() == ""){
+                $("#amountDiscount").val(0);
+            }
+        // }
+
+        $("#brandFreeModal").find("checkbox").each(function () {
+            if ($(this).prop('checked') == true) {
+                $(".notFreeBrand").attr("hidden");
+            } else {
+                $(".notFreeBrand").removeAttribute("hidden");
+            }
+        });
+        $(':checkbox').change(function () {
+            if ($("#brandFreeModal").prop('checked') == true) {
+                $(".notFreeBrand").attr("hidden", true);
+            } else {
+                $(".notFreeBrand").removeAttr('hidden');
+            }
+        });
+        if (Number($("#priceDiscount").val()) > 0 && Number($("#priceBrand").val()) > 0 && Number($("#commissionRate").val() == 0)) {
+            $("#brandFreeModal").prop("checked", false);
+            $(".notFreeBrand").removeAttr('hidden');
+            $(".discountRateShow").removeAttr('hidden');
+            $(".commissionRateShow").attr("hidden", true);
+            $('#typeDiscountCommission').val(1);
+            $("#commissionData").attr("hidden", true);
+            $(".priceBrandShow").removeAttr('hidden');
+        }
+        //show data when commissionRate has data
+        if (Number($("#commissionRate").val() >= 0) && Number($("#priceBrand").val() > 0) && Number($("#priceDiscount").val()) == 0) {
+            $("#brandFreeModal").prop("checked", false);
+            $(".notFreeBrand").removeAttr('hidden');
+            $(".commissionRateShow").removeAttr('hidden');
+            $("#commissionData").removeAttr("hidden");
+            $(".discountRateShow").attr("hidden", true);
+            $('#typeDiscountCommission').val(0);
+            $("#commissionDataId").attr("hidden", true);
+            $(".priceBrandShow").removeAttr('hidden');
+        }
+        //show data when dcPolicyId has data
+        if (Number($("#dcPolicyId").val() > 0) && Number($("#priceBrand").val() > 0) && Number($("#priceDiscount").val()) == 0) {
+            $("#brandFreeModal").prop("checked", false);
+            $("#commissionDefault").prop("checked", false);
+            $(".notFreeBrand").removeAttr('hidden');
+            $(".commissionRateShow").removeAttr('hidden');
+            $("#commissionData").attr("hidden", true);
+            $(".discountRateShow").attr("hidden", true);
+            $('#typeDiscountCommission').val(0);
+            $("#commissionDataId").removeAttr('hidden');
+            $(".priceBrandShow").removeAttr('hidden');
+            $("#tlfor").attr("disabled",true);
+        }
+        $(':checkbox').change(function () {
+            if ($("#brandFreeModal").prop('checked') == true) {
+                $(".notFreeBrand").attr("hidden", true);
+                $(".commissionRateShow").attr("hidden", true);
+                $("#commissionData").attr("hidden", true);
+                $(".discountRateShow").attr("hidden", true);
+                $(".priceBrandShow").attr('hidden',true);
+                $("#priceBrand").val(0);
+                $("#commissionRate").val(0);
+                $("#dcPolicyId").val("");
+                $("#discountRate").val(0);
+                $("#priceDiscount").val(0);
+            } else {
+                $(".notFreeBrand").removeAttr('hidden');
+                $(".priceBrandShow").removeAttr('hidden');
+                if ($('#typeDiscountCommission').val() == 0) {
+                    $(".discountRateShow").attr("hidden", true);
+                    $(".commissionRateShow").removeAttr('hidden');
+                    if($("#commissionDefault").prop("checked")){
+                        $("#commissionData").removeAttr("hidden");
+                        $("#tlfor").removeAttr('disabled',true);
+                    }else {
+                        $("#commissionData").attr("hidden", true);
+                        $("#tlfor").attr('disabled',true);
+                    }
+                }
+            }
+            $("#priceBrand , #discountRate").change(function () {
+                var money = parseInt($("#priceBrand").val().replace(/,/g, ''));
+                var discount = $("#discountRate").val();
+                var resultFinal = money -  (money * Number(discount) / 100);
+                var amountDiscount = money - resultFinal;
+                console.log(amountDiscount);
+                $("#priceDiscount").val(resultFinal);
+                $("#amountDiscount").val(amountDiscount);
+            })
+
+            if($('#discountDefault').prop('checked') ==true)
+            {
+                $("#discountRate").val(0);
+                $('#discountRate').attr('readonly', false);
+            }
+
+        });
+        // onchange typeDC then change show typeDC
+        $('#typeDiscountCommission').change(function () {
+            if($('#typeDiscountCommission').val() == 0)
+            {
+                $(".discountRateShow").attr("hidden", true);
+                $(".commissionRateShow").removeAttr('hidden');
+                $("#discountDefault").prop("checked", true);
+                if($("#commissionDefault").prop("checked")){
+                    $("#commissionData").removeAttr("hidden");
+                    $("#commissionDataId").attr("hidden", true);
+                    $("#tlfor").removeAttr('disabled',true);
+                }else {
+                    $("#commissionData").attr("hidden", true);
+                    $("#commissionDataId").removeAttr("hidden");
+                    $("#tlfor").attr('disabled',true);
+                }
+            }
+            if($('#typeDiscountCommission').val() == 1)
+            {
+                $(".commissionRateShow").attr("hidden", true);
+                $("#commissionData").attr("hidden", true);
+                $("#commissionDataId").attr("hidden", true);
+                $(".discountRateShow").removeAttr('hidden');
+                $("#commissionDefault").prop("checked", true);
+            }
+        });
+    });
+
+    //tính giá sau chiết khấu
+    $("#priceBrand").on("keyup",function () {
+        if ($("#discountRate").val() != "" && $("#priceBrand").val() != ""){
+            let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+            document.getElementById("priceDiscount").value = priceBrand - (document.getElementById("discountRate").value * priceBrand / 100);
+            document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+        }
+        if($("#discountRate").val() == ""){
+            let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+            // var priceDiscount = $("#priceBrand").val();
+            $("#priceDiscount").val(priceBrand);
+            document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+        }
+        if($("#priceBrand").val() == ""){
+            $("#priceDiscount").val(0);
+            $("#amountDiscount").val(0);
+        }
+    });
+    $("#discountRate").on("keyup",function () {
+        if ($("#discountRate").val() != "" && $("#priceBrand").val() != ""){
+            let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+            document.getElementById("priceDiscount").value = priceBrand - (document.getElementById("discountRate").value * priceBrand / 100);
+            document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+        }
+        if($("#discountRate").val() == ""){
+            let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+            // var priceDiscount = $("#priceBrand").val();
+            $("#priceDiscount").val(priceBrand);
+            document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+
+        }
+        if($("#priceBrand").val() == ""){
+            $("#priceDiscount").val(0);
+            $("#amountDiscount").val(0);
+        }
+    });
+    $("#priceDiscount").on("keyup",function () {
+        if ($("#priceBrand").val() != "" ){
+            let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+            document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+        }
+        // if($("#discountRate").val() == ""){
+        //     let priceBrand = parseInt(document.getElementById("priceBrand").value.replace(/,/g, ''));
+        //     // var priceDiscount = $("#priceBrand").val();
+        //     $("#priceDiscount").val(priceBrand);
+        //     document.getElementById("amountDiscount").value = priceBrand - document.getElementById("priceDiscount").value;
+        // }
+        // if($("#priceBrand").val() == ""){
+        //     $("#priceDiscount").val(0);
+        //     $("#amountDiscount").val(0);
+        // }
+    });
+
+    $("#serviceModal").on('change',function () {
+
+        let link = "/vasonline/brand-group-list?idService="+ $("#serviceModal").val();
+        $.ajax({
+            url: link,
+            method: 'GET',
+            success: function(data) {
+                //alert("success " + data);
+
+                var str ='<option value="">--Chọn dịch vụ--</option>';
+
+                for (let i = 0; i < data.length ; i++) {
+                    //if (data[i].status == 0) {
+                    str += ' <option value= "' + data[i].id + '" >' + data[i].groupName + '</option>';
+                    //}
+
+
+                }
+                $('#brandGroupBModal').html(str);
+
+            },
+            error: function(request) {
+                alert("The request failed: " + request.responseText);
+            }
+        })
+    })
+    //get data
+    $("#commissionDefault:checkbox").on('change',function()
+    {
+        if(!$(this).is(':checked')) {
+            $("#commissionData").attr("hidden",true);
+            $("#commissionDataId").removeAttr("hidden");
+            $("#tlfor").attr('disabled',true);
+            let link = "/vasonline/default-commissionRate";
+            $.ajax({
+                url: link,
+                method: 'GET',
+                success: function (data) {
+                    var str = '<label for="dcPolicyId">Tỉ lệ hoa hồng(%) </label>' +
+                        '<select name="dcPolicyId" id="dcPolicyId" class="form-control">';
+
+                    for (let i = 0; i < data.length; i++) {
+                        str += ' <option value= "' + data[i].id + '" >' + data[i].policyName + '</option>';
+                    }
+                    str +='  </select>'
+                    $(".commissionShowData").html(str);
+
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            })
+        }else {
+            $("#commissionData").removeAttr("hidden");
+            $("#commissionDataId").attr("hidden",true);
+            $("#tlfor").removeAttr('disabled',true);
+        }
+    });
+    $("#dcPolicyId").on('click',function()
+    {
+        if($('#commissionDefault').is(':checked')) {
+            let link = "/vasonline/default-commissionRate";
+            $.ajax({
+                url: link,
+                method: 'GET',
+                success: function (data) {
+                    var str = '<label for="dcPolicyId">Tỉ lệ hoa hồng(%) </label>' +
+                        '<select name="dcPolicyId" id="dcPolicyId" class="form-control">';
+
+                    for (let i = 0; i < data.length; i++) {
+                        str += ' <option value= "' + data[i].id + '" >' + data[i].policyName + '</option>';
+                    }
+                    str +='  </select>' + '</td>'
+                    $(".commissionShowData").html(str);
+
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            })
+        }
+    });
+    $("#discountDefault:checkbox").on('change',function(){
+
+        if(!$(this).is(':checked')) {
+            let link = "/vasonline/default-discountRate";
+            $.ajax({
+                url: link,
+                method: 'GET',
+                success: function (data) {
+                    $("#discountRate").val(data.discountRate);
+                    $('#discountRate').attr('readonly', true);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            })
+        }
+    });
+    //Validate
+    $("#doEdit").on('click', function (e) {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test($("#brandIdModal").val())) {
+            $("#messageBrandId").text(
+                "Mã gói cước chứa ký tự đặc biệt");
+            $("#brandIdModal").focus();
+            return false;
+        }
+        // if (format.test($("#nameModal").val())) {
+        //     $("#messageBrandName").text(
+        //         "Mã gói cước chứa ký tự đặc biệt");
+        //     $("#nameModal").focus();
+        //     return false;
+        // }
+        if ($("#brandIdModal").val().trim() === '') {
+            $("#messageBrandId").text("Bạn chưa nhập mã gói cước");
+            $("#brandIdModal").focus();
+            return false;
+        }
+        if ($("#nameModal").val().trim() === '') {
+            $("#messageBrandName").text(
+                "Bạn chưa nhập tên gói cước");
+            $("#nameModal").focus();
+            return false;
+        }
+        if ($("#activeDayModal").val().trim() === '') {
+            $("#messageActiveDay").text(
+                "Bạn chưa nhập số ngày hiệu lực");
+            $("#activeDayModal").focus();
+            return false;
+        }
+        if ($("#activeDayModal").val() * 1 < 0) {
+            $("#messageActiveDay").text("Số ngày hiệu lực không hợp lệ");
+            $("#activeDayModal").focus();
+            return false;
+        }
+        if ($("#discountRate").val() !== '')
+        {
+            $("#brandFreeModal").attr('checked', true)
+        }
+        if ($("#brandFreeModal").prop("checked", false)) {
+            if ($("#priceBrand").val() === '') {
+                $("#messagePriceBrand").text( "Bạn chưa nhập giá gói cước");
+                $("#priceBrand").focus();
+                return false;
+            }
+            if ($("#priceBrand").val() * 1 < 0) {
+                $("#messagePriceBrand").text( "Giá gói cước không hợp lệ");
+                $("#priceBrand").focus();
+                return false;
+            }
+            if ($("#discountRate").val().trim() === '' && $("#typeDiscountCommission").val() == "1") {
+                $("#messageDiscount").text( "Bạn chưa nhập tỉ lệ chiết khấu");
+                $("#discountRate").focus();
+                return false;
+            }
+            if ($("#commissionRate").val().trim() === '' && $("#typeDiscountCommission").val() == "0") {
+                $("#messageCommission").text( "Bạn chưa nhập tỉ lệ hoa hông");
+                $("#commissionRate").focus();
+                return false;
+            }
+            if ($("#commissionRate").val() * 1 < 0 || $("#commissionRate").val() * 1 > 100) {
+                $("#messageCommission").text(
+                    "Tỉ lệ chiết khấu không hợp lệ");
+                $("#commissionRate").focus();
+                return false;
+            }
+            if ($("#discountRate").val() * 1 < 0 || $("#discountRate").val() * 1 > 100) {
+                $("#messageDiscount").text( "Tỉ lệ chiết khấu không hợp lệ");
+                $("#discountRate").focus();
+                return false;
+            }
+        }
+    })
+    var invalidChars = ["-", "+", "e", ",", "."];
+    $("#activeDay").on("keydown", function (e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+
+</html>

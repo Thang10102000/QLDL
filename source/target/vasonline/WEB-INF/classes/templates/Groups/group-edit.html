@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Quản lý nhóm tài khoản</title>
+</head>
+<body>
+	<div class="wrapper" sec:authorize="isAuthenticated()">
+		<!-- Sidebar  -->
+		<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+		<!-- Page Content  -->
+		<div id="content">
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+			<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+			<div class="container-fluid" th:object="${groupData}">
+				<div class="heading">
+					<H4 th:text="'SỬA NHÓM TÀI KHOẢN: ' + *{groupName}" /></H4>
+					<span class="required" th:utext="${notification}"></span>
+				</div>
+				<div class="box box-primary table-responsive"
+					sec:authorize="hasAuthority('Quản lý nhóm tài khoản:Sửa')">
+					<form th:action="@{/admin/group-management/edit}" method='POST'>
+						<table class="table table-condensed table-sm">
+							<tr>
+								<td style="width: 50%"><label for="groupId">Mã nhóm
+										tài khoản <b class="required">(*)</b>
+								</label> <input type="text" class="form-control" placeholder="Group Id"
+									name="groupId" id="groupId" th:field="*{groupId}" readonly>
+								</td>
+								<td><label for="group-name">Tên nhóm tài khoản</label> <input
+									type="text" class="form-control" placeholder="Group name"
+									name="groupName" id="group-name" th:field="*{groupName}">
+									<span class="required" id="messageGroupName"></span>
+								</td>
+							</tr>
+							<tr>
+								<td><label for="group-father">Nhóm cha</label> <select
+									name="groupFather" id="group-father" class="form-control">
+										<option value="">--Chọn nhóm cha--</option>
+										<option th:each="g : ${myGroup}" th:value="${g.groupId}"
+											th:field="*{groupFather.groupId}" th:text="${g.groupName}"></option>
+								</select></td>
+								<td><label for="group-level">Cấp nhóm</label> <select
+									name="groupLevel" id="group-level" class="form-control">
+										<option value="">--Chọn cấp nhóm--</option>
+										<option th:each="l : ${levels}" th:value="${l.levelId}"
+											th:field="*{levelGroups.levelId}" th:text="${l.levelName}"></option>
+								</select></td>
+							</tr>
+							<tr>
+								<td><label for="group-members">Thêm thành viên</label> <select
+									name="groupMembers" id="group-members"
+									class="form-control select2" multiple>
+										<option th:each="searchUser : ${myUsers}"
+											th:value="${searchUser.username}"
+											th:text="'[' +${searchUser.username}+ '] - ' +${searchUser.fullname}"></option>
+								</select></td>
+								<td><input type="hidden" name="group-member" id="group-member" /></td>
+							</tr>
+							<tr class='control'>
+								<td colspan='4' align='center'>
+									<button class="btn btn-primary button-control" id="doEdit"
+										type="submit">
+										<i class="fa fa-pencil"></i> CHỈNH SỬA
+									</button>
+									<a class="btn btn-primary button-control"
+										th:href="@{/admin/group-management}" id="doBack">
+										<i class="fa fa-undo"></i> QUAY LẠI
+									</a>
+									<button type="button" class="btn btn-primary button-control"
+										id="grantAuth" data-toggle="modal"
+										data-target="#authenGroupModal">
+										<i class="fa fa-key"></i> CẤP QUYỀN
+									</button>
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+				<div class="box box-primary table-responsive"
+					sec:authorize="hasAuthority('Quản lý tài khoản:Xem')">
+					<div style="float: right; margin-right: 1px; margin-bottom: 1px;">
+						<input type="text" placeholder="Username" name="username"
+							id="username">&nbsp;
+						<button class="btn btn-primary" id="doSearch">
+							<i class="fa fa-search"></i> TÌM KIẾM
+						</button>
+					</div>
+					<table class="table table-bordered table-sm" id="searchtable">
+						<thead>
+							<tr>
+								<th>Tên tài khoản</th>
+								<th>Tên đầy đủ</th>
+								<th>Địa chỉ</th>
+								<th>Email</th>
+								<th>Số điện thoại</th>
+								<th>Fax</th>
+								<th>Trạng thái</th>
+								<th>Hành động</th>
+							</tr>
+						</thead>
+						<tbody id="tableBody"></tbody>
+					</table>
+					<nav aria-label="Page navigation">
+						<ul class="pagination">
+							<li class="page-item"><span id="totalPage"></span></li>
+							<li class="page-item"><span id="pageSize"></span></li>
+							<li class="page-item">
+								<div class="form-group">
+									<select class="form-control" name="selector"
+										onChange="resetPage()">
+										<option>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+										<option>200</option>
+									</select>
+								</div>
+							</li>
+							<li class="page-item"><span>&nbsp;</span></li>
+							<li class="page-item"><a class="page-link"
+								onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+							<li class="page-item"><a id="prePage"></a></li>
+							<li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+							<li class="page-item"><a id="nexPage"></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- The Modal Phân quyền group-->
+	<div class="modal" id="authenGroupModal">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content rounded-0">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">
+						Cấp quyền<b class="required"><span id="groupIdPQ"></span></b>
+					</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body table-responsive">
+					<table class="table" id="authenGroupTable">
+						<thead>
+							<tr>
+								<th><input type="checkbox" class="form-check-input"
+									id="group-check-all" name="check-all"></th>
+								<th>Chức năng</th>
+								<th>Quyền hạn</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="menu : ${myMenu}">
+								<td style="margin-top: -5px;" align="center"><input
+									type="checkbox" class="form-check-input group-authen-checkbox"
+									th:id="${menu.sfId}"></td>
+								<div th:switch="${menu.sfId}">
+									<td th:case="${menu.sfFather.sfId}" th:utext="${menu.sfName}" style="font-weight: bold;"></td>
+									<td th:case="*" th:utext="'-    '+${menu.sfName}"></td>
+								</div>
+								<td align="center" class="sfAction"><a
+									class="btn btn-primary-outline group-authen-create"
+									th:id="${menu.sfName}+':Thêm'"> <i class="fa fa-plus" title="Thêm"></i>
+								</a> <a class="btn btn-primary-outline group-authen-edit"
+									th:id="${menu.sfName}+':Sửa'"> <i class="fa fa-pencil" title="Sửa"></i>
+								</a> <a class="btn btn-primary-outline group-authen-delete"
+									th:id="${menu.sfName}+':Xoá'"> <i class="fa fa-trash-o" title="Xóa"></i>
+								</a> <a class="btn btn-primary-outline group-authen-view"
+									th:id="${menu.sfName}+':Xem'"> <i class="fa fa-eye" title="Xem"></i>
+								</a> <a class="btn btn-primary-outline authen-execute"
+									th:id="${menu.sfName}+':Thực thi'"> <i class="fa fa-cog" title="Thực thi"></i>
+								</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-primary"
+						id="GroupSavePrivileges">
+						<i class="fa fa-cogs"></i> Save
+					</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">
+						<i class="fa fa fa-times"></i> Close
+					</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!--modal form edit-->
+	<div class="modal fade in" id="modal-command-type-edit" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+		<div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+			<div class="modal-content">
+				<div class="modal-header bg-yellow">
+					<h4 class="modal-title">SỬA TÀI KHOẢN</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body" id="edit_table">
+
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal Chi tiết user-->
+	<div class="modal" id="userModal">
+		<div class="modal-dialog">
+			<div class="modal-content rounded-0">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">
+						Chi tiết tài khoản: <b class="required"><span id="userId"></span></b>
+					</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<table class="table" id="viewTable">
+						<tr>
+							<td>Tên đầy đủ</td>
+							<td class="modal-fullname"></td>
+						</tr>
+						<tr>
+							<td>Email</td>
+							<td class="modal-email"></td>
+						</tr>
+						<tr>
+							<td>Số điện thoại</td>
+							<td class="modal-phone"></td>
+						</tr>
+						<tr>
+							<td>Số fax</td>
+							<td class="modal-fax"></td>
+						</tr>
+						<tr>
+							<td>Địa chỉ</td>
+							<td class="modal-address"></td>
+						</tr>
+						<tr>
+							<td>Người tạo</td>
+							<td class="modal-createBy"></td>
+						</tr>
+						<tr>
+							<td>Ngày tạo</td>
+							<td class="modal-createDate"></td>
+						</tr>
+						<tr>
+							<td>Ngày đăng nhập cuối</td>
+							<td class="modal-lastLogin"></td>
+						</tr>
+						<tr>
+							<td>Cấp tài khoản</td>
+							<td class="modal-userLevel"></td>
+						</tr>
+						<tr>
+							<td>Trạng thái tài khoản</td>
+							<td class="modal-userStatus"></td>
+						</tr>
+					</table>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">
+						<i class="fa fa fa-times"></i> Close
+					</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<link rel="stylesheet" href="/vasonline/style/toastr.min.css">
+	<script src="/vasonline/js/group.js"></script>
+	<script src="/vasonline/js/group-authorized.js"></script>
+	<script src="/vasonline/js/select2.min.js"></script>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script src="/vasonline/js/group-user-search.js"></script>
+	<script src="/vasonline/js/toastr.min.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			$("#doSearch").click();
+		});
+		$('.select2').select2();
+		$('.select2').on('change', function(e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			$('input:hidden[name=group-member]').val(value);
+		});
+
+		$("#doEdit").on('click',function(e) {
+			if ($("#group-name").val() === '') {
+				$("#messageGroupName").text("Tên nhóm bắt buộc nhập");
+				$("#messageGroupName").focus();
+				return false;
+			}
+		});
+
+		$(document).ready(function() {
+			let messageResponse = '[[${message}]]';
+			console.log(messageResponse);
+			if(messageResponse == 'success'){
+				messageSuccess();
+			}
+			if (messageResponse == 'failed'){
+				messageFailed();
+			}
+			if(isNumber(messageResponse)) {
+				messageInvalidUser(messageResponse);
+			}
+		});
+
+		function messageSuccess(){
+			toastr.success('Thành công');
+		}
+		function messageFailed(){
+			toastr.error('Thất bại');
+		}
+		function messageInvalidUser(arg){
+			toastr.success('Sửa nhóm thành công! Số tài khoản được thêm vào nhóm: '+arg);
+		}
+
+		function isNumber(n) {
+			return !isNaN(parseFloat(n)) && !isNaN(n - 0)
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Cập nhật nhóm gói cước</title>
+</head>
+
+<body>
+    <form th:action="@{/edit-brand-group}" th:object="${brandGroup}" method="post">
+        <table class="table table-condensed col">
+            <tr>
+                <td><label for="groupName">Tên nhóm gói cước <b
+                        class="required">(*)</b></label>
+                    <input type="text" name="groupName" class="form-control" th:field="*{groupName}"
+                           placeholder="Tên nhóm gói cước" id="groupName" autocomplete="off">
+                    <span class="required" id="groupNameMessage"></span>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="serviceBG">Dịch vụ <b
+                        class="required">(*)</b></label>
+                    <select id="serviceBG" name="serviceBG" class="form-control" th:field="*{servicesBG}">
+                    <option th:each="service : ${services}"
+                            th:value="${service.id}" th:text="${service.serviceName}"></option>
+                </select></td>
+            </tr>
+            <tr>
+                <td><label for="status">Trạng thái <b
+                        class="required">(*)</b></label>
+                    <select id="status" name="status" class="form-control">
+                    <option value="0" th:field="*{status}">Hiệu lực</option>
+                    <option value="1" th:field="*{status}">Không hiệu lực</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td><label for="description">Mô tả</label>
+                    <textarea rows="1" type="text" name="description" class="form-control" th:field="*{description}" placeholder="Mô tả" id="description"
+                              autocomplete="off"></textarea>
+                    <input type="hidden"  id="createdBy" name="createdBy" th:value="${#request.userPrincipal.Principal.users.username}">
+                    <input type="hidden"  id="id" name="id" th:field="*{id}">
+                </td>
+            </tr>
+            <tr class='control'>
+                <td colspan='4' align='center'>
+                    <button class="btn btn-primary button-control edit" type="submit"
+                            name="doEdit" id="doEdit">
+                        <i class="fa fa-pencil" aria-hidden="true"></i> Chỉnh sửa
+                    </button>&nbsp;
+                    <button type="button" id="doBack" data-dismiss="modal" class="btn btn-primary button-control" >
+                        <i class="fa fa-undo" aria-hidden="true"></i> Quay lại
+                    </button>
+                </a>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#groupName").on('keydown',function () {
+            $("#groupNameMessage").text("");
+        })
+    });
+    $("#doEdit").on('click', function (e) {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test($("#groupName").val())) {
+            $("#groupNameMessage").text("Tên nhóm gói cước chứa ký tự đặc biệt");
+            $("#groupName").focus();
+            return false;
+        }
+        if ($("#groupName").val() === '') {
+            $("#groupNameMessage").text("Bạn chưa nhập tên nhóm gói cước");
+            $("#groupName").focus();
+            return false;
+        }
+    })
+</script>
+</body>
+
+</html>

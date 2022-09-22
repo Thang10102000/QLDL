@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Chỉnh sửa đại lý</title>
+</head>
+
+<body>
+<form th:action="@{/edit-kam}" method="post">
+    <table class="table table-condensed col" th:object="${editAm}">
+        <tr>
+            <input type="hidden" id="id" name="id" th:field="*{id}">
+            <td style="width: 50%;">
+                <label for="agencyName">Tên AM/KAM<b class="required">(*)</b></label>
+                <input type="text" name="agencyName" th:field="*{agencyName}"
+                            class="form-control" placeholder="Tên AM/KAM" id="agencyName"
+                            autocomplete="off" >
+                <span class="required" id="agencyNameMessage"></span></td>
+            <td><label for="areaId">Công ty khu vực<b class="required">(*)</b></label>
+                <select name="areaId" id="areaId" class="form-control" th:field="*{areaId}" >
+                    <option th:each="area : ${agencyArea}"
+                            th:value="${area.areaId}" th:text="${area.areaName}"></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="agencyCode">Mã AM/KAM<b class="required">(*)</b></label>
+                <input type="text" th:field="*{agencyCode}" name="agencyCode" class="form-control"
+                       placeholder="Mã đại lý" id="agencyCode" >
+            </td>
+            <td><label for="shopCode">Mã đơn vị bán hàng</label>
+                <input type="text" th:field="*{shopCode}"
+                            name="shopCode" class="form-control"
+                            placeholder="Mã đơn vị bán hàng" id="shopCode" autocomplete="off">
+                <span class="required" id="businessLicenseMessage"></span>
+
+            </td>
+        </tr>
+
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button type="submit" class="btn btn-primary button-control"
+                        name="doEdit" id="doEdit">
+                    <i class="fa fa-pencil" aria-hidden="true"></i> Chỉnh sửa
+                </button>
+                <a type="button" id="doBack"
+                   class="btn btn-primary button-control" data-dismiss="modal"><i
+                        class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>
+            </td>
+        </tr>
+    </table>
+</form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script src="/vasonline/js/amkam-search.js"></script>
+</body>
+
+</html>

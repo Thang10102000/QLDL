@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Chỉnh sửa gói cước</title>
+</head>
+
+<body>
+<form th:action="@{/edit-cus}" method="post" th:object="${cus}">
+    <table class="table table-condensed col">
+        <tr>
+            <input type="hidden" id="id" name="id" th:field="*{id}">
+            <td style="width: 50%"><label for="nameCusEdit">Tên khách hàng<b class="required">(*)</b></label>
+                <input type="text" name="name" th:field="*{name}" class="form-control" placeholder="Mã khu vực" id="nameCusEdit"
+                       autocomplete="off"> <span class="required" id="messageNameCus"></span>
+            </td>
+            <td><label for="domain">Tên miền<b class="required">(*)</b></label>
+                <input type="text" name="domain" th:field="*{domain}" class="form-control" placeholder="Mã khu vực" id="domain"
+                       autocomplete="off"> <span class="required" id="messageDomain"></span>
+            </td>
+        </tr>
+        <tr>
+            <td s><label for="email">Email <b class="required">(*)</b></label>
+                <input type="text" name="email" class="form-control" placeholder="Email" id="email"
+                       autocomplete="off" th:field="*{email}"> <span class="required" id="messageEmail"></span>
+            </td>
+            <td><label for="phone">Số điện thoại <b class="required">(*)</b></label>
+                <input type="text" name="phone"  class="form-control" placeholder="Số điện thoại" id="phone"
+                       autocomplete="off" th:field="*{phone}"> <span class="required" id="messagePhone"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="schoolEdit">Loại trường học</label>
+                <select style="text-transform: capitalize" name="school" id="schoolEdit" class="form-control" th:field="*{schoolId}">
+                    <option th:each="lv : ${school}" th:value="${lv.id}"
+                            th:text="${lv.schoolType}"></option>
+                </select>
+                <span class="required" id="messageSchoolEdit"></span>
+            </td>
+            <td><label for="areaEdit">Công ty khu vực - Trung tâm<b class="required">(*)</b></label>
+                <select th:field="*{areaCId}" id="areaEdit" name="area" class="form-control" >
+                    <option th:each="lv : ${areas}" th:value="${lv.areaId}"
+                            th:text="${lv.areaName}"></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="agencyCode">Đại lý - AM/KAM <b class="required">(*)</b></label>
+                <select name="agencyCode" id="agencyCode" class="form-control select2Edit" th:field="*{agencyCode}" >
+                    <option th:each="a : ${agency}" th:value="${a.agencyCode}" th:text="${a.agencyCode} +'-'+ ${a.agencyName}"></option>
+                </select>
+                <span class="required" id="messageAgencyCode"></span>
+            </td>
+            <td><label for="province">Tỉnh thành<b class="required">(*)</b></label>
+                <select id="province" name="province" class="form-control" th:field="*{province}">
+                    <option value="">Chọn tỉnh, thành phố</option>
+                    <option th:each="province : ${listProvince}"
+                            th:value="${province.id}" th:text="${province.province_name}"></option>
+                </select>
+                <span class="required" id="messageProvince"></span>
+            </td>
+
+        </tr>
+        <tr>
+            <td><label for="district">Quận/Huyện<b class="required">(*)</b></label>
+                <select id="district" name="district" class="form-control" th:field="*{district}">
+                    <option th:each="d : ${listDistrict}" th:value="${d.id}" th:text="${d.districtName}" ></option>
+                </select>
+                <span class="required" id="messageDistrict"></span>
+            </td>
+            <td><label for="wards">Phường/Xã<b class="required">(*)</b></label>
+                <select id="wards" name="wards" class="form-control" th:field="*{wards}">
+                    <option th:each="d : ${listWards}" th:value="${d.id}" th:text="${d.wardName}" ></option>
+                </select>
+                <span class="required" id="messageWards"></span>
+            </td>
+
+        </tr>
+        <tr>
+            <td><label for="addresssd">Đường/Phố</b></label>
+                <input type="text" name="address" th:field="*{address}" class="form-control" placeholder="Mã khu vực" id="addresssd"
+                       autocomplete="off"> <span id="messageAddress"></span>
+            </td>
+            <td></td>
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button type="submit" class="btn btn-primary button-control" id="doEdit"><i
+                        class="fa fa-pencil" aria-hidden="true"></i>
+                    Chỉnh sửa
+                </button>
+                <button type="button" id="doBack" data-dismiss="modal" class="btn btn-primary button-control" >
+                    <i class="fa fa-undo" aria-hidden="true"></i> Quay lại
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/select2.min.js"></script>
+<script type="text/javascript">
+    $(".select2Edit").select2();
+    $(document).on("change","#wards, #province, #district, #schoolEdit, #agencyCode", function () {
+        $("#messageWards").text("");
+        $("#messageDistrict").text("");
+        $("#messageProvince").text("");
+        $("#messageAgencyCode").text("");
+        $("#messageSchoolEdit").text("");
+    })
+    $(document).ready(function () {
+        $("#schoolEdit , #areaEdit, #nameCusEdit, #domain, #addresssd, #email, #phone").keydown(function () {
+            $("#messageNameCus").text("");
+            $("#messageAddress").text("");
+            $("#messageArea").text("");
+            $("#messageSchool").text("");
+            $("#messageDomain").text("");
+            $("#messageEmail").text("");
+            $("#messagePhone").text("");
+
+        })
+        // if ($("#areaEdit").val() != ''){
+        //     let linkUrl = "/vasonline/get-all-agency-by-area?areaId="+ $("#areaEdit").val();
+        //     $.ajax({
+        //         url: linkUrl,
+        //         method: 'GET',
+        //         success: function (data) {
+        //             var str = '<option value= "">---Lựa chọn Đại lý----</option>';
+        //             // var strAm = '<option value= "">---Lựa chọn AM/KAM----</option>'
+        //             for (let i = 0; i < data.length; i++) {
+        //                 if(data[i].type == 0){
+        //                     str += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>';
+        //                 }
+        //                 // else {
+        //                 //     strAm += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>';
+        //                 // }
+        //
+        //             }
+        //             $("#agencyCode").html(str);
+        //             // $("#amCode").html(strAm);
+        //         },
+        //         error: function (request) {
+        //             alert("The request failed: " + request.responseText);
+        //         }
+        //     });
+        // }
+    });
+
+    //Validate
+    $("#doEdit").on('click', function (e) {
+        $("#provinceIp").val($("#province option:selected").text())
+        $("#districtIp").val($("#district option:selected").text())
+        $("#wardsIp").val($("#wards option:selected").text())
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (format.test($("#nameCusEdit").val())) {
+            $("#messageNameCus").text(
+                "Tên khách hàng chứa ký tự đặc biệt");
+            $("#nameCusEdit").focus();
+            return false;
+        }
+        if ($("#nameCusEdit").val().trim() === '' ) {
+            $("#messageNameCus").text(
+                "Bạn nhập chưa tên khách hàng");
+            $("#nameCusEdit").focus();
+            return false;
+        }
+        if ( $("#domain").val().trim() === '') {
+            $("#messageDomain").text("Bạn chưa nhập tên miền");
+            $("#domain").focus();
+            return false;
+        }
+        if ($("#email").val().trim() === '') {
+            $("#messageEmail").text(
+                "Bạn chưa nhập email");
+            $("#email").focus();
+            return false;
+        }
+        if (!re.test($("#email").val())) {
+            $("#messageEmail").text("Email sai định dạng");
+            $("#email").focus();
+            return false;
+        }
+        if ($("#phone").val().trim() === '') {
+            $("#messagePhone").text(
+                "Bạn chưa nhập số điện thoại");
+            $("#phone").focus();
+            return false;
+        }
+        if ($("#phone").val()*1 != $("#phone").val() || $("#phone").val().length < 8 || $("#phone").val().length > 14 ) {
+            $("#messagePhone").text(
+                "Bạn nhập số điện thoại sai định dạng");
+            $("#phone").focus();
+            return false;
+        }
+        if ($("#schoolEdit").val().trim() === '') {
+            $("#messageSchoolEdit").text(
+                "Bạn chưa nhập tên trường");
+            $("#schoolEdit").focus();
+            return false;
+        }
+        if ($("#areaEdit").val().trim() === '') {
+            $("#messageArea").text(
+                "Bạn chưa nhập tên khu vực");
+            $("#areaEdit").focus();
+            return false;
+        }if ($("#addresssd").val().trim() === '') {
+            $("#messageAddress").text(
+                "Bạn chưa nhập địa chỉ");
+            $("#addresssd").focus();
+            return false;
+        }
+        if ($("#agencyCode").val() === ''){
+            $("#messageAgencyCode").text("Bạn chưa chọn đại lý");
+            $("#agencyCode").focus();
+            return false;
+        }
+        if ($("#province").val().trim() === '') {
+            $("#messageProvince").text(
+                "Bạn chọn tỉnh/thành");
+            $("#province").focus();
+            return false;
+        }if ($("#district").val().trim() === '') {
+            $("#messageDistrict").text(
+                "Bạn chưa chọn quận/huyện");
+            $("#district").focus();
+            return false;
+        }if ($("#wards").val().trim() === '') {
+            $("#messageWards").text(
+                "Bạn chưa chọn xã/phường");
+            $("#wards").focus();
+            return false;
+        }
+    });
+    //        get district by province is
+    $(document).on("change","#province",function () {
+        let linkUrl = "/vasonline/get-district?provinceId="+ $("#province").val();
+        $.ajax({
+            url: linkUrl,
+            method: 'GET',
+            success: function(data) {
+
+                var str ='<option value= "">---Lựa chọn Quận/Huyện----</option>';
+                var strW ='<option value= "">---Lựa chọn Phường/Xã----</option>';
+
+                for (let i = 0; i < data.length ; i++) {
+                    str += ' <option value= "' + data[i].id + '" >' + data[i].districtName + '</option>';
+                }
+                $("#district").html(str);
+                $("#wards").html(strW);
+
+            },
+            error: function(request) {
+                alert("The request failed: " + request.responseText);
+            }
+        })
+    });
+
+    $(document).on("change","#district",function () {
+        let linkUrl = "/vasonline/get-ward?districtId="+ $("#district").val();
+        $.ajax({
+            url: linkUrl,
+            method: 'GET',
+            success: function(data) {
+
+                var str ='<option value= "">---Lựa chọn Phường/Xã----</option>';
+
+                for (let i = 0; i < data.length ; i++) {
+                    str += ' <option value= "' + data[i].id + '" >' + data[i].wardName + '</option>';
+                }
+                $("#wards").html(str);
+
+            },
+            error: function(request) {
+                alert("The request failed: " + request.responseText);
+            }
+        })
+    });
+    $("#areaEdit").on("change", function () {
+        let linkUrl = "/vasonline/get-all-agency-by-area?areaId="+ $("#areaEdit").val();
+        $.ajax({
+            url: linkUrl,
+            method: 'GET',
+            success: function (data) {
+                var str = '<option value= "">---Lựa chọn Đại lý - AM/KAM ----</option>';
+                // var strAm = '<option value= "">---Lựa chọn AM/KAM----</option>'
+                for (let i = 0; i < data.length; i++) {
+                    // if(data[i].type == 0){
+                        str += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyCode + ' - ' +  data[i].agencyName + '</option>';
+                    // }
+                    // else {
+                    //     strAm += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>';
+                    // }
+
+                }
+                $("#agencyCode").html(str);
+                // $("#amCode").html(strAm);
+            },
+            error: function (request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+
+    });
+</script>
+</body>
+
+</html>

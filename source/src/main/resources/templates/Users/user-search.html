@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Quản lý tài khoản</title>
+</head>
+<body>
+	<input type="hidden" th:name="${_csrf.parameterName}"
+		th:value="${_csrf.token}" />
+	<div class="wrapper" sec:authorize="isAuthenticated()">
+		<!-- Sidebar  -->
+		<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+		<!-- Page Content  -->
+		<div id="content">
+			<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+			<div class="container-fluid">
+				<div class="heading">
+					<h4>QUẢN LÝ TÀI KHOẢN</h4>
+				</div>
+				<div class="box box-primary table-responsive">
+					<!-- sec:authorize="hasAuthority('Quản lý tài khoản:Xem')"> -->
+					<form>
+						<table class="table table-sm" id="usertable">
+							<tr>
+								<td><label for="username">Tên tài khoản</label> <input
+									type="text" class="form-control" placeholder="Username"
+									name="username" id="username"></td>
+								<td style="width: 50%;"><label for="email">Email</label> <input type="text"
+									class="form-control" placeholder="Email" name="email"
+									id="email"></td>
+							</tr>
+							<tr>
+								<td><label for="fullname">Tên đầy đủ</label> <input
+									type="text" class="form-control" placeholder="Fullname"
+									name="fullname" id="fullname"></td>
+								<td><label for="phone">Số điện thoại</label> <input
+									type="text" class="form-control" placeholder="Phone"
+									name="phone" id="phone"></td>
+							</tr>
+							<tr>
+								<td><label for="level-id">Cấp tài khoản</label> <select
+									name="level-id" id="level-id" class="form-control">
+										<option value="">--Chọn cấp--</option>
+										<option th:each="l : ${levels}" th:value="${l.levelId}"
+											th:text="${l.levelName}"></option>
+								</select></td>
+								<td><label for="group-id">Nhóm tài khoản</label> <select
+									name="group-id" id="group-id" class="form-control">
+										<option value="">--Chọn nhóm--</option>
+										<option th:each="g : ${myGroup}" th:value="${g.groupId}"
+											th:text="${g.groupName}"></option>
+								</select></td>
+							</tr>
+							<tr>
+								<td class="slArea" hidden><label for="areaIdSearch">Công ty khu vực</label>
+									<select name="areaIdSearch" id="areaIdSearch" class="form-control" th:if="${#lists.size(myArea) >= 2}">
+										<option value="">-- Chọn công ty khu vực --</option>
+										<option th:each="area : ${myArea}"
+											th:value="${area.areaId}" th:text="${area.areaName}"></option>
+									</select>
+									<select name="areaIdSearch" id="areaIdSearch" class="form-control" th:if="${#lists.size(myArea) < 2}">
+										<option th:each="area : ${myArea}"
+												th:value="${area.areaId}" th:text="${area.areaName}"></option>
+									</select>
+								</td>
+								<td class="slAgency" hidden><label for="agencyIdSearch">Đại lý
+								</label> <select name="agencyIdSearch" id="agencyIdSearch"
+									class="form-control">
+										<option value="">--Chọn đại lý--</option>
+										<option th:each="agency : ${myAgency}" th:value="${agency.id}"
+											th:text="${agency.agencyName}"></option>
+								</select></td>
+							</tr>
+							<tr class='control'>
+								<td colspan='4' align='center'>
+									<button class="btn btn-primary button-control" type="button"
+										id="doSearch">
+										<i class="fa fa-search"></i> TÌM KIẾM</button>&nbsp;
+									<button type="button" id="doNew" data-target="#modal-command-type-create" class="btn btn-primary button-control">
+									<i class="fa fa-plus-square"></i>&nbsp;THÊM MỚI</button>
+									<input type="hidden" name="page" id="page" /> <input
+										type="hidden" name="size" id="size" />
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+				<div class="box box-primary table-responsive"
+					sec:authorize="hasAuthority('Quản lý tài khoản:Xem')">
+					<table class="table table-bordered table-sm" id="searchtable">
+						<thead>
+							<tr>
+								<th>Tên tài khoản</th>
+								<th>Tên đầy đủ</th>
+								<th>Số điện thoại</th>
+								<th>Email</th>
+								<th>Cấp tài khoản</th>
+								<th>Công ty khu vực</th>
+								<th>Trạng thái</th>
+								<th>Hành động</th>
+							</tr>
+						</thead>
+						<tbody id="tableBody"></tbody>
+					</table>
+					<nav aria-label="Page navigation">
+						<ul class="pagination">
+							<li class="page-item"><span id="totalPage"></span></li>
+							<li class="page-item"><span id="pageSize"></span></li>
+							<li class="page-item">
+								<div class="form-group">
+									<select class="form-control" name="selector"
+										onChange="resetPage()">
+										<option>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+										<option>200</option>
+									</select>
+								</div>
+							</li>
+							<li class="page-item"><span>&nbsp;</span></li>
+							<li class="page-item"><a class="page-link"
+								onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+							<li class="page-item"><a id="prePage"></a></li>
+							<li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+							<li class="page-item"><a id="nexPage"></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--modal form create-->
+	<div class="modal fade in" id="modal-command-type-create" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+		<div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+			<div class="modal-content">
+				<div class="modal-header bg-yellow">
+					<h4 class="modal-title">THÊM TÀI KHOẢN</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body" id="create_table">
+
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--modal form edit-->
+	<div class="modal fade in" id="modal-command-type-edit" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+		<div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+			<div class="modal-content">
+				<div class="modal-header bg-yellow">
+					<h4 class="modal-title">SỬA TÀI KHOẢN</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body" id="edit_table">
+
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal Phân quyền-->
+	<div class="modal" id="authenModal" sec:authorize="hasAuthority('Quản lý tài khoản:Thực thi')">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content rounded-0">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">
+						Cấp quyền tài khoản: <b class="required"><span id="userIdPQ"></span></b>
+					</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body table-responsive">
+					<table class="table" id="authenTable">
+						<thead>
+							<tr>
+								<th><input type="checkbox" class="form-check-input"
+									id="check-all" name="check-all"></th>
+								<th>Chức năng</th>
+								<th>Quyền hạn</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="menu : ${myMenu}">
+								<td style="margin-top: -5px;" align="center"><input
+									type="checkbox" class="form-check-input authen-checkbox"
+									th:id="${menu.sfId}"></td>
+								<div th:switch="${menu.sfId}">
+									<td th:case="${menu.sfFather.sfId}" th:utext="${menu.sfName}" style="font-weight: bold;"></td>
+									<td th:case="*" th:utext="'-    '+${menu.sfName}"></td>
+								</div>
+								<td align="center" class="sfAction"><a
+									class="btn btn-primary-outline authen-create"
+									th:id="${menu.sfName}+':Thêm'"> <i class="fa fa-plus" title="Thêm"></i>
+								</a> <a class="btn btn-primary-outline authen-edit"
+									th:id="${menu.sfName}+':Sửa'"> <i class="fa fa-pencil" title="Sửa"></i>
+								</a> <a class="btn btn-primary-outline authen-delete"
+									th:id="${menu.sfName}+':Xoá'"> <i class="fa fa-trash-o" title="Xóa"></i>
+								</a> <a class="btn btn-primary-outline authen-view"
+									th:id="${menu.sfName}+':Xem'"> <i class="fa fa-eye" title="Xem"></i>
+								</a> <a class="btn btn-primary-outline authen-execute"
+									th:id="${menu.sfName}+':Thực thi'"> <i class="fa fa-cog" title="Thực thi"></i>
+								</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-primary" id="SavePrivileges">
+						<i class="fa fa-cogs"></i> Save
+					</button>
+					<button style="height: 34px; font-size: 14px;" type="button" class="btn btn-danger" data-dismiss="modal">
+						<i class="fa fa fa-times"></i> Close
+					</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- The Modal Chi tiết user-->
+	<div class="modal" id="userModal">
+		<div class="modal-dialog">
+			<div class="modal-content rounded-0">
+
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title">
+						Chi tiết tài khoản: <b class="required"><span id="userId"></span></b>
+					</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<table class="table" id="viewTable">
+						<tr>
+							<td>Tên đầy đủ</td>
+							<td class="modal-fullname"></td>
+						</tr>
+						<tr>
+							<td>Email</td>
+							<td class="modal-email"></td>
+						</tr>
+						<tr>
+							<td>Số điện thoại</td>
+							<td class="modal-phone"></td>
+						</tr>
+						<tr>
+							<td>Số fax</td>
+							<td class="modal-fax"></td>
+						</tr>
+						<tr>
+							<td>Địa chỉ</td>
+							<td class="modal-address"></td>
+						</tr>
+						<tr>
+							<td>Người tạo</td>
+							<td class="modal-createBy"></td>
+						</tr>
+						<tr>
+							<td>Ngày tạo</td>
+							<td class="modal-createDate"></td>
+						</tr>
+						<tr>
+							<td>Thời gian đăng nhập cuối</td>
+							<td class="modal-lastLogin"></td>
+						</tr>
+						<tr>
+							<td>Cấp tài khoản</td>
+							<td class="modal-userLevel"></td>
+						</tr>
+						<tr>
+							<td>Trạng thái tài khoản</td>
+							<td class="modal-userStatus"></td>
+						</tr>
+					</table>
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal" >
+						<i class="fa fa fa-times"></i> Close
+					</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<link rel="stylesheet" href="/vasonline/style/toastr.min.css">
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script src="/vasonline/js/authorized.js"></script>
+	<script src="/vasonline/js/user-search.js"></script>
+	<script src="/vasonline/js/toastr.min.js"></script>
+	<script type="text/javascript">
+		$("#level-id").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var levelId = value.toString();
+			if(levelId === '2'){
+				$(".slArea").removeAttr('hidden');
+				$(".slAgency").attr("hidden", true);
+				$("#agencyId").val("");
+				$("#agencyId").trigger("change");
+			}
+			else if(levelId === '4'){
+				$(".slAgency").removeAttr('hidden');
+				$(".slArea").removeAttr('hidden');
+			} 
+			else{
+				$(".slArea").attr("hidden", true);
+				$("#areaId").val("");
+				$("#areaId").trigger("change");
+				$(".slAgency").attr("hidden", true);
+				$("#agencyId").val("");
+				$("#agencyId").trigger("change");
+			}
+		});
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+			let messageResponse = '[[${message}]]';
+			console.log(messageResponse);
+			if(messageResponse == 'success'){
+				messageSuccess();
+			}
+			if (messageResponse == 'failed'){
+				messageFailed();
+			}
+			if (messageResponse == 'EXISTING_ACC'){
+				messageFailedUsername();
+			}
+			if (messageResponse == 'WRONG_PASSWORD'){
+				messageFailedPassword();
+			}
+			if (messageResponse == 'INVALID_ACC'){
+				messageInvalidUsername();
+			}
+			if (messageResponse == 'ExistUserInAgency'){
+				messageExistUserAgency();
+			}
+			if ($("#areaIdSearch").val() != ""){
+				$("#level-id").val("4");
+				$("#level-id").attr("disabled", true);
+				$(".slAgency").removeAttr('hidden');
+				$(".slArea").removeAttr('hidden');
+			}
+			// search agency by areaId
+			if ($("#areaIdSearch").val() != ''){
+				var linkPost = "/vasonline/agency-list?idAgencyArea="+ $("#areaIdSearch").val();
+				$.ajax({
+					url: linkPost,
+					method: 'GET',
+					success: function(data) {
+
+						var str ='<option value="">--Chọn đại lý--</option>';
+
+						for (let i = 0; i < data.length ; i++) {
+							str +='<option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+						}
+						$('#agencyIdSearch').html(str);
+
+					},
+					error: function(request) {
+						alert("The request failed: " + request.responseText);
+					}
+				});
+			}
+		});
+		$("#areaIdSearch").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			// $('input:hidden[name=brand]').val(value);
+			var linkPost = "/vasonline/agency-list?idAgencyArea="+ value;
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+					var str ='<option value="">--Chọn đại lý--</option>';
+					for (let i = 0; i < data.length ; i++) {
+						str +='<option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+					}
+					$('#agencyIdSearch').html(str);
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		})
+
+		function messageSuccess(){
+			toastr.success('Thành công');
+		}
+		function messageFailed(){
+			toastr.error('Thất bại');
+		}
+		function messageFailedUsername(){
+			toastr.error('Tên đăng nhập đã tồn tại');
+		}
+		function messageFailedPassword(){
+			toastr.error('Mật khẩu sai chính sách hệ thống');
+		}
+		function messageInvalidUsername(){
+			toastr.error('Tên đăng nhập không hợp lệ');
+		}
+		function messageExistUserAgency(){
+			toastr.error('Tài khoản của đại lý này đã tồn tại');
+		}
+		$(function() {
+			$("#doSearch").click();
+		})
+	</script>
+</body>
+
+</html>

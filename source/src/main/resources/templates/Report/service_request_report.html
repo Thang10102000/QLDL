@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Báo cáo yều cầu kích hoạt</title>
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        <div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+        <div class="container-fluid ">
+            <div class="heading">
+                <h3>TỔNG HỢP YÊU CẦU KÍCH HOẠT</h3>
+            </div>
+            <div class="box box-primary">
+                <form>
+                    <table class="table table-condensed col">
+                        <tr>
+                            <td style="width: 50%;">
+                                <div style="position:relative">
+                                    <label for="startDate">Từ ngày</label> <input
+                                    type="text" name="startDate" class="form-control"
+                                    placeholder="Từ ngày" id="startDate" autocomplete="off">
+                                </div>
+                            </td>
+                            <td>
+                                <div style="position:relative">
+                                <label for="endDate">Đến ngày</label> <input
+                                    type="text" name="endDate" class="form-control"
+                                    placeholder="Đến ngày" id="endDate" autocomplete="off">
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="service">Dịch vụ</label>
+                                <select name="service" id="service" class="form-control">
+                                    <option value="">--Chọn dịch vụ--</option>
+                                    <option th:each="se : ${service}" th:value="${se.id}" th:text="${se.serviceName}" ></option>
+                                </select>
+                            </td>
+                            <td><label for="brandGroup">Nhóm gói cước</label>
+                                <select name="brandGroup" id="brandGroup" class="form-control">
+                                    <option value="">--Chọn nhóm gói cước--</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="brand">Gói cước</label>
+                                <select name="brand" id="brand" class="form-control">
+                                    <option value="">--Chọn gói cước--</option>
+                                </select>
+                            </td>
+                            <td><label for="serviceRequest">Mã yêu cầu dịch vụ</label>
+                                <select name="serviceRequest" id="serviceRequest" class="form-control">
+                                    <option value="">--Chọn mã yêu cầu--</option>
+                                    <option th:each="sr : ${serviceRequest}" th:value="${sr.srId}" th:text="${sr.srId} + ' - ' + ${sr.customer.name}+' - '+${sr.brandASR.brandName}" ></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="agency">Đại lý</label>
+                                <select name="agency" id="agency" class="form-control">
+                                    <option value="">--Chọn đại lý--</option>
+                                    <option th:each="a : ${agency}" th:value="${a.agencyCode}" th:text="${a.agencyName}" ></option>
+                                </select>
+                            </td>
+                            <td><label for="customer">Khách hàng</label>
+                                <select name="customer" id="customer" class="form-control select2">
+                                    <option value="">--Chọn khách hàng--</option>
+                                    <option th:each="c : ${customer}" th:value="${c.id}" th:text="${c.name}" ></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class='control'>
+                            <td colspan='4' align='center'>
+                                <button type="button" class="btn btn-primary button-control"
+                                        name="doSearch" id="doSearch">
+                                    <i class="fa fa-search"></i> Tra cứu
+                                </button>&nbsp;
+                                <button type="button" id="doExport"
+                                                   class="btn btn-primary button-control" >
+                                <i class="fa fa-file-excel-o"></i> Xuất file
+                            </button>&nbsp;
+<!--                                <a type="button" id="test" th:href="@{export-service-request-report}"-->
+<!--                                        class="btn btn-primary button-control" >-->
+<!--                                    <i class="fa fa-file-excel-o"></i> Xuất file-->
+<!--                                </a>&nbsp;-->
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="list-service box box-primary" style="font-size: 75%">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr align="center">
+                        <th>STT</th>
+                        <th>Mã yêu cầu</th>
+                        <th>Tên khách hàng</th>
+                        <th>Dịch vụ</th>
+                        <th>Nhóm gói cước</th>
+                        <th>Gói cước</th>
+                        <th>Chính sách</th>
+                        <th>Đơn giá bán (VNĐ)</th>
+                        <th>Đơn giá chiết khấu đại lý (VNĐ)</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền (VNĐ)</th>
+                        <th>Số lượng gói đã kích hoạt</th>
+                        <th>Số lượng gói chưa kích hoạt</th>
+                        <th>Thời gian bắt đầu kích hoạt</th>
+                        <th>Doanh thu theo gói yêu cầu kích hoạt (VNĐ)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item"><span id="totalPage"></span></li>
+                        <li class="page-item"><span id="pageSize"></span></li>
+                        <li class="page-item">
+                            <div class="form-group">
+                                <select class="form-control" name="selector"
+                                        onChange="resetPage()">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                    <option>200</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li class="page-item"><span>&nbsp;</span></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+                        <li class="page-item"><a id="prePage"></a></li>
+                        <li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+                        <li class="page-item"><a id="nexPage"></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/vasonline/js/service_request_report.js"></script>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript">
+    $(".select2").select2();
+    $(document).ready(function() {
+        $('#sidebarCollapse').on('click', function() {
+            $('#sidebar').toggleClass('active');
+        });
+        $("#startDate").datepicker({
+            format: "dd/mm/yyyy",
+            todayHighlight: true,
+            inline: true
+        });
+        $("#endDate").datepicker({
+            format: "dd/mm/yyyy",
+            todayHighlight: true,
+            inline: true
+        });
+    });
+
+//    change service value
+    $("#service").on("change", function (e) {
+
+        var linkPost = "/vasonline/brand-group-list?idService=" + $("#service").val();
+
+        $.ajax({
+            url: linkPost,
+            method: 'GET',
+            success: function(data) {
+
+                var str ='<option value="">--Chọn nhóm gói cước--</option>';
+
+                for (let i = 0; i < data.length ; i++) {
+                    if (data[i].status == 0) {
+                        str += ' <option value= "' + data[i].id + '" >' + data[i].groupName + '</option>';
+                    }
+                }
+                $('#brandGroup').html(str);
+
+            },
+            error: function(request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+    });
+
+//    change brand group value
+    $("#brandGroup").on("change", function (e) {
+        var linkPost = "/vasonline/brand-list?idBrand="+ $("#brandGroup").val();
+
+        $.ajax({
+            url: linkPost,
+            method: 'GET',
+            success: function(data) {
+
+                var str ='<option value="">--Chọn gói cước--</option>';
+
+                for (let i = 0; i < data.length ; i++) {
+                    if (data[i].status == 0) {
+                        str += ' <option value= "' + data[i].id + '" >' + data[i].brandName + '</option>';
+                    }
+                }
+                $('#brand').html(str);
+
+            },
+            error: function(request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+
+${AnsiColor.RED} __  __  ______  ____    _____            ${AnsiColor.BLACK}___                          
+${AnsiColor.RED}/\ \/\ \/\  _  \/\  _`\ /\  __`\         ${AnsiColor.BLACK}/\_ \    __                   
+${AnsiColor.RED}\ \ \ \ \ \ \L\ \ \,\L\_\ \ \/\ \    ${AnsiColor.BLACK}___ \//\ \  /\_\    ___      __   
+${AnsiColor.RED} \ \ \ \ \ \  __ \/_\__ \\ \ \ \ \ ${AnsiColor.BLACK}/' _ `\ \ \ \ \/\ \ /' _ `\  /'__`\ 
+${AnsiColor.RED}  \ \ \_/ \ \ \/\ \/\ \L\ \ \ \_\ \${AnsiColor.BLACK}/\ \/\ \ \_\ \_\ \ \/\ \/\ \/\  __/ 
+${AnsiColor.RED}   \ `\___/\ \_\ \_\ `\____\ \_____\${AnsiColor.BLACK} \_\ \_\/\____\\ \_\ \_\ \_\ \____\
+${AnsiColor.RED}    `\/__/  \/_/\/_/\/_____/\/_____/${AnsiColor.BLACK}\/_/\/_/\/____/ \/_/\/_/\/_/\/____/

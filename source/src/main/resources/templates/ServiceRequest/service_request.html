@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Quản lý yêu cầu dịch vụ ModiEdu</title>
+</head>
+
+<body>
+    <div class="wrapper" sec:authorize="isAuthenticated()">
+        <!-- Sidebar  -->
+        <nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+        <!-- Page Content  -->
+        <div id="content">
+            <div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+            <div class="container-fluid ">
+                <div class="heading">
+                    <h4>QUẢN LÝ YÊU CẦU DỊCH VỤ MOBIEDU</h4>
+                </div>
+                <span th:text ="${#authentication.getPrincipal().getUsers().getLevelUsers().getLevelId()}" id="levelIdUser" hidden></span>
+                <div class="box box-primary">
+                    <form>
+                        <table class="table table-condensed col">
+                            <tr>
+                                <td style="width: 33%">
+                                    <label for="sr_id">Mã yêu cầu</label>
+                                    <input type="text" name="sr_id" class="form-control" placeholder="Mã yêu cầu" id="sr_id" autocomplete="off">
+                                </td>
+                                <td style="width: 33%">
+	                                <label for="agency_area">Công ty khu vực</label>
+	                                <select name="agency_area" id="agency_area" class="form-control">
+	                                    <option value="all" th:if="${#lists.size(agencyArea) >= 2}">-- Chọn công ty khu vực --</option>
+	                                    <option th:each="area : ${agencyArea}" 
+	                                    		th:value="${area.areaId}" 
+	                                    		th:text="${area.areaName}">
+	                                    </option>
+	                                </select>
+                            	</td>
+                                <td style="width: 33%">
+                                    <label for="customer">Khách hàng</label>
+                                    <select name="customer" id="customer" class="form-control select2Search">
+                                        <option value="">-- Chọn khách hàng --</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="services">Dịch vụ</label>
+                                    <select name="services" id="services" class="form-control">
+	                                    <option value="">-- Chọn dịch vụ --</option>
+	                                    <option th:each="s : ${services}" 
+	                                    		th:value="${s.id}" 
+	                                    		th:text="${s.serviceName}">
+	                                    </option>
+	                                </select>
+                                </td>
+                                <td>
+                                    <label for="package_group">Nhóm gói cước</label>
+                                    <select name="package_group" id="package_group" class="form-control select2Search">
+                                        <option value="">-- Chọn nhóm gói cước --</option>
+	                                </select>
+                                </td>
+                                <td>
+                                    <label for="package">Gói cước</label>
+                                    <select name="package" id="package" class="form-control select2Search">
+                                        <option value="">-- Chọn gói cước --</option>
+	                                </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="status">Trạng thái</label>
+                                    <select name="status" id="status" class="form-control">
+                                        <option value="">-- Chọn trạng thái --</option>
+                                        <option value="0">Mới tạo</option>
+                                        <option value="1">Chờ duyệt</option>
+                                        <option value="2">Đã duyệt</option>
+                                        <option value="3">Từ chối</option>
+                                        <option value="4">Yêu cập cập nhật</option>
+                                        <option value="5">Đã chuyển kích hoạt</option>
+                                    </select>
+                                </td>
+	                            <td>
+	                                <label for="createdDateFrom">Ngày tạo từ</label>
+	                                <input name="createdDateFrom" class="form-control" placeholder="Ngày tạo từ"
+	                                       id="createdDateFrom">
+	                            </td>
+	                            <td>
+	                                <label for="createdDateTo">Ngày tạo đến</label>
+	                                <input name="createdDateTo" class="form-control" placeholder="Ngày tạo đến"
+	                                       id="createdDateTo">
+	                            </td>
+                        	</tr>
+                        	<tr>
+                                <td>
+                                    <label for="policy">Chính sách</label>
+                                    <select name="policy" id="policy" class="form-control">
+                                        <option value="">-- Chọn chính sách --</option>
+                                        <option value="CK">Chiết khấu</option>
+                                        <option value="HH">Hoa hồng</option>
+                                    </select>
+                                </td>
+	                            <td>
+	                                <label for="approvalDateFrom">Ngày duyệt từ</label>
+	                                <input name="approvalDateFrom" class="form-control" placeholder="Ngày duyệt từ"
+	                                       id="approvalDateFrom">
+	                            </td>
+	                            <td>
+	                                <label for="approvalDateTo">Ngày duyệt đến</label>
+	                                <input name="approvalDateTo" class="form-control" placeholder="Ngày duyệt đến"
+	                                       id="approvalDateTo">
+	                            </td>
+                        	</tr>
+                            <tr class='control'>
+                                <td colspan='4' align='center'>
+                                    <button class="btn btn-primary button-control" type="button"
+										id="doSearch">
+										<i class="fa fa-search"></i> TÌM KIẾM
+									</button>&nbsp;
+                                    <button type="button" id="doNew" data-target="#modal-command-type-create" class="btn btn-primary button-control">
+                                    <i class="fa fa-plus-square"></i>&nbsp;THÊM MỚI</button>&nbsp;
+                                    <input type="hidden" name="page" id="page" /> <input
+									type="hidden" name="size" id="size" />
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+                <div class="list-service box box-primary">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr align="center">
+                                <th>Mã yêu cầu</th>
+                                <th>CTKV</th>
+                                <th>Khách hàng</th>
+                                <th>Gói cước</th>
+                                <th>Chính sách</th>
+                                <th>Giá ban đầu(VNĐ)</th>
+                                <th>Chiết khấu(VNĐ)</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền(VNĐ)</th>
+                                <th>Thời gian tạo</th>
+                                <th>Thời gian duyệt</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                    <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item"><span id="totalPage"></span></li>
+                        <li class="page-item"><span id="pageSize"></span></li>
+                        <li class="page-item">
+                            <div class="form-group">
+                                <select class="form-control" name="selector"
+                                        onChange="resetPage()">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                    <option>200</option>
+                                </select>
+                            </div>
+                        </li>
+                        <li class="page-item"><span>&nbsp;</span></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+                        <li class="page-item"><a id="prePage"></a></li>
+                        <li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+                        <li class="page-item"><a id="nexPage"></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+                        <li class="page-item"><a class="page-link"
+                                                 onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal form create-->
+<div class="modal fade in" id="modal-command-type-create" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog modal-xl overflow-auto" style="width: 50%; height: auto;">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow">
+                <h4 class="modal-title">THÊM YÊU CẦU DỊCH VỤ</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="create_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal form edit-->
+<div class="modal fade in" id="modal-command-type-edit" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog modal-xl overflow-auto" style="width: 50%; height: auto;">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow">
+                <h4 class="modal-title">Cập nhật yêu cầu dịch vụ</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="edit_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal form approval-->
+<div class="modal fade in" id="modal-command-type-approval" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow">
+                <h4 class="modal-title">Cập nhật tác quyền yêu cầu dịch vụ</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="approval_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal form desc-->
+<div class="modal fade in" id="modal-command-type-desc" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow">
+                <h4 class="modal-title">Lời nhắn từ MDS</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="desc_table">
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal form activate-->
+<div class="modal fade in" id="modal-command-type-activate" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+        <div class="modal-content">
+            <div class="modal-header bg-yellow">
+                <h4 class="modal-title">Kích hoạt yêu cầu</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="activate_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal form list activate-->
+<div class="modal fade in" id="modal-command-type-list-act" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+    <div class="modal-dialog modal-xl overflow-auto" >
+        <div class="modal-content">
+            <div class="modal-header bg-yellow">
+                <h4 class="modal-title">Chi tiết kích hoạt</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="list_act_table">
+
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .external:hover {
+        text-decoration: underline;
+        color: blue;
+    }
+    .externalBr:hover {
+        text-decoration: underline;
+        color: blue;
+    }
+</style>
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script src="/vasonline/js/service-request-search.js"></script>
+<script type="text/javascript">
+    $(".select2Search").select2();
+	$("#createdDateFrom").datepicker({
+	    format: "dd/mm/yyyy",
+	    todayHighlight: true
+	});
+	$("#createdDateTo").datepicker({
+	    format: "dd/mm/yyyy",
+	    todayHighlight: true
+	});
+	$("#approvalDateFrom").datepicker({
+	    format: "dd/mm/yyyy",
+	    todayHighlight: true
+	});
+	$("#approvalDateTo").datepicker({
+	    format: "dd/mm/yyyy",
+	    todayHighlight: true
+	});
+
+    $(document).ready(function() {
+        $('#sidebarCollapse').on('click', function() {
+            $('#sidebar').toggleClass('active');
+        });
+        let messageResponse = '[[${message}]]';
+        console.log(messageResponse);
+        if(messageResponse == 'success'){
+           toastr.success('Thành công');
+        }
+        if(messageResponse == 'INVALID_PARAMS'){
+            toastr.error('Tham số đầu vào không hợp lệ');
+        }
+        if(messageResponse == 'ERROR_FILE'){
+            toastr.error('Lỗi thêm file đính kèm');
+        }
+        if (messageResponse == 'failed'){
+            toastr.error('Thất bại');
+        }
+        if (messageResponse == 'INVALID_ORDER'){
+            toastr.error('Yêu cầu dịch vụ chưa có đơn hàng nào');
+        }
+        if (messageResponse == 'ORDER_OUT_OF_MONEY'){
+            toastr.error('Đơn hàng thuộc yêu cầu hiện không còn đủ tiền');
+        }
+        if (messageResponse == 'ORDER_NOT_COMPLETE'){
+            toastr.error('Đơn hàng của yêu cầu hiện chưa hoàn thành');
+        }
+        if (messageResponse == 'CALL_API_FAILED'){
+            toastr.error('Lỗi gọi Api kích hoạt');
+        }
+        if (messageResponse == 'BAD REQUEST'){
+            toastr.error('HTTP Status 400 – Bad Request');
+        }
+        if (messageResponse == 'ERROR AUTHENTICATION'){
+            toastr.error('Lỗi sai thông tin authentication api');
+        }
+        if (messageResponse == 'TRANSACTION DUPLICATE'){
+            toastr.error('Lỗi trùng giao dịch');
+        }
+        if (messageResponse == 'ERROR SYSTEM'){
+            toastr.error('Lỗi hệ thống giao dịch');
+        }
+
+        if($("#agency_area").val() != '' && $("#agency_area").val() != null){
+            if($("#agency_area").val() == 'all'){
+                var linkCustomer = "/vasonline/get-allcustomer";
+                $.ajax({
+                    url: linkCustomer,
+                    method: 'GET',
+                    success: function(data) {
+                        var str ='';
+                        str +=' <option>-- Chọn khách hàng --</option>';
+                        for (let i = 0; i < data.length ; i++) {
+                            str +=' <option value= "'+data[i].id+'" >'+data[i].name+'</option>'
+                        }
+                        $('#customer').html(str);
+                    },
+                    error: function(request) {
+                        alert("The request failed: " + request.responseText);
+                    }
+                });
+            }
+            else {
+                var linkCustomer = "/vasonline/get-customer-area?areaId="+ $("#agency_area").val();
+                $.ajax({
+                    url: linkCustomer,
+                    method: 'GET',
+                    success: function(data) {
+                        var str ='';
+                        str +=' <option>-- Chọn khách hàng --</option>';
+                        for (let i = 0; i < data.length ; i++) {
+                            str +=' <option value= "'+data[i].id+'" >'+data[i].name+'</option>'
+                        }
+                        $('#customer').html(str);
+                    },
+                    error: function(request) {
+                        alert("The request failed: " + request.responseText);
+                    }
+                });
+            }
+        }
+
+    });
+</script>
+</body>
+
+</html>

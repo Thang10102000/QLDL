@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Chỉnh sửa thông tin đại lý</title>
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar  -->
+		<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+		<!-- Page Content  -->
+		<div id="content">
+			<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+			<div class="container-fluid ">
+				<div class="heading">
+					<h3>CHỈNH SỬA THÔNG TIN ĐẠI LÝ</h3>
+				</div>
+				<div class="box box-primary">
+					<form th:action="@{/edit-authorized}" method="post"
+						th:object="${editAuthorized}">
+						<table class="table table-condensed col">
+							<tr>
+								<td style="width: 50%;"><label for="agencyIdPerson">Đại
+										lý<b class="required">(*)</b>
+								</label> <select name="agencyIdPerson" id="agencyIdPerson"
+									class="form-control" th:field="*{agencyIdPerson}">
+										<option th:each="ag : ${agency}" th:valge="${ag.id}"
+											th:text="${ag.agencyName}"></option>
+								</select></td>
+								<td><label for="fullName">Họ và tên<b
+										class="required">(*)</b></label> <input type="text" name="fullName"
+									class="form-control" placeholder="Họ và tên"
+									th:field="*{fullName}" id="fullName" autocomplete="off">
+                                    <span class="required" id="fullNameMessage"></span>
+								</td>
+							</tr>
+							<tr>
+								<td><label for="birthday">Ngày sinh</label> <input
+									type="text" name="birthday" class="form-control"
+									placeholder="Ngày sinh" id="birthday" autocomplete="off"
+									th:field="*{birthday}">
+                                    <span class="required" id="birthdayMessage"></span>
+                                </td>
+								<td><label for="position">Chức vụ </label> <input
+									type="text" name="position" class="form-control"
+									placeholder="Chức vụ" id="position" autocomplete="off"
+									th:field="*{position}">
+                                    <span class="required" id="positionMessage"></span></td>
+							</tr>
+							<tr>
+								<td><label for="phoneNumber">Số điện thoại<b
+										class="required">(*)</b></label> <input type="text" name="phoneNumber"
+									class="form-control" placeholder="Số điện thoại"
+									id="phoneNumber" autocomplete="off" th:field="*{phoneNumber}"
+									maxlength="14">
+                                    <span class="required" id="phoneNumberMessage"></span>
+                                </td>
+								<td><label for="type">Thông tin<b class="required">(*)</b></label>
+									<select name="type" id="type" class="form-control">
+										<option th:field="*{type}" value="0">Người đại diện</option>
+										<option th:field="*{type}" value="1">Người ủy quyển</option>
+										<option th:field="*{type}" value="2">Đầu mối liên hệ</option>
+								</select></td>
+							</tr>
+							<tr>
+								<td><label for="email">Email<b class="required">(*)</b></label>
+									<input type="text" name="email" class="form-control"
+									placeholder="Email" id="email" autocomplete="off"
+									th:field="*{email}">
+                                    <span class="required" id="emailMessage"></span>
+                                </td>
+								<td><input type="hidden" id="id" name="id" th:field="*{id}">
+								</td>
+							</tr>
+							<tr class='control'>
+								<td colspan='4' align='center'>
+									<button type="submit" class="btn btn-primary button-control"
+										id="doEdit">
+										<i class="fa fa-pencil" aria-hidden="true"></i> Chỉnh sửa
+									</button> <a type="button" id="doBack"
+									class="btn btn-primary button-control" th:href="@{/authorized}"><i
+										class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<script src="/vasonline/js/select2.min.js"></script>
+	<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+			$("#birthday").datepicker({
+				format : "dd/mm/yyyy",
+				todayHighlight : true,
+				inline : true,
+				endDate:'today'
+			});
+            $("#fullName , #phoneNumber, #position, #birthday, #email").keydown(function () {
+                $("#phoneNumberMessage").text("");
+                $("#fullNameMessage").text("");
+                $("#positionMessage").text("");
+                $("#birthdayMessage").text("");
+                $("#emailMessage").text("");
+            });
+		});
+		//Validate
+		$("#doEdit").on('click',function(e) {
+            var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            if (format.test($("#fullName").val())) {
+                $("#fullNameMessage").text("Họ và tên không được chứa ký tự đặc biệt");
+                $("#fullName").focus();
+                return false;
+            }
+            if (!re.test($("#email").val())) {
+                $("#emailMessage").text("Email không đúng định dạng");
+                $("#email").focus();
+                return false;
+            }
+            if ($("#fullName").val() === '') {
+                $("#fullNameMessage").text("Bạn chưa nhập họ tên");
+                $("#fullName").focus();
+                return false;
+            }
+            if ($("#phoneNumber").val() === '') {
+                $("#phoneNumberMessage").text("Bạn chưa nhập số điện thoại");
+                $("#phoneNumber").focus();
+                return false;
+            }
+            if ($("#phoneNumber").val()*1 != $("#phoneNumber").val() || $("#phoneNumber").val().length < 9) {
+                $("#phoneNumberMessage").text("Số điện thoại không đúng định dạng");
+                $("#phoneNumber").focus();
+                return false;
+            }
+            if ($("#email").val() === '') {
+                $("#emailMessage").text("Bạn chưa nhập email");
+                $("#email").focus();
+                return false;
+            }
+        })
+		var invalidChars = [ "-", "+", "e", ",", "." ];
+		$("#phoneNumber").on("keydown", function(e) {
+			if (invalidChars.includes(e.key)) {
+				e.preventDefault();
+			}
+		});
+	</script>
+</body>
+
+</html>

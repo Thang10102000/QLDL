@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Sửa tài khoản</title>
+</head>
+<body>
+	<div class="wrapper" sec:authorize="isAuthenticated()">
+		<div class="box box-primary table-responsive">
+			<!-- sec:authorize="hasAuthority('Quản lý tài khoản:Sửa')"> -->
+			<form th:action="@{/admin/user-management/edit}" method='POST' id="Add_Form">
+				<table class="table table-sm" th:object="${userData}">
+					<tr>
+						<td><label for="username">Tên tài khoản <b
+								class="required">(*)</b></label>
+							<input type="text" class="form-control" placeholder="Username"
+							name="username" id="username" th:field="*{username}" readonly>
+						</td>
+						<td><label for="email">Email <b class="required">(*)</b></label> <input type="text"
+							class="form-control" placeholder="Email" name="email"
+							id="email" th:field="*{email}"><span class="required" id="messageEmail"></span>
+						</td>
+					</tr>
+					<tr>
+						<td><label for="password">Mật khẩu</label>
+							<input type="password" class="form-control"
+							placeholder="Password" name="password" id="password"></td>
+						<td><label for="re-password">Nhập lại mật khẩu</label>
+							<input type="password" class="form-control"
+							placeholder="Password" name="re-password" id="re-password">
+							<span class="required" id="messageRePassword"></span>
+						</td>
+					</tr>
+					<tr>
+						<td><label for="phone">Số điện thoại <b
+								class="required">(*)</b></label>
+							<input type="text" class="form-control" placeholder="Phone"
+							name="phone" id="phone" th:field="*{phone}"><span class="required" id="messagePhone"></span>
+						<td><label for="fax">Số Fax </label> <input type="text"
+							class="form-control" placeholder="Fax" name="fax" id="fax"
+							th:field="*{fax}"><span class="required" id="messageFax"></span>
+						</td>
+					</tr>
+					<tr>
+						<td><label for="fullname">Tên đầy đủ <b
+								class="required">(*)</b></label>
+							<input type="text" class="form-control" placeholder="Fullname"
+							name="fullname" id="fullname" th:field="*{fullname}">
+							<span class="required" id="messageFullname"></span>
+						</td>
+						<td><label for="address">Địa chỉ <b class="required">(*)</b></label>
+							<textarea class="form-control" placeholder="Address"
+								name="address" id="address" th:field="*{address}" rows="1"></textarea>
+							<span class="required" id="messageAddress"></span>
+						</td>
+					</tr>
+					<tr>
+						<td><label for="levels">Cấp tài khoản <b
+								class="required">(*)</b></label>
+							<select name="levels" id="levels" class="form-control">
+								<option th:each="l : ${levels}" th:value="${l.levelId}"
+									th:text="${l.levelName}" th:field="*{levelUsers.levelId}"></option>
+						</select></td>
+						<td><label for="status">Trạng thái <b
+								class="required">(*)</b></label>
+							<select name="status" id="status" class="form-control">
+								<option value="1" th:field="*{status}">Hiệu lực</option>
+								<option value="0" th:field="*{status}">Không hiệu lực</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td><label for="groups">Nhóm tài khoản </label> <select th:object="${groupUser}" name="groups"
+							id="groups" class="form-control">
+								<option value="">--Chọn nhóm--</option>
+								<option th:each="gu : ${groupListUser}"
+									th:value="${gu.groupId}" th:text="${gu.groupName}" th:field="*{groupId}"></option>
+						</select></td>
+						<td class="selectArea" hidden><label for="areaId">Công ty khu vực <b class="required">(*)</b></label> <select
+							name="areaId" id="areaId" class="form-control">
+								<option value="">-- Chọn công ty khu vực --</option>
+								<option th:each="area : ${myArea}"
+									th:value="${area.areaId}" th:text="${area.areaName}" th:field="*{areaId.areaId}"></option>
+						</select>
+							<span class="required" id="messageArea"></span>
+						</td>
+					</tr>
+					<tr class="selectAgency" hidden>
+						<td><label for="agencyId">Đại lý <b class="required">(*)</b>
+						</label> <select name="agencyId" id="agencyId"
+							class="form-control">
+								<option value="">--Chọn đại lý--</option>
+								<option th:each="agency : ${agencyListUser}" th:value="${agency.id}"
+									th:text="${agency.agencyName}" th:field="*{agencyId}"></option>
+						</select>
+							<span class="required" id="messageAgency"></span>
+						</td>
+					</tr>
+					<tr>
+						<td><input type="checkbox" class="form-check-input"
+							id="never-expired" name="never-expired" th:checked="*{passwordNeverExpired} == 1" style="margin-top: 5px;">
+							<input type="hidden" id="checkExpired" name="checkExpired">
+							<label class="form-check-label" for="never-expired">Mật khẩu không thời hạn</label>
+						</td>
+					</tr>
+					<tr class='control'>
+						<td colspan='4' align='center'>
+							<button class="btn btn-primary button-control" id="doUpdate"
+								type="submit">
+								<i class="fa fa-pencil"></i> CHỈNH SỬA
+							</button>&nbsp;
+							<a type="button" id="doBack"
+								class="btn btn-primary button-control"  data-dismiss="modal"><i
+								class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(':checkbox').change(function () {
+			if($('#never-expired').prop('checked')){
+				$("#checkExpired").val("1");
+			}else {
+				$("#checkExpired").val("0");
+			}
+		});
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+			var levelId = $("#levels").val();
+			if(levelId === '2'){
+				$(".selectArea").removeAttr('hidden');
+				$(".selectAgency").attr("hidden", true);
+				$(".selectAgency #agencyId").val("");
+				$(".selectAgency #agencyId").trigger("change");
+				$("#levels option[value=3]").prop('disabled', true);
+			}
+			else if(levelId === '4'){
+				$(".selectAgency").removeAttr('hidden');
+				$(".selectArea").removeAttr('hidden');
+				$("#levels option[value=3]").prop('disabled', true);
+			}
+			else if(levelId === '3'){
+				$("#levels").prop('disabled', true);
+			}
+			else{
+				$(".selectArea").attr("hidden", true);
+				$(".selectArea #areaId").val("");
+				$(".selectArea #areaId").trigger("change");
+				$(".selectAgency").attr("hidden", true);
+				$(".selectAgency #agencyId").val("");
+				$(".selectAgency #agencyId").trigger("change");
+				$("#levels option[value=3]").prop('disabled', true);
+			}
+		});
+		$("#areaId, #agencyId").on('change', function () {
+			$("#messageArea").text("");
+			$("#messageAgency").text("");
+		});
+
+		$("#levels").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var levelId = value.toString();
+			if(levelId === '2'){
+				$(".selectArea").removeAttr('hidden');
+				$(".selectAgency").attr("hidden", true);
+				$(".selectAgency #agencyId").val("");
+				$(".selectAgency #agencyId").trigger("change");
+			}
+			else if(levelId === '4'){
+				$(".selectAgency").removeAttr('hidden');
+				$(".selectArea").removeAttr('hidden');
+			}
+			else{
+				$(".selectArea").attr("hidden", true);
+				$(".selectArea #areaId").val("");
+				$(".selectArea #areaId").trigger("change");
+				$(".selectAgency").attr("hidden", true);
+				$(".selectAgency #agencyId").val("");
+				$(".selectAgency #agencyId").trigger("change");
+			}
+		});
+		$("#levels").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			let url = "/vasonline/admin/group/select?groupLevel="+ value.toString();
+			if(!isNaN(value) && value!=""){
+				$.ajax({
+					url: url,
+					method: 'GET',
+					success: function(data) {
+						let str ='';
+						let requestGroupData = Object.keys(data);
+						requestGroupData.sort();
+						requestGroupData.forEach((item) => {
+							let jsonItem = JSON.parse(item);
+							str += ' <option value= "' + jsonItem.groupId + '" >' + jsonItem.groupName + '</option>';
+						})
+						$('#groups').html(str);
+					},
+					error: function(request) {
+						alert("Chọn cấp tài khoản");
+						let errStr = '<option value= "" >--Chọn nhóm--</option>';
+						$('#groups').html(errStr);
+					}
+				});
+			}else{
+				let errStr = '<option value= "" >--Chọn nhóm--</option>';
+				$('#groups').html(errStr);
+			}
+		});
+
+		$(".selectArea #areaId").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			let url = "/vasonline/agency-list?idAgencyArea="+ value.toString();
+			if(!isNaN(value) && value!=""){
+				$.ajax({
+					url: url,
+					method: 'GET',
+					success: function(data) {
+						let str = '<option value="">--Chọn đại lý--</option>';
+						for (let i = 0; i < data.length ; i++) {
+							str +=' <option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+						}
+						$('.selectAgency #agencyId').html(str);
+					},
+					error: function(request) {
+						alert("Chọn đại lý");
+						let errStr = '<option value= "" >--Chọn đại lý--</option>';
+						$('.selectAgency #agencyId').html(errStr);
+					}
+				});
+			}else{
+				let errStr = '<option value= "" >--Chọn đại lý--</option>';
+				$('.selectAgency #agencyId').html(errStr);
+			}
+		});
+
+		$("#doUpdate").on('click', function () {
+			$("span.required").html("");
+			var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+			var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			if ($('#Add_Form input[name="email"]').val() === ''){
+				$("#messageEmail").text("Email bắt buộc nhập");
+				$("#messageEmail").focus();
+				return false;
+			}
+			if (!re.test($('#Add_Form input[name="email"]').val())) {
+				$("#messageEmail").text("Email sai định dạng");
+				$("#messageEmail").focus();
+				return false;
+			}
+			if($('#Add_Form input[name="phone"]').val() === ''){
+				$("#messagePhone").text("SĐT bắt buộc nhập");
+				$("#messagePhone").focus();
+				return false;
+			}
+			if($('#Add_Form input[name="phone"]').val()*1 != $('#Add_Form input[name="phone"]').val()){
+				$("#messagePhone").text("SĐT chỉ chứa kí tự số");
+				$("#messagePhone").focus();
+				return false;
+			}
+			if ($('#Add_Form input[name="phone"]').val().length > 13 || $('#Add_Form input[name="phone"]').val().length < 9){
+				$("#messagePhone").text("SĐT sai định dạng");
+				$("#messagePhone").focus();
+				return false;
+			}
+			if($('#Add_Form input[name="password"]').val() != $('#Add_Form input[name="re-password"]').val()){
+				$("#messageRePassword").text("Mật khẩu không trùng khớp");
+				$("#messageRePassword").focus();
+				return false;
+			}
+			if($('#Add_Form input[name="fax"]').val()*1 != $('#Add_Form input[name="fax"]').val()){
+				$("#messageFax").text("Số Fax sai định dạng");
+				$("#messageFax").focus();
+				return false;
+			}
+			if($('#Add_Form input[name="fullname"]').val() === ''){
+				$("#messageFullname").text("Họ tên bắt buộc nhập");
+				$("#messageFullname").focus();
+				return false;
+			}
+			if(format.test($('#Add_Form input[name="fullname"]').val())){
+				$("#messageFullname").text("Họ tên chứa kí tự đặc biệt");
+				$("#messageFullname").focus();
+				return false;
+			}
+			if($("#address").val() === ''){
+				$("#messageAddress").text("Địa chỉ bắt buộc nhập");
+				$("#messageAddress").focus();
+				return false;
+			}
+			if($("#levels").val() == '2' && $("#areaId").val() === ''){
+				$("#messageArea").text("Chọn công ty khu vực - trung tâm");
+				$("#areaId").focus();
+				return false;
+			}
+			if(($("#levels").val() == '3'|| $("#levels").val() == '4' ) && $("#agencyId").val() === ''){
+				$("#messageAgency").text("Chọn đại lý , AM/KAM");
+				$("#agencyId").focus();
+				return false;
+			}
+		})
+		var invalidChars = [ "-", "e", ",", "." ];
+		$("#phone , #fax ").on("keydown", function(e) {
+			if (invalidChars.includes(e.key)) {
+				e.preventDefault();
+			}
+		});
+	</script>
+</body>
+
+</html>

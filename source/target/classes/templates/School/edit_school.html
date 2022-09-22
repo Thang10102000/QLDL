@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Chỉnh sửa trường học</title>
+</head>
+
+<body>
+<form th:action="@{/edit-school}" th:object="${school}" method="post">
+    <table class="table table-condensed col">
+        <tr>
+            <td><label for="code">Mã loại trường học<b class="required">(*)</b></label>
+                <input type="text" th:field="*{schoolCode}" class="form-control" name="schoolCode"
+                       placeholder="Mã loại trường học" id="code" autocomplete="off">
+                <span class="required" id="messageCode"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="type">Loại trường học <b
+                    class="required">(*)</b></label>
+                <input type="text" th:field="*{schoolType}" name="schoolType" class="form-control"
+                       placeholder="Loại trường học" id="type" autocomplete="off">
+                <span class="required" id="messageType"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="descriptionSchool">Mô tả</label>
+                <textarea type="text" th:field="*{description}" name="description" class="form-control" rows="1" placeholder="Mô tả" id="descriptionSchool" autocomplete="off"></textarea>
+                <input type="hidden" name="id" class="form-control" th:field="*{id}" id="id">
+            </td>
+
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button class="btn btn-primary button-control edit" type="submit"
+                        name="doEdit" id="doEdit">
+                    <i class="fa fa-pencil" aria-hidden="true"></i> Chỉnh sửa
+                </button>&nbsp;
+                <button type="button" id="doBack" data-dismiss="modal" class="btn btn-primary button-control" >
+                    <i class="fa fa-undo" aria-hidden="true"></i> Quay lại
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#code, #type").on('keydown',function () {
+            $("#messageCode,#messageType").text();
+        })
+    });
+    $(document).on('click',".edit", function () {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test($("#type").val())) {
+            $("#messageType").text("Loại trường học chứa ký tự đặc biệt");
+            $("#type").focus();
+            return false;
+        }
+        if (format.test($("#code").val())) {
+            $("#messageCode").text("Mã loại trường học chứa ký tự đặc biệt");
+            $("#code").focus();
+            return false;
+        }
+        if ($("#code").val() === '') {
+            $("#messageCode").text("Bạn chưa nhập mã loại trường học");
+            $("#code").focus();
+            return false;
+        }
+        if ($("#type").val() === '') {
+            $("#messageType").text("Bạn chưa nhập loại trường học");
+            $("#type").focus();
+            return false;
+        }
+    })
+</script>
+</body>
+</html>

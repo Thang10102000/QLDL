@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	  lang="vi">
+<head th:replace="fragments/html-head">
+	<meta charset="utf-8">
+	<title>Báo cáo doanh thu đại lý</title>
+</head>
+
+<body>
+<div class="wrapper">
+	<!-- Sidebar  -->
+	<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+	<!-- Page Content  -->
+	<div id="content">
+		<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+		<div class="container-fluid ">
+			<div class="heading">
+				<h3>BÁO CÁO DOANH THU ĐẠI LÝ</h3>
+			</div>
+			<div class="box box-primary">
+				<form>
+					<table class="table table-condensed col">
+						<tr>
+							<td colspan="2">
+								<div style="display: flex; justify-content: space-between">
+									<div style="display: inline-block; width: 30%">
+										<label for="serviceSearch">Dịch vụ</label>
+										<select name="serviceBG" id="serviceSearch" class="form-control">
+											<option value="">--Chọn dịch vụ--</option>
+											<option th:each="service : ${services}" th:value="${service.id}" th:text="${service.serviceName}" ></option>
+										</select>
+									</div>
+									<div style="display: inline-block; width: 30%">
+										<label for="brandGroupNameSearch">Nhóm gói cước</label>
+										<select name="brandGroupName" id="brandGroupNameSearch" class="form-control">
+											<option value="">--Vui lòng chọn dịch vụ trước--</option>
+										</select>
+									</div>
+
+									<div style="display: inline-block; width: 30%">
+										<label for="brandNameSearch">Gói cước</label>
+										<select name="brandName" id="brandNameSearch" class="form-control">
+											<option value="">--Vui lòng chọn nhóm gói cước trước--</option>
+										</select>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label for="areaId">Công ty khu vực</label>
+							<select name="areaId" id="areaId" class="form-control" th:if="${#lists.size(agencyArea) >= 2}">
+								<option value="">--Chọn CTKV--</option>
+								<option th:each="area : ${agencyArea}"
+										th:value="${area.areaId}" th:text="${area.areaName}">
+								</option>
+							</select>
+							<select name="areaId" id="areaId" class="form-control" th:if="${#lists.size(agencyArea) < 2}">
+								<option th:each="area : ${agencyArea}"
+										th:value="${area.areaId}" th:text="${area.areaName}">
+								</option>
+							</select>
+							</td>
+							<td><label>Chọn đại lý</label>
+								<select name="agencyName" id="agencyName" class="form-control select2" th:if="${agency} == null">
+									<option value="">--Chọn đại lý--</option>
+								</select>
+								<select name="agencyName" id="agencyName" class="form-control select2" th:if="${agency} != null">
+									<option th:each="i : ${agency}" th:value="${i.agencyCode}" th:text="${i.agencyName}" ></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div style="position:relative">
+									<label for="toDate">Ngày bắt đầu khởi tạo</label> <input
+										type="text" name="toDate" class="form-control"
+										placeholder="Từ ngày" id="toDate" autocomplete="off">
+								</div>
+							</td>
+							<td>
+								<div style="position:relative">
+									<label for="fromDate">Ngày kết thúc</label> <input
+										type="text" name="endDate" class="form-control"
+										placeholder="Đến ngày" id="endDate" autocomplete="off">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div style="position:relative">
+									<label for="toDate">Ngày duyệt</label> <input
+										type="text" name="approvedDate" class="form-control"
+										placeholder="Từ ngày" id="approvedDate" autocomplete="off">
+								</div>
+							</td>
+							<td>
+								<div style="position:relative">
+									<label for="fromDate">Đến ngày</label> <input
+										type="text" name="fromDate" class="form-control"
+										placeholder="Đến ngày" id="fromDate" autocomplete="off">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td><label for="monthReport">Tháng báo cáo</label>
+								<select name="monthReport" id="monthReport" class="form-control">
+									<option value="">--Chọn tháng báo cáo--</option>
+									<option>1</option><option>2</option><option>3</option>
+									<option>4</option><option>5</option><option>6</option>
+									<option>7</option><option>8</option><option>9</option>
+									<option>10</option><option>11</option><option>12</option>
+								</select>
+							</td>
+						</tr>
+						<tr class='control'>
+							<td colspan='4' align='center'>
+								<button type="button" class="btn btn-primary button-control"
+										name="doSearch" id="doSearch">
+									<i class="fa fa-search"></i> Tra cứu
+								</button>&nbsp; <a type="button" id="doExport"
+												   class="btn btn-primary button-control">
+								<i class="fa fa-file-excel-o"></i> Xuất file
+							</a>&nbsp;
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div class="list-service box box-primary">
+				<table class="table table-bordered">
+					<thead>
+					<tr align="center">
+						<th>Dịch vụ</th>
+						<th>Mã Đại lý</th>
+						<th>Tên nhóm gói cước</th>
+						<th>Gói cước</th>
+						<th>Số lượng đặt hàng mới</th>
+						<th>Số lượng gói cước đặt hàng mới trong một kì</th>
+						<th>Số lượng gói cước đã kích hoạt trong kì</th>
+						<th>Số lượng gói cước chưa kích hoạt trong kì</th>
+						<th>Tổng giá trị yêu cầu dịch vụ</th>
+						<th>Doanh thu gói đã kích hoạt</th>
+						<th>Mức chiết khấu (%)</th>
+					</tr>
+					</thead>
+					<tbody id="tableBody"></tbody>
+				</table>
+				<nav aria-label="Page navigation">
+					<ul class="pagination">
+						<li class="page-item"><span id="totalPage"></span></li>
+						<li class="page-item"><span id="pageSize"></span></li>
+						<li class="page-item">
+							<div class="form-group">
+								<select class="form-control" name="selector"
+										onChange="resetPage()">
+									<option>10</option>
+									<option>20</option>
+									<option>50</option>
+									<option>100</option>
+									<option>200</option>
+								</select>
+							</div>
+						</li>
+						<li class="page-item"><span>&nbsp;</span></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+						<li class="page-item"><a id="prePage"></a></li>
+						<li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+						<li class="page-item"><a id="nexPage"></a></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+						<li class="page-item"><a class="page-link"
+												 onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="/vasonline/js/report-revenue.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#sidebarCollapse').on('click', function() {
+			$('#sidebar').toggleClass('active');
+		});
+		$("#toDate").datepicker({
+			format: "dd/mm/yyyy",
+			todayHighlight: true,
+			inline: true
+		});
+		$("#approvedDate").datepicker({
+			format: "dd/mm/yyyy",
+			todayHighlight: true,
+			inline: true
+		});
+		$("#endDate").datepicker({
+			format: "dd/mm/yyyy",
+			todayHighlight: true,
+			inline: true
+		});
+		$("#fromDate").datepicker({
+			format: "dd/mm/yyyy",
+			todayHighlight: true,
+			inline: true
+		});
+
+		if ($("#areaId").val() != '' && $("#agencyName").val()==""){
+			var linkPost = "/vasonline/agency-list?idAgencyArea=" + $("#areaId").val();
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function (data) {
+					console.log($("#areaId").val());
+					var str = '<option value= "" >-- Chọn đại lý --</option>';
+					for (let i = 0; i < data.length; i++) {
+						if(data[i].status == 0){
+							str += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>'
+						}
+					}
+					$('#agencyName').html(str);
+				},
+				error: function (request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		}
+
+	});
+	$(document).on("change","#serviceSearch",function(){
+		let link = "/vasonline/brand-group-list?idService="+ $("#serviceSearch").val();
+		$.ajax({
+			url: link,
+			method: 'GET',
+			success: function(data) {
+
+				var str ='';
+				str += '<option value="">--Chọn nhóm gói cước--</option>';
+				for (let i = 0; i < data.length ; i++) {
+					str += ' <option value= "' + data[i].groupName + '" >' + data[i].groupName + '</option>';
+				}
+				$("#brandGroupNameSearch").html(str);
+
+			},
+			error: function(request) {
+				alert("The request failed: " + request.responseText);
+			}
+		})
+	});
+	$(document).on("change","#brandGroupNameSearch",function(){
+		let link = "/vasonline/brand-list-name?nameBrand="+ $("#brandGroupNameSearch").val();
+		$.ajax({
+			url: link,
+			method: 'GET',
+			success: function(data) {
+
+				var str ='';
+				str += '<option value="">--Chọn gói cước--</option>';
+				for (let i = 0; i < data.length ; i++) {
+					str += ' <option value= "' + data[i].brandName + '" >' + data[i].brandName + '</option>';
+				}
+				$("#brandNameSearch").html(str);
+
+			},
+			error: function(request) {
+				alert("The request failed: " + request.responseText);
+			}
+		})
+	});
+	$("#areaId").on("change", function (e) {
+		let value = Array.from(e.target.selectedOptions, option => option.value);
+		// $('input:hidden[name=brand]').val(value);
+		var linkPost = "/vasonline/agency-list?idAgencyArea=" + value.toString();
+
+		$.ajax({
+			url: linkPost,
+			method: 'GET',
+			success: function (data) {
+
+				var str = '<option value= "" >-- Chọn đại lý--</option>';
+
+				for (let i = 0; i < data.length; i++) {
+					if(data[i].status == 0){
+						str += ' <option value= "' + data[i].agencyCode + '" >' + data[i].agencyName + '</option>'
+					}
+				}
+				$('#agencyName').html(str);
+
+			},
+			error: function (request) {
+				alert("The request failed: " + request.responseText);
+			}
+		});
+	});
+</script>
+</body>

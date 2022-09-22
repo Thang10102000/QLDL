@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Tạo request api xuất hoá đơn</title>
+</head>
+<body>
+<form th:action="@{/transaction-api/agency-order/create}" method='POST' enctype="multipart/form-data" th:object="${agencyOrder}">
+    <table class="table table-condensed col">
+        <tr>
+            <td>
+                <input type="hidden" name="orderId" th:value="${agencyOrder.orderId}">
+                <label for="saleTransDate">Ngày giao dịch</label>
+                <input type="text" class="form-control"
+                       name="saleTransDate" id="saleTransDate">
+            </td>
+            <td>
+                <label for="saleTransType">Loại giao dịch</label>
+                <select name="saleTransType" id="saleTransType" class="form-control">
+                    <option th:if="${agencyOrder.agencyAO.agencyCode == null}" value="5">Giao dịch đại lý</option>
+                    <option th:if="${agencyOrder.agencyAO.agencyCode != null}" value="1">Bán lẻ</option>
+                </select>
+            </td>
+            <td>
+                <label for="shopCode">Mã đơn vị BH</label>
+                <input type="text" class="form-control"
+                       name="shopCode" id="shopCode" th:value="${agencyOrder.agencyAO.shopCode}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="staffCode">Mã nhân viên TH</label>
+                <input type="text" class="form-control"
+                       name="staffCode" id="staffCode" th:value="${agencyOrder.agencyAO.agencyCode}">
+            </td>
+            <td>
+                <label for="customerName">Tên KH</label>
+                <input type="text" class="form-control" name="customerName" id="customerName" th:value="${lstRequest.customer.name}">
+            </td>
+            <td>
+                <label for="telNumber">SĐT KH</label>
+                <input type="text" class="form-control"
+                       name="telNumber" id="telNumber" th:value="${lstRequest.customer.phone}">
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <label for="email">Email KH</label>
+                <input type="text" class="form-control"
+                       name="email" id="email" th:value="${lstRequest.customer.email}">
+            </td>
+            <td>
+                <label for="company">Tên công ty</label>
+<!--                <input type="text" class="form-control" name="company" id="company" th:if="${agencyOrder.agencyAO.agencyCode == null}" th:value="${customerAgency.agencyName}">-->
+                <input type="text" class="form-control" name="company" id="company" th:value="${agencyOrder.agencyAO.areaId.areaName}">
+            </td>
+            <td>
+                <label for="address">Địa chỉ KH</label>
+                <input type="text" class="form-control"
+                       name="address" id="address" th:value="${address}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="tin">Mã số thuế</label>
+                <input type="text" class="form-control"
+                       name="tin" id="tin" th:if="${agencyOrder.agencyAO.agencyCode != null}" th:value="${agencyOrder.agencyAO.areaId.taxCode}">
+                <input type="text" class="form-control"
+                       name="tin" id="tin" th:if="${agencyOrder.agencyAO.agencyCode == null}" th:value="${null}">
+            </td>
+            <td>
+                <label for="note">Ghi chú</label>
+                <input type="text" class="form-control"
+                       name="note" id="note">
+            </td>
+            <td>
+                <label for="amount">Tổng tiền</label>
+                <input type="text" class="form-control"
+                       name="amount" id="amount" th:value="${agencyOrder.orderValue}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="vat">VAT</label>
+                <input type="text" class="form-control"
+                       name="vat" id="vat" value="10">
+            </td>
+            <td>
+                <label for="discount">Tiền chiết khấu</label>
+                <input type="text" class="form-control" name="discount" id="discount" th:if="${agencyOrder.agencyAO.agencyCode == null}" th:value="${agencyOrder.orderPay}">
+                <input type="text" class="form-control" name="discount" id="discount" th:if="${agencyOrder.agencyAO.agencyCode != null}" value="0">
+            </td>
+            <td>
+                <label for="reasonCode">Lí do xuất bản</label>
+                <input type="text" class="form-control"
+                       name="reasonCode" id="reasonCode" value="BH">
+            </td>
+        </tr>
+        <tr>
+            <td th:object="${payment}">
+                <label for="payMethod">Hình thức TT</label>
+                <!--                <input type="text" name="payMethod" id="payMethod" class="form-control" th:value="${payment.paymentMethod}">-->
+                <select name="payMethod" id="payMethod" class="form-control" >
+                    <option th:field="*{paymentMethod}" value="1">Tiền mặt</option>
+                    <option th:field="*{paymentMethod}" value="2">Chuyển khoản</option>
+                    <option th:field="*{paymentMethod}" value="3">Tiền mặt + Chuyển khoản</option>
+                </select>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr th:if="${agencyOrderRequest} != null" th:each="st , index :${agencyOrderRequest}">
+            <td>
+                <label th:for="'goodCode'+${index.count}" th:text="'Mặt hàng' + ${index.count}"></label>
+                <input type="text" class="form-control"
+                       th:name="'goodCode'+${index.count}" th:id="'goodCode'+${index.count}" th:value="${st.serviceRequest.brandASR.brandId}">
+            </td>
+            <td>
+                <label th:for="'price'+  ${index.count}" th:text="'Đơn giá' + ${index.count}"></label>
+                <input type="text" class="form-control"
+                       th:name="'price'+  ${index.count}" th:id="'price'+  ${index.count}" th:value="${st.serviceRequest.price}">
+            </td>
+            <td>
+                <label th:for="'quantity'+${index.count}" th:text="'Số lượng' + ${index.count}"></label>
+                <input type="text" class="form-control" th:name="'quantity'+${index.count}" th:id="'quantity'+${index.count}" th:value="${st.serviceRequest.quantity}">
+                <input type="hidden" name="sizeArr" th:if="${index.last}" class="sizeArr" th:value="${index.size}" >
+            </td>
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button class="btn btn-primary button-control" id="doAdd"
+                        type="submit">
+                    <i class="fa fa-plus-square"></i> CALL
+                </button>&nbsp;
+                <a type="button" id="doBack"
+                   class="btn btn-primary button-control"  data-dismiss="modal"><i
+                        class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+            </td>
+        </tr>
+    </table>
+</form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#sidebarCollapse').on('click', function() {
+            $('#sidebar').toggleClass('active');
+        });
+    });
+    $("#saleTransDate").datepicker({
+        format: "dd/mm/yyyy",
+        todayHighlight: true
+    });
+</script>
+</body>
+
+</html>

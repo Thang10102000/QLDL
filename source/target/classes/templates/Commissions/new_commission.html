@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <link rel="stylesheet" href="/style/select2.min.css">
+    <link rel="stylesheet" href="/style/datepicker3.css">
+    <meta charset="utf-8">
+    <title>Thêm mới chính sách hoa hồng</title>
+</head>
+
+<body>
+    <form th:action="@{/new-commission}" method="post">
+        <table class="table table-condensed col">
+            <tr>
+                <td>
+                    <label for="policyName">Tên chính sách<b class="required">(*)</b></label>
+                    <input type="text" name="policyName" class="form-control" placeholder="Tên chính sách"
+                           id="policyName" autocomplete="off">
+                    <span class="required" id="policyNameMessage"></span>
+                </td>
+                <td>
+                    <label for="description">Mô tả chính sách </label>
+                    <input type="text" name="description" class="form-control"
+                           placeholder="Mô tả chính sách" id="description" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="startDate">Ngày bắt đầu<b class="required">(*)</b></label>
+                    <input type="text" name="startDate" class="form-control" placeholder="Ngày bắt đầu"
+                           id="startDate" autocomplete="off">
+                    <span class="required" id="startDateMessage"></span>
+                </td>
+                <td>
+                    <label for="endDate">Ngày kết thúc<b class="required">(*)</b></label>
+                    <input type="text" name="endDate" class="form-control" placeholder="Ngày kết thúc"
+                           id="endDate" autocomplete="off">
+                    <span class="required" id="endDateMessage"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="commissionRate">Tỷ lệ hoa hồng(%) <b class="required">(*)</b></label>
+                    <input type="number" name="commissionRate" class="form-control"
+                           placeholder="Tỷ lệ hoa hồng" id="commissionRate" autocomplete="off">
+                    <span class="required" id="commissionRateMessage"></span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="width: 50%;">
+                    <input type="checkbox" id="allAm" class="allAm" name="allAm"> Mặc định cho tất cả Đại lý, AM/KAM
+                </td>
+                <td></td>
+            </tr>
+            <tr class="notAllAM" hidden>
+                <td>
+                    <label for="agencyArea">Chọn công ty khu vực <b class="required">(*)</b> </label>
+                    <select name="agencyArea" id="agencyArea"
+                            class="agencyArea form-control select select2" multiple>
+                        <option th:each="ag : ${agencyArea}" th:value="${ag.areaId}" th:text="${ag.areaName}"></option>
+                    </select>
+                </td>
+                <td><input type="hidden" class="am-kam" id="am-kam" name="am-kam">
+                    <label for="kamCommisions">Chọn AM/KAM <b
+                            class="required">(*)</b></label>
+                    <select name="kamCommisions" id="kamCommisions"
+                            class="kamCommisions form-control select select2" multiple>
+                    </select>
+                    <span class="required" id="kamCommisionsMessage"></span>
+                </td>
+            </tr>
+            <tr class="notAllAM" hidden>
+                <td>
+                    <input type="hidden" class="agency" id="agency" name="agency">
+                    <label for="agencyCommission">Chọn Đại lý<b
+                            class="required">(*)</b></label>
+                    <select name="agencyCommission" id="agencyCommission"
+                            class="agencyCommission form-control select select2" multiple>
+                    </select>
+                    <span class="required" id="agencyCommissionMessage"></span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" id="allBrand" class="allBrand" name="allBrand"> Mặc định cho tất cả gói cước</td>
+                <td></td>
+            </tr>
+            <tr class="notAllBrand" hidden>
+                <td>
+                    <label for="selectService">Chọn dịch vụ<b class="required">(*)</b></label>
+                    <select name="selectService" id="selectService"
+                            class="selectService select2 form-control " multiple>
+                        <option
+                                th:each="se : ${service}"
+                                th:value="${se.id}"
+                                th:text="${se.serviceName}"
+                        ></option>
+                    </select>
+                </td>
+                <td >
+                    <label for="brandGroup">Chọn nhóm gói cước<b
+                            class="required">(*)</b></label>
+                    <select name="brandGroup" id="brandGroup"
+                            class="brandId select2 form-control" multiple>
+                    </select>
+                </td>
+            </tr>
+            <tr class="notAllBrand" hidden>
+                <td>
+                    <input type="hidden" class="brand"  id="brand" name="brand">
+                    <label for="brandCommisions">Chọn gói cước<b
+                            class="required">(*)</b></label>
+                    <select name="brandCommisions" id="brandCommisions"
+                            class="brandCommisions select2 form-control " multiple>
+                    </select>
+                    <span class="required" id="brandCommisionsMessage"></span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" id="isDefault" class="isDefault" name="isDefault"> Chính sách mặc định</td>
+                <td><input type="hidden" id="checkDefault" name="checkDefault"></td>
+            </tr>
+            <tr class='control'>
+                <td colspan='4' align='center'>
+                    <button type="submit"  class="btn btn-primary button-control new" name="doNew" id="doNew"><i
+                            class="fa fa-plus-square"></i>
+                        Thêm mới
+                    </button>
+                    <button type="button" id="doBack" class="btn btn-primary button-control" data-dismiss="modal">
+                        <i class="fa fa-undo" aria-hidden="true"></i> Quay lại</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<link rel="stylesheet" href="/vasonline/style/bootstrap-datepicker.min.css">
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".select2").select2();
+        $("#allAm").prop("checked", true);
+        $("#allBrand").prop("checked", true);
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        $(':checkbox').change(function () {
+            if ($("#allAm").prop('checked')) {
+                $(".notAllAM").attr("hidden", true);
+                $("#agencyArea , #kamCommisions").val("");
+                $("#agencyArea , #kamCommisions").trigger("change");
+            } else {
+                $(".notAllAM").removeAttr('hidden');
+            }
+            if ($("#allBrand").prop('checked')) {
+                $(".notAllBrand").attr("hidden", true);
+                $("#selectService , #brandGroup , #brandCommisions").val("");
+                $("#selectService , #brandGroup , #brandCommisions").trigger("change");
+            } else {
+                $(".notAllBrand").removeAttr('hidden');
+            }
+            if($('#isDefault').prop('checked')){
+                $("#checkDefault").val("1");
+            }else {
+                $("#checkDefault").val("");
+            }
+        });
+        $("#kamCommisions").on("change", function (e) {
+            let value = Array.from(e.target.selectedOptions, option => option.value);
+
+            $('input:hidden[name=am-kam]').val(value);
+            console.log($('input:hidden[name=am-kam]').val());
+        })
+
+        $("#agencyCommission").on("change", function (e) {
+            let value = Array.from(e.target.selectedOptions, option => option.value);
+            $('input:hidden[name=agency]').val(value);
+            console.log($('input:hidden[name=agency]').val());
+        })
+
+        $("#brandCommisions").on("change", function (e) {
+            let value = Array.from(e.target.selectedOptions, option => option.value);
+            $('input:hidden[name=brand]').val(value);
+            // console.log($('input:hidden[name=brand]').val());
+        })
+
+        $("#selectService").on("change", function (e) {
+            let value = Array.from(e.target.selectedOptions, option => option.value);
+            // $('input:hidden[name=brand]').val(value);
+            var linkPost = "/vasonline/brand-group-list?idService="+ value.toString();
+
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function(data) {
+
+                    var str ='';
+
+                    for (let i = 0; i < data.length ; i++) {
+                        if (data[i].status == 0) {
+                            str += ' <option value= "' + data[i].id + '" >' + data[i].groupName + '</option>';
+                        }
+                    }
+                    $('#brandGroup').html(str);
+
+                },
+                error: function(request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        })
+
+            $("#agencyArea").on("change", function (e) {
+                let value = Array.from(e.target.selectedOptions, option => option.value);
+                // $('input:hidden[name=brand]').val(value);
+                console.log(value);
+                var linkPost = "/vasonline/amkam-list?idAmKam="+ value.toString();
+
+                $.ajax({
+                    url: linkPost,
+                    method: 'GET',
+                    success: function(data) {
+
+                        var str ='';
+                        let lstAgency='';
+
+                        for (let i = 0; i < data.length ; i++) {
+                            if(data[i].type == 1){
+                                str +=' <option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+                            }
+                            if(data[i].type == 0){
+                                lstAgency +=' <option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+                            }
+                        }
+                        $('#kamCommisions').html(str);
+                        $('#agencyCommission').html(lstAgency);
+
+                    },
+                    error: function(request) {
+                        alert("The request failed: " + request.responseText);
+                    }
+                });
+            })
+        $("#startDate").datepicker({
+            format: "dd/mm/yyyy",
+            startDate: 'today',
+            todayHighlight: true
+        }).datepicker("setDate", new Date());
+        $("#endDate").datepicker({
+            format: "dd/mm/yyyy",
+            startDate: 'today',
+            todayHighlight: true,
+            inline: true
+        });
+        $("#brandGroup").on("change", function (e) {
+            let value = Array.from(e.target.selectedOptions, option => option.value);
+            //console.log(value.toString());
+            var linkPost = "/vasonline/brand-list?idBrand="+ value.toString();
+
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function(data) {
+
+                    var str ='';
+
+                    for (let i = 0; i < data.length ; i++) {
+                        if (data[i].status == 0) {
+                            str += ' <option value= "' + data[i].id + '" >' + data[i].brandName + '</option>';
+                        }
+                    }
+                    $('#brandCommisions').html(str);
+
+                },
+                error: function(request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        });
+        $("#policyName, #commisionRate, #kamCommisions, #brandCommisions").keydown(function (){
+            $("#policyNameMessage, #commisionRateMessage, #kamCommisionsMessage, #brandCommisionsMessage").text("");
+        });
+    });
+    $("#kamCommisions, #startDate, #endDate, #brandCommisions").on("change",function (){
+        $(" #kamCommisionsMessage, #startDateMessage, #endDateMessage, #brandCommisionsMessage").text("");
+    });
+    $(document).on('click',"#doNew", function (e) {
+        var format3 = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format3.test($("#policyName").val())) {
+            $("#policyNameMessage").text("Tên chính sách chứa ký tự đặc biệt");
+            return false;
+        }
+        if ($("#policyName").val() === '') {
+            $("#policyNameMessage").text("Bạn chưa nhập tên chính sách");
+            $("#policyName").focus();
+            return false;
+        }
+        if ($("#commissionRate").val() === '') {
+            $("#commissionRateMessage").text("Bạn chưa nhập tỷ lệ hoa hồng");
+            $("#commissionRate").focus();
+            return false;
+        }
+        if ($("#startDate").val() === '') {
+            $("#startDateMessage").text("Bạn chưa nhập ngày bắt đầu");
+            $("#startDate").focus();
+            return false;
+        }
+        if ($("#endDate").val() === '') {
+            $("#endDateMessage").text("Bạn chưa nhập ngày bắt đầu");
+            $("#endDate").focus();
+            return false;
+        }
+
+        //	check end date > start date
+        var ngaybatdau = $('#startDate').val();
+        var ngayketthuc = $('#endDate').val();
+        ngaybatdau = parseDate(ngaybatdau).getTime();
+        ngayketthuc = parseDate(ngayketthuc).getTime();
+
+        if (ngaybatdau > ngayketthuc) {
+            $('#endDateMessage').text('Vui lòng nhập ngày kết thúc lớn hơn ngày bắt đầu!');
+            return false;
+        }
+
+        if ($("#commisionRate").val()*1 < 0 || $("#commisionRate").val()*1 > 100) {
+            $("#commissionRateMessage").text("Tỷ lệ hoa hồng phải lớn hơn bằng 0 và nhỏ hơn bằng 100");
+            return false;
+        }
+
+        if ($("#allAm").prop("checked", false)) {
+            if ($("#kamCommisions").val() === '') {
+                $("#kamCommisionsMessage").text("Bạn chưa nhập AM/KAM");
+                return false;
+            }
+        }
+        if ($("#allBrand").prop("checked", false)) {
+            if ($("#brandCommisions").val() === '') {
+                $("#brandCommisionsMessage").text("Bạn chưa nhập gói cước");
+                return false;
+            }
+        }
+        // let btn = $(this);
+        // btn.prop('disabled', true);
+        // setTimeout(function(){
+        //     btn.prop('disabled', false);
+        // }, 5000);
+    })
+    var invalidChars = ["-", "+", "e", ","];
+    $("#commisionRate").on("keydown", function (e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+
+</html>

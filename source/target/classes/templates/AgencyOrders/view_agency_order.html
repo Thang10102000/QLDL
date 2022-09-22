@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Chỉnh sửa đơn hàng</title>
+</head>
+
+<body>
+                <form th:object="${agencyOrder}">
+                    <table class="table table-condensed col">
+                        <tr>
+                            <td style="width: 50%;">
+                                <label for="orderId">Mã đơn hàng<b class="required">(*)</b></label>
+                                <input type="text" name="orderId" th:field="*{orderId}" class="form-control"
+                                       placeholder="Mã đơn hàng" id="orderId" autocomplete="off" readonly>
+                                <span class="required" id="orderIdMessage"></span>
+                            </td>
+                            <td>
+                                <label for="agencyAO">Tên đại lý - AM/KAM<b class="required">(*)</b></label>
+                                <input type="text" name="agencyAO" th:field="*{agencyAO.agencyName}" class="form-control"
+                                       placeholder="Mã đơn hàng" id="agencyAO" autocomplete="off" readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="paymentMethod">Hình thức thanh toán<b class="required">(*)</b></label>
+                                <select name="paymentMethod" id="paymentMethod" class="form-control" disabled>
+                                    <option th:field="*{paymentMethod}" value="0">Trả trước</option>
+                                    <option th:field="*{paymentMethod}" value="1">Trả sau</option>
+                                    <option th:field="*{paymentMethod}" value="2">Tài khoản</option>
+                                </select>
+                            </td>
+                            <td>
+                                <label for="orderStatusAO">Trạng thái <b class="required">(*)</b></label>
+                                <select name="orderStatusAO" id="orderStatusAO" class="form-control"
+                                        th:field="*{orderStatusAO}" disabled>
+                                    <option th:each="st :${orderStatus}" th:value="${st.id}"
+                                            th:text="${st.statusName}"></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="postpaid" hidden>
+                            <td>
+                                <label for="depositAmount">Giá trị bảo lãnh</label>
+                                <input type="text" name="depositAmount" id="depositAmount" class="form-control" readonly>
+                            </td>
+                            <td>
+                                <label for="guaranteeValue">Hạn mức cho phép vượt(%)</label>
+                                <input type="text" th:value="${guarantee}" id="guaranteeValue" class="form-control" readonly>
+                            </td>
+                        </tr>
+                        <tr class="postpaid" hidden>
+                            <td>
+                                <label for="exceedValue">Giá trị có thể vượt quá bảo lãnh</label>
+                                <input type="text" id="exceedValue" class="form-control" readonly>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="orderValue">Giá trị đơn hàng<b class="required">(*)</b></label>
+                                <input type="text" data-type='currency' name="orderValue" class="form-control"
+                                       placeholder="Giá trị đơn hàng" id="orderValue" autocomplete="off"
+                                       th:field="*{orderValue}" readonly>
+                                <span class="required" id="orderValueMessage"></span>
+                            </td>
+                            <td>
+                                <label for="discountRate">Tỷ lệ chiết khấu</label>
+                                <input type="text" name="discountRate" class="form-control" id="discountRate" readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="discountRateValue">Giá trị chiết khấu</label>
+                                <input type="text" data-type='currency' placeholder="Giá trị chiết khấu"
+                                       name="discountRateValue" class="form-control"
+                                       disabled id="discountRateValue">
+                            </td>
+                            <td>
+                                <label for="orderPay">Giá trị thanh toán<b class="required">(*)</b></label>
+                                <input type="text" data-type='currency' name="orderPay" class="form-control"
+                                       placeholder="Giá trị thanh toán" id="orderPay" autocomplete="off"
+                                       th:field="*{orderPay}" readonly>
+                                <span class="required" id="orderPayMessage"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="startDate">Ngày bắt đầu<b class="required">(*)</b></label>
+                                <input type="text" th:field="*{startDate}" name="startDate" class="form-control"
+                                       placeholder="Ngày bắt đầu" id="startDate" autocomplete="off" readonly>
+                                <span class="required" id="startDateMessage"></span>
+                            </td>
+                            <td>
+                                <label for="endDate">Ngày kết thúc<b class="required">(*)</b></label>
+                                <input type="text" th:field="*{endDate}" name="endDate" class="form-control"
+                                       placeholder="Ngày kết thúc" id="endDate" autocomplete="off" readonly>
+                                <span class="required" id="endDateMessage"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="description">Mô tả</label>
+                                <input type="text" th:field="*{description}" name="description" class="form-control"
+                                       placeholder="Mô tả" id="description" autocomplete="off" readonly>
+                            </td>
+                            <td>
+                                <label for="files">File đính kèm</label>
+                                <table id="files">
+                                    <tr th:each="f : ${files}">
+                                        <td th:text="${f.filePath}"></td>
+                                        <td><a th:href="${f.filePath}" hidden><i class="fa fa-download"></i></a></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="orderRequest">Yêu cầu MobiEdu</label>
+                                <table id="orderRequest">
+                                    <tr th:if="${agencyOrderRequest} != null" th:each="st :${agencyOrderRequest}">
+                                        <td width="50%" th:text="${st.serviceRequest.srId}+' - '+ ${st.serviceRequest.customer.name}+' - '+ ${st.serviceRequest.brandASR.brandName}"></td>
+                                        <td th:text="'Số lượng gói cước: '+${st.serviceRequest.quantity}"></td>
+                                    </tr>
+                                    <tr th:if="${agencyOrderRequest} == null" >
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td>
+                                <label for="orderPayment">Số tiền thanh toán</label>
+                                <table id="orderPayment">
+                                    <tr th:if="${agencyOrderPayments} != null" th:each="aP, index : ${agencyOrderPayments}">
+                                        <td th:text="'Số tiền thanh toán lần '+ ${index.count} + ':'"> </td>
+                                        <td th:text="${aP.amount}" width="50%"></td>
+                                    </tr>
+                                    <tr th:if="${agencyOrderPayments} == null" >
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr class='control'>
+                            <td colspan='4' align='center'>
+                                <button type="button" id="doBack" data-dismiss="modal" class="btn btn-primary button-control"><i class="fa fa-undo" aria-hidden="true"></i> Quay lại</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/select2.min.js"></script>
+<link rel="stylesheet" href="/vasonline/style/upload-file.css">
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        $("#startDate").datepicker({
+            format: "dd/mm/yyyy",
+            todayHighlight: true,
+            inline: true
+        });
+        $("#endDate").datepicker({
+            format: "dd/mm/yyyy",
+            todayHighlight: true,
+            inline: true
+        });
+        //tính giá trị chiết khấu & tỉ lệ chiết khấu
+        if ($("#orderValue").val() * 1 > 0 && $("#discountRateValue").val() == '') {
+            let rateVal = parseInt($("#orderValue").val()) - parseInt($("#orderPay").val());
+            let discount = (rateVal / parseInt($("#orderValue").val())) * 100;
+            $("#discountRateValue").val(rateVal);
+            $("#discountRate").val(discount);
+        }
+        if($("#paymentMethod").val() == "1"){
+            $(".postpaid").removeAttr("hidden");
+            var link = "/vasonline/get-deposit-amount?agencyAO=" + $("#agencyAO").val();
+            $.ajax({
+                url: link,
+                method: 'GET',
+                success: function (data) {
+                    if (data.depositsAmount != null){
+                        $('#depositAmount').val(data.depositsAmount);
+                    }else {
+                        $('#depositAmount').val(0);
+                    }
+                    let depositA = parseInt($('#depositAmount').val());
+                    let guarantee = parseInt($('#guaranteeValue').val());
+                    let exceedV = (depositA*guarantee)/100;
+                    $("#exceedValue").val(exceedV);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+
+    });
+</script>
+</body>
+</html>

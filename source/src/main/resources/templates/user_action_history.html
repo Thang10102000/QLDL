@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Tra cứu lịch sử hoạt động user</title>
+</head>
+<body>
+	<div class="wrapper" >
+		<!-- Sidebar  -->
+		<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+		<!-- Page Content  -->
+		<div id="content">
+			<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+			<div class="container-fluid">
+				<div class="heading">
+					<h4>TRA CỨU LỊCH SỬ HOẠT ĐỘNG USER</h4>
+				</div>
+				<div class="box box-primary">
+					<form>
+						<table class="table table-condensed col">
+							<tr>
+								<td style="width: 50%;"><label for="username">Tên người dùng</label> <input
+									type="text" class="form-control" placeholder="Username"
+									name="username" id="username"></td>
+								<td><label for="sfId">Module chức năng</label> <select
+									name="sfId" id="sfId" class="form-control select2">
+										<option value="">-- Chọn Module chức năng --</option>
+										<option th:each="sf : ${systemfunction}"
+											th:value="${sf.sfId}" th:text="${sf.sfName}">
+										</option>
+								</select></td>
+							</tr>
+							<tr>
+								<td>
+									<div style="position:relative">
+									<label for="createdDateFrom">Từ ngày</label>
+									<input name="createdDateFrom" class="form-control" placeholder="Ngày tạo từ"
+										id="createdDateFrom">
+									</div>
+								</td>
+								<td>
+									<div style="position:relative">
+									<label for="createdDateTo">Đến ngày</label>
+									<input name="createdDateTo" class="form-control" placeholder="Ngày tạo đến"
+										id="createdDateTo">
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td><label for="privilege">Loại thao tác</label> <select
+									name="privilege" id="privilege" class="form-control">
+										<option value="">-- Chọn loại thao tác --</option>
+										<option th:each="pri : ${privileges}"
+											th:value="${pri.privilegeId}" th:text="${pri.privilegeName}">
+										</option>
+								</select></td>
+								<td></td>
+							</tr>
+							<tr class='control'>
+								<td colspan='4' align='center'>
+									<button type="button" class="btn btn-primary button-control"
+										name="doSearch" id="doSearch">
+										<i class="fa fa-search"></i> Tìm kiếm
+									</button>
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+				<div class="list-service box box-primary">
+					<table class="table table-bordered">
+						<thead>
+							<tr align="center">
+								<th>Ngày ghi log</th>
+								<th>Tài khoản</th>
+								<th>Module chức năng</th>
+								<th>Loại thao tác</th>
+								<th>Mô tả</th>
+							</tr>
+						</thead>
+						<tbody id="tableBody"></tbody>
+					</table>
+					<nav aria-label="Page navigation">
+						<ul class="pagination">
+							<li class="page-item"><span id="totalPage"></span></li>
+							<li class="page-item"><span id="pageSize"></span></li>
+							<li class="page-item">
+								<div class="form-group">
+									<select class="form-control" name="selector"
+										onChange="resetPage()">
+										<option>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+										<option>200</option>
+									</select>
+								</div>
+							</li>
+							<li class="page-item"><span>&nbsp;</span></li>
+							<li class="page-item"><a class="page-link"
+								onClick="firstPage()"><i class="fa fa-angle-double-left"></i></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+							<li class="page-item"><a id="prePage"></a></li>
+							<li class="page-item"><a class="page-link" id="currentPage">1</a></li>
+							<li class="page-item"><a id="nexPage"></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+							<li class="page-item"><a class="page-link"
+								onClick="lastPage()"><i class="fa fa-angle-double-right"></i></a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script src="/vasonline/js/select2.min.js"></script>
+	<script src="/vasonline/js/uah-search.js"></script>
+	<script src="/vasonline/js/moment.js"></script>
+	<script src="/vasonline/js/bootstrap-datetimepicker.min.js"></script>
+	<script type="text/javascript">
+		$(".select2").select2();
+		$("#createdDateFrom").datetimepicker({
+			format:'DD/MM/YYYY HH:mm'
+		});
+		$("#createdDateTo").datetimepicker({
+			format:'DD/MM/YYYY HH:mm'
+		});
+		$(function () {
+			$("#doSearch").click();
+		})
+		$(document).ready(function() {
+	        $('#sidebarCollapse').on('click', function() {
+	            $('#sidebar').toggleClass('active');
+	        });
+
+	    });
+	</script>
+</body>
+
+</html>

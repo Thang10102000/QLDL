@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thêm mới đơn hàng</title>
+</head>
+
+<body>
+        <form th:action="@{/new-agency-order}" method="post" enctype="multipart/form-data">
+            <table class="table table-condensed col">
+                <tr>
+                    <td style="width: 50%;">
+                        <label for="areaId">Công ty khu vực<b class="required">(*)</b></label>
+                        <select name="areaId" id="areaId"
+                                class="areaId select2 form-control ">
+                            <option value="all" th:if="${#lists.size(agencyArea) >= 2}">--Chọn CTKV--</option>
+                            <option
+                                    th:each="aga : ${agencyArea}"
+                                    th:value="${aga.areaId}"
+                                    th:text="${aga.areaName}"
+                            ></option>
+                        </select>
+                    </td>
+                    <td style="width: 50%;"><label for="agencyAO">Đại lý - AM/KAM <b class="required"> (*)</b> </label>
+                        <select name="agencyAO" id="agencyAO" class="form-control select2New">
+                            <option value="">-- Chọn đại lý - AM/KAM --</option>
+                            <option
+                                    th:each="ag : ${agency}"
+                                    th:value="${ag.id}"
+                                    th:text="${ag.agencyName}"
+                            ></option>
+                        </select>
+                    </td>
+                </tr>
+<!--                <tr>-->
+<!--                    <td style="width: 50%;">-->
+<!--                        <label for="areaId">Công ty khu vực<b class="required">(*)</b></label>-->
+<!--                        <select name="areaId" id="areaId"-->
+<!--                                class="areaId select2 form-control ">-->
+<!--                            <option value="">&#45;&#45;Chọn CTKV&#45;&#45;</option>-->
+<!--                            <option-->
+<!--                                    th:each="aga : ${agencyArea}"-->
+<!--                                    th:value="${aga.areaId}"-->
+<!--                                    th:text="${aga.areaName}"-->
+<!--                            ></option>-->
+<!--                        </select>-->
+<!--                    </td>-->
+<!--                    <td>-->
+<!--                        <label for="agencyAO">Tên đại lý - AM/KAM<b class="required">(*)</b></label>-->
+<!--                        <select name="agencyAO" id="agencyAO" class="form-control select2New">-->
+<!--                            <option value="">&#45;&#45; Chọn đại lý - AM/KAM &#45;&#45;</option>-->
+<!--                        </select>-->
+<!--                    </td>-->
+<!--                </tr>-->
+                <tr>
+                    <td>
+                        <label for="startDate">Ngày bắt đầu<b class="required">(*)</b></label>
+                        <input type="text" name="startDate" class="form-control" placeholder="Ngày bắt đầu"
+                               id="startDate" autocomplete="off">
+                        <span class="required" id="startDateMessage"></span>
+                    </td>
+                    <td>
+                        <label for="endDate">Ngày kết thúc<b class="required">(*)</b></label>
+                        <input type="text" name="endDate" class="form-control" placeholder="Ngày kết thúc"
+                               id="endDate" autocomplete="off">
+                        <span class="required" id="endDateMessage"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="serviceRequest">Yêu cầu dịch vụ <b class="required">(*)</b></label>
+                        <select name="serviceRequest" id="serviceRequest" class="form-control select select2New" multiple>
+                            <option value="">--Chọn yêu cầu dịch vụ--</option>
+                        </select>
+                        <input type="hidden" name="serviceRequestVal" class="serviceRequestVal" id="serviceRequestVal">
+                    </td>
+                    <td>
+                        <label for="paymentMethod">Hình thức thanh toán<b class="required">(*)</b></label>
+                        <select name="paymentMethod" id="paymentMethod" class="form-control">
+                            <option value="0">Trả trước</option>
+                            <option value="1">Trả sau</option>
+                            <option value="2">Tài khoản</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="discountRate" id="discountCommission">Tỷ lệ hoa hồng/chiết khấu</label>
+                        <input type="text" name="discountRate" class="form-control" id="discountRate" disabled>
+                    </td>
+                    <td>
+                        <label for="depositAmount">Giá trị bảo lãnh (VNĐ)</label>
+                        <input type="text" name="depositAmount" id="depositAmount" class="form-control" readonly>
+                    </td>
+                </tr>
+                <tr class="postpaid" hidden>
+                    <td>
+                        <label for="guaranteeValue">Hạn mức cho phép vượt(%)</label>
+                        <input type="text" th:value="${guarantee}" id="guaranteeValue" class="form-control" readonly>
+                    </td>
+                </tr>
+                <tr class="postpaid" hidden>
+                    <td>
+                        <label for="exceedValue">Giá trị có thể vượt quá bảo lãnh (VNĐ)</label>
+                        <input type="text" id="exceedValue" class="form-control" readonly>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="orderValue">Giá trị đơn hàng (VNĐ)<b class="required">(*)</b></label>
+                        <input type="text" data-type='currency' name="orderValue" class="form-control"
+                               placeholder="Giá trị đơn hàng" id="orderValue" autocomplete="off">
+                        <span class="required" id="orderValueMessage"></span>
+                    </td>
+                    <td>
+                        <label for="discountRateValue">Giá trị chiết khấu </label>
+                        <input type="text" data-type='currency' placeholder="Giá trị chiết khấu"
+                               name="discountRateValue" class="form-control"
+                               disabled id="discountRateValue">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="orderPay">Giá trị thanh toán<b class="required">(*)</b></label>
+                        <input type="text" data-type='currency' name="orderPay" class="form-control"
+                               placeholder="Giá trị thanh toán" id="orderPay" autocomplete="off" >
+                        <span class="required" id="orderPayMessage"></span>
+                    </td>
+                    <td>
+                        <label for="description">Mô tả</label>
+                        <input type="text" name="description" class="form-control" placeholder="Mô tả"
+                               id="description" autocomplete="off">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="fileUploader">Upload File</label>
+                        <input id="fileUploader"  type="file" name="files[]" multiple onchange="updateList()">
+<!--                        <span id="divFiles"></span>-->
+                    </td>
+                    <td><input type="hidden" id="typePolicy"></td>
+                    <td></td>
+                </tr>
+                <tr class='control'>
+                    <td colspan='4' align='center'>
+                        <button type="submit" class="btn btn-primary button-control" name="doNew" id="doNew"><i
+                                class="fa fa-plus-square"></i>
+                            Thêm mới
+                        </button>
+                        <button type="button" id="doBack" class="btn btn-primary button-control"
+                                data-dismiss="modal" ><i class="fa fa-undo" aria-hidden="true"></i> Quay lại</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/upload_multi-file.js"></script>
+<link rel="stylesheet" href="/vasonline/style/upload-file.css">
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript">
+    var dataSr = [];
+    $(document).ready(function () {
+        $(".select2New").select2();
+        $("#discountRate").val(0);
+        $("#orderValue").val("");
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        $("#startDate").datepicker({
+            format: "dd/mm/yyyy",
+            todayHighlight: true,
+            inline: true
+        });
+        $("#endDate").datepicker({
+            format: "dd/mm/yyyy",
+            todayHighlight: true,
+            inline: true
+        });
+        $("#orderId, #orderValue, #orderPay").keydown(function () {
+            $("#orderIdMessage, #orderValueMessage, #orderPayMessage").text("");
+        });
+
+    //    check area id and search agency id
+        if ($("#areaId").val() != '' && $("#agencyAO").val() == ''){
+            if($("#areaId").val() == 'all'){
+                var linkPost = "/vasonline/get-all-agency";
+                $.ajax({
+                    url: linkPost,
+                    method: 'GET',
+                    success: function (data) {
+                        var str = '<option value= "" >-- Chọn đại lý - AM/KAM --</option>';
+                        for (let i = 0; i < data.length; i++) {
+                            if(data[i].status == 0){
+                                str += ' <option value= "' + data[i].id + '" >' + data[i].agencyCode + '-' + data[i].agencyName + '</option>'
+                            }
+                        }
+                        $('#agencyAO').html(str);
+                    },
+                    error: function (request) {
+                        alert("The request failed: " + request.responseText);
+                    }
+                });
+            }
+            else {
+                var linkPost = "/vasonline/get-all-agency-by-area?areaId=" + $("#selectCTKVSearch").val();
+                $.ajax({
+                    url: linkPost,
+                    method: 'GET',
+                    success: function (data) {
+                        var str = '<option value= "" >--Chọn đại lý - AM/KAM --</option>';
+                        for (let i = 0; i < data.length; i++) {
+                            if (data[i].status == 0) {
+                                str += ' <option value= "' + data[i].id + '" >' + data[i].agencyCode + '-' + data[i].agencyName + '</option>'
+                            }
+                        }
+                        $('#agencyAO').html(str);
+                    },
+                    error: function (request) {
+                        alert("The request failed: " + request.responseText);
+                    }
+                });
+            }
+        }
+        //check agency Id != null, search service request
+        if ($("#agencyAO").val() != ''){
+            // dataSr = [];
+            var linkPost = "/vasonline/service-request-list?agencyCode=" + $("#agencyAO").val();
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+                    console.log(data);
+                    dataSr = data;
+                    var str = '';
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i].type == 0){
+                            str += ' <option value= "' + data[i].srId + '" >' + data[i].srId + ' - ' + data[i].customer.name + ' - ' + data[i].brandASR.brandName + '</option>'
+                        }else {
+                            str += ' <option disabled style="color: red;" value= "' + data[i].srId + '" >' + data[i].srId + ' - ' + data[i].customer.name + ' - ' + data[i].brandASR.brandName + '</option>'
+                        }
+                    }
+                    $('#serviceRequest').html(str);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+    });
+    $("#startDate, #endDate").on("change",function () {
+        $(" #startDateMessage, #endDateMessage").text("");
+    });
+    $("#orderValue").on("keyup",function () {
+        $("#orderPay").val($("#orderValue").val());
+    })
+
+        //lấy tỉ lệ và tính giá trị đơn hàng theo tỉ lệ
+        $(document).on("change","#agencyAO", function (e) {
+            let value = $("#agencyAO").val();
+            let orderV = $("#orderValue").val();
+            let linkPost = "/vasonline/discount-rate?agencyAO=" + value + "&orderValue=" + orderV;
+
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+                    console.log(data);
+                    $("#discountRate").val(data.rate);
+                    let orderValue = parseInt($("#orderValue").val().replace(/,/g, ''));
+                    let discountRate = parseInt(data.rate);
+                    let typePolicy = data.type;
+                    console.log(discountRate);
+                    if(typePolicy == 1){
+                        if (orderValue >= 0 && ($("#paymentMethod").val() == "0" || $("#paymentMethod").val() == "1") ) {
+                            let discountRateVal = orderValue * (discountRate / 100);
+                            let orderPay = orderValue - discountRateVal;
+                            $("#discountRateValue").val(discountRateVal);
+                            $("#orderPay").val(orderPay);
+                        } else {
+                            $("#discountRateValue").val(0);
+                            $("#orderPay").val($("#orderValue").val());
+                        }
+                    }else {
+                        $("#discountRateValue").val(0);
+                        $("#orderPay").val($("#orderValue").val());
+                    }
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+
+        //    lấy giá trị bảo lãnh
+            if ($("#paymentMethod").val() == "1"){
+                var link = "/vasonline/get-deposit-amount?agencyAO=" + $("#agencyAO").val();
+
+                $.ajax({
+                    url: link,
+                    method: 'GET',
+                    success: function (data) {
+                        if (data.depositsAmount != null){
+                            $('#depositAmount').val(data.depositsAmount);
+                        }else {
+                            $('#depositAmount').val(0);
+                        }
+                        let depositA = parseInt($('#depositAmount').val());
+                        let guarantee = parseInt($('#guaranteeValue').val());
+                        let exceedV = (depositA*guarantee)/100;
+                        $("#exceedValue").val(exceedV);
+                        $("#orderValue").val(exceedV + depositA);
+                    },
+                    error: function (request) {
+                        alert("The request failed: " + request.responseText);
+                    }
+                });
+            }else {
+                $('#depositAmount').val(0);
+            }
+
+        });
+        $(document).on("change","#orderValue", function () {
+
+            let value = $("#agencyAO").val();
+            let orderV = $("#orderValue").val();
+            let linkPost = "/vasonline/discount-rate?agencyAO=" + value + "&orderValue=" + orderV;
+
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+                    $("#discountRate").val(data.rate);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+
+            let orderValue = parseInt($("#orderValue").val().replace(/,/g, ''));
+            let discountRate = parseInt($("#discountRate").val());
+            let typePolicy = parseInt($("#typePolicy").val());
+            if(typePolicy == 1){
+                if (orderValue >= 0 && ($("#paymentMethod").val() == "0" || $("#paymentMethod").val() == "1")) {
+                    let discountRateVal = orderValue * (discountRate / 100);
+                    let orderPay = orderValue - discountRateVal;
+                    $("#discountRateValue").val(discountRateVal);
+                    $("#orderPay").val(orderPay);
+                } else {
+                    $("#discountRateValue").val(0);
+                    $("#orderPay").val($("#orderValue").val());
+                }
+            }else {
+                $("#discountRateValue").val(0);
+                $("#orderPay").val($("#orderValue").val());
+            }
+        });
+
+    //lấy đại lý theo ctkv
+    $("#areaId").on("change", function (e) {
+        let value = Array.from(e.target.selectedOptions, option => option.value);
+        // $('input:hidden[name=brand]').val(value);
+        if(value == 'all'){
+            var linkPost = "/vasonline/get-all-agency";
+
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+
+                    var str = '<option value= "" >-- Chọn đại lý - AM/KAM --</option>';
+
+                    for (let i = 0; i < data.length; i++) {
+                        if(data[i].status == 0){
+                            str += ' <option value= "' + data[i].id + '" >' + data[i].agencyCode + '-' + data[i].agencyName + '</option>'
+                        }
+                    }
+                    $('#agencyAO').html(str);
+
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+        else {
+            var linkPost = "/vasonline/get-all-agency-by-area?areaId=" + value.toString();
+
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+
+                    var str = '<option value="">-- Chọn đại lý - AM/KAM --</option>';
+
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i].status == 0) {
+                            str += ' <option value= "' + data[i].id + '" >' + data[i].agencyCode + '-' + data[i].agencyName + '</option>'
+                        }
+                    }
+                    $('#agencyAO').html(str);
+
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+    });
+
+    //Lấy giá trị bảo lãnh của đại lý
+    $(document).on("change","#paymentMethod", function (e) {
+        if ($("#paymentMethod").val() == "1"){
+            $(".postpaid").removeAttr("hidden");
+            $("#orderValue").attr("readonly",true);
+            var linkPost = "/vasonline/get-deposit-amount?agencyAO=" + $("#agencyAO").val();
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+                    if (data.depositsAmount != null){
+                        $('#depositAmount').val(data.depositsAmount);
+                    }else {
+                        $('#depositAmount').val(0);
+                    }
+                    let depositA = parseInt($('#depositAmount').val());
+                    let guarantee = parseInt($('#guaranteeValue').val());
+                    let exceedV = (depositA*guarantee)/100;
+                    $("#exceedValue").val(exceedV);
+                    $("#orderValue").val(exceedV + depositA);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+
+        } else {
+            $(".postpaid").prop("hidden","true");
+            $('#depositAmount').val(0);
+        }
+        if ($("#paymentMethod").val() == "2"){
+            $("#orderValue, #orderPay").val(0);
+            $("#orderValue").attr("readonly",true);
+        }
+        if ($("#paymentMethod").val() == "0"){
+            $("#orderValue, #orderPay").val(0);
+            $("#orderValue").removeAttr("readonly");
+        }
+
+    });
+
+    //validate form
+    $(document).on('click',"#doNew", function () {
+        localStorage.setItem("typePolicy", $("#typePolicy").val());
+        if ($("#startDate").val() === '') {
+            $("#startDateMessage").text("Bạn chưa nhập ngày bắt đầu");
+            return false;
+        }
+        if ($("#endDate").val() === '') {
+            $("#endDateMessage").text("Bạn chưa nhập ngày kết thúc");
+            return false;
+        }
+
+        //	check end date > start date
+        var ngaybatdau = $('#startDate').val();
+        var ngayketthuc = $('#endDate').val();
+        ngaybatdau = parseDate(ngaybatdau).getTime();
+        ngayketthuc = parseDate(ngayketthuc).getTime();
+
+        if (ngaybatdau > ngayketthuc) {
+            $('#endDateMessage').text('Vui lòng nhập ngày kết thúc lớn hơn ngày bắt đầu!');
+            return false;
+        }
+
+        if ($("#orderValue").val() === '') {
+            $("#orderValueMessage").text("Bạn chưa nhập giá trị đơn hàng");
+            return false;
+        }
+        if ($("#orderPay").val() === '') {
+            $("#orderPay").text("Giá trị thanh toán không được để trống");
+            return false;
+        }
+
+        return true;
+    })
+    // $("#areaId").on("change", function () {
+    //     let linkUrl = "/vasonline/get-all-agency-by-area?areaId="+ $("#areaId").val();
+    //     $.ajax({
+    //         url: linkUrl,
+    //         method: 'GET',
+    //         success: function (data) {
+    //             var str = '<option value= "">---Lựa chọn Đại lý - AM/KAM ----</option>';
+    //             for (let i = 0; i < data.length; i++) {
+    //                 //if(data[i].type == 0){
+    //                     str += ' <option value= "' + data[i].id + '" >' + data[i].agencyName + '</option>';
+    //                 //}
+    //             }
+    //             $("#agencyAO").html(str);
+    //         },
+    //         error: function (request) {
+    //             alert("The request failed: " + request.responseText);
+    //         }
+    //     });
+    // });
+    $("#agencyAO").on("change", function (e) {
+        dataSr = [];
+        var linkPost = "/vasonline/service-request-list?agencyCode=" + $("#agencyAO").val();
+        $.ajax({
+            url: linkPost,
+            method: 'GET',
+            success: function (data) {
+                console.log(data);
+                dataSr = data;
+                var str = '';
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].type == 0){
+                        str += ' <option value= "' + data[i].srId + '" >' + data[i].srId + ' - ' + data[i].customer.name + ' - ' + data[i].brandASR.brandName + '</option>'
+                    }else {
+                        str += ' <option disabled style="color: red;" value= "' + data[i].srId + '" >' + data[i].srId + ' - ' + data[i].customer.name + ' - ' + data[i].brandASR.brandName + '</option>'
+                    }
+                }
+                $('#serviceRequest').html(str);
+            },
+            error: function (request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+    });
+     //get total price
+     $('#serviceRequest').on("change",function (e) {
+         let value = Array.from(e.target.selectedOptions, option => option.value);
+         $('input:hidden[name=serviceRequestVal]').val(value);
+        var srVal = $('#serviceRequest').val();
+        var totalPrice = 0;
+         for (let i = 0; i < dataSr.length; i++) {
+             for (let j = 0; j < srVal.length; j++) {
+                if(dataSr[i].srId == srVal[j]){
+                    totalPrice += dataSr[i].amount;
+                }
+             }
+         }
+         $("#orderValue").val(totalPrice);
+         $("#orderPay").val(totalPrice);
+     })
+    var invalidChars = ["-", "+", "e"];
+    $("#orderValue").on("keydown", function (e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+
+</html>

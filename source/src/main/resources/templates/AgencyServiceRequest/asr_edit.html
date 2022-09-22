@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Cập nhật yêu cầu dịch vụ</title>
+</head>
+<body>
+	<div class="wrapper" sec:authorize="isAuthenticated()">
+		<span th:text ="${#authentication.getPrincipal().getUsers().getLevelUsers().getLevelId()}" id="levelIdUser" hidden></span>
+		<div class="box box-primary table-responsive">
+			<form th:action="@{/asr/edit}" method='POST' id="edit-asr">
+				<table class="table table-sm" th:object="${asrData}">
+					<tr style="display:none;">
+						<td><input type="text" class="form-control"
+							name="requestId" id="requestId" th:field="*{requestId}"></td>
+					</tr>
+					<tr>
+						<td style="width: 50%">
+							<label for="agency_area">Công ty khu vực</label>
+							<select name="agency_area" id="agency_area" class="form-control" th:field="*{agencyASR.areaId.areaId}" disabled>
+								<option th:each="area : ${agencyArea}"
+										th:value="${area.areaId}"
+										th:text="${area.areaName}">
+								</option>
+							</select>
+						</td>
+						<td>
+							<label for="agency">Đại lý-AM/KAM<b class="required">(*)</b></label>
+							<select name="agency" id="agency" class="form-control" th:field="*{agencyASR.id}" disabled>
+								<option th:each="agency : ${agencys}"
+										th:value="${agency.id}"
+										th:text="${agency.agencyName}"
+								></option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><label for="description">Mô tả yêu cầu</label>
+							<input type="text" class="form-control" placeholder="Mô tả yêu cầu"
+							name="description" id="description" th:field="*{description}"></td>
+						<td>
+							<label for="status">Trạng thái</label>
+							<select name="status" id="status" class="form-control" th:field="*{status}" disabled>
+								<option th:value=0>Mới tạo</option>
+								<option th:value=1>Chờ duyệt</option>
+								<option th:value=2>Đang xử lý</option>
+								<option th:value=3>Đăng ký không thành công</option>
+								<option th:value=4>Trừ tiền không thành công</option>
+								<option th:value=5>Thành công</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="service">Dịch vụ</label>
+							<select name="service" id="service" class="form-control" th:field="*{brandASR.brandGroupB.servicesBG.id}">
+								<option th:each="s : ${services}" 
+										th:value="${s.id}" 
+										th:text="${s.serviceName}">
+								</option>
+							</select>
+						</td>
+						<td>
+							<label for="package_gr">Nhóm gói cước</label>
+							<select name="package_gr" id="package_gr" class="form-control" th:field="*{brandASR.brandGroupB.id}">
+								<option th:each="pg : ${packageGroups}" 
+										th:value="${pg.id}" 
+										th:text="${pg.groupName}">
+								</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="pkg">Gói cước<b class="required">(*)</b></label>
+							<select name="pkg" id="pkg" class="form-control" th:field="*{brandASR.id}">
+								<option th:each="p : ${packages}" 
+										th:value="${p.id}" 
+										th:text="${p.brandName}">
+								</option>
+							</select>
+						</td>
+						<td><label for="account">Tài khoản khách hàng <b class="required">(*)</b></label>
+							<input type="text" class="form-control" placeholder="Nhập số điện thoại hoặc email khách hàng"
+							name="account" id="account" th:field="*{customerAccount}"></td>
+					</tr>
+					<tr>
+						<td><label for="total_value">Tổng tiền</label>
+							<input type="text" class="form-control" placeholder="Tổng tiền"
+							name="total_value" id="total_value" th:field="*{totalValue}" readonly></td>
+					</tr>
+					<tr class='control'>
+						<td colspan='4' align='center'>
+							<button th:if="*{status == 0}" class="btn btn-primary button-control" 
+								id="doUpdate" type="submit">
+								<i class="fa fa-pencil-square-o"></i> Cập nhật
+							</button>&nbsp;
+							<a th:if="*{status == 0}" class="btn btn-primary button-control"
+								th:href="@{/asr/accept/{requestId}(requestId=*{requestId})}" id="doAccept"> <i
+								class="fa fa-check-square-o"></i> Chuyển duyệt
+							</a>&nbsp;
+							<a th:if="*{status == 1}" class="btn btn-primary button-control"
+								th:href="@{/asr/approve/{requestId}(requestId=*{requestId})}" id="doApprove"> <i
+								class="fa fa-handshake-o"></i> Duyệt
+							</a>&nbsp;
+							<a th:if="*{status == 3}" class="btn btn-primary button-control"
+								th:href="@{/asr/reprocess/{requestId}(requestId=*{requestId})}" id="doReRegister"> <i
+								class="fa fa-registered"></i> Đăng ký lại
+							</a>&nbsp;
+							<a th:if="*{status == 4}" class="btn btn-primary button-control"
+								th:href="@{/asr/recharge/{requestId}(requestId=*{requestId})}" id="doCharge"> <i
+								class="fa fa-money"></i> Trừ tiền lại
+							</a>&nbsp;
+							<a type="button" id="doBack"
+								class="btn btn-primary button-control"  data-dismiss="modal"><i
+								class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+			let approve = '[[${brLevel}]]';
+			let levelId = $("#levelIdUser").text();
+			if(approve !== levelId){
+				$("#doApprove").attr("hidden", true);
+			}
+			if(levelId === '1' || levelId === '2'){
+				$("#doUpdate").attr("hidden", true);
+				$("#doAccept").attr("hidden", true);
+			}
+		});
+
+		$("#doUpdate").on('click', function (e) {
+			if ($("#account").val() === '') {
+				alert("Bạn chưa nhập tài khoản khách hàng");
+				return false;
+			}
+			if ($("#pkg").val() == null) {
+				alert("Bạn chưa chọn gói cước");
+				return false;
+			}
+		});
+
+		$("#service").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/brand-group-list?idService="+ value.toString();
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+
+					var str ='';
+					str +=' <option>-- Chọn nhóm gói cước --</option>'
+					for (let i = 0; i < data.length ; i++) {
+						str +=' <option value= "'+data[i].id+'" >'+data[i].groupName+'</option>'
+					}
+					$('#package_gr').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+		$("#package_gr").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/brand-list?idBrand="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+
+					var str ='';
+					str +=' <option>-- Chọn gói cước --</option>'
+					for (let i = 0; i < data.length ; i++) {
+						str +=' <option value= "'+data[i].id+'" >'+data[i].brandName+'</option>'
+					}
+					$('#pkg').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+		$("#pkg").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/asr/total-value?brandId="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+					$('#total_value').val(data);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

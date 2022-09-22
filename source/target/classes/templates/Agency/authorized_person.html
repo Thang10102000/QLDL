@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thông tin đại lý</title>
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        <div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+        <div class="container-fluid ">
+            <div class="heading">
+                <h3>THÔNG TIN LIÊN HỆ ĐẠI LÝ</h3>
+            </div>
+            <div class="box box-primary">
+                <div class="tab-content">
+                    <form>
+                        <table class="table table-condensed col">
+                            <tr>
+                                <td><label for="agencyArea">Công ty khu vực</label>
+                                    <select name="agencyArea" id="agencyArea" class="form-control" th:if="${#lists.size(agencyArea) >= 2}">
+                                        <option value="">--Chọn công ty khu vực--</option>
+                                        <option th:each="ag : ${agencyArea}" th:value="${ag.areaId}" th:text="${ag.areaName}"></option>
+                                    </select>
+                                    <select name="agencyArea" id="agencyArea" class="form-control" th:if="${#lists.size(agencyArea) < 2}">
+                                        <option th:each="ag : ${agencyArea}" th:value="${ag.areaId}" th:text="${ag.areaName}"></option>
+                                    </select>
+                                </td>
+                                <td style="width: 50%;"><label for="agencyName1">Đại lý</label>
+                                    <select name="agencyName1" id="agencyName1"  class="form-control select2" th:if="${agency != null}" readonly>
+                                        <option th:each="ag : ${agency}" th:value="${ag.id}" th:text="${ag.agencyName}"></option>
+                                    </select>
+                                    <select name="agencyName1" id="agencyName1"  class="form-control select2" th:if="${agency == null}">
+                                        <option value="">-- Chọn đại lý --</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class='control'>
+                                <td colspan='4' align='center'>
+                                    <button type="button" class="btn btn-primary button-control"
+                                            name="doSearch" id="doSearch">
+                                        <i class="fa fa-search"></i> Tìm kiếm
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                    <div class="list-service box box-primary">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr align="center">
+                                <th>Tên đại lý</th>
+                                <th>Họ và tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Chức vụ</th>
+                                <th>Số điện thoại</th>
+                                <th>Email</th>
+                                <th>Thông tin</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <li class="page-item"><span id="totalPage"></span></li>
+                                <li class="page-item"><span id="pageSize"></span></li>
+                                <li class="page-item">
+                                    <div class="form-group">
+                                        <select class="form-control" name="selector"
+                                                onChange="resetPage()">
+                                            <option>10</option>
+                                            <option>20</option>
+                                            <option>50</option>
+                                            <option>100</option>
+                                            <option>200</option>
+                                        </select>
+                                    </div>
+                                </li>
+                                <li class="page-item"><span>&nbsp;</span></li>
+                                <li class="page-item"><a class="page-link"
+                                                         onClick="firstPage()"><i
+                                        class="fa fa-angle-double-left"></i></a></li>
+                                <li class="page-item"><a class="page-link"
+                                                         onClick="prevPage()"><i class="fa fa-angle-left"></i></a></li>
+                                <li class="page-item"><a id="prePage"></a></li>
+                                <li class="page-item"><a class="page-link"
+                                                         id="currentPage">1</a></li>
+                                <li class="page-item"><a id="nexPage"></a></li>
+                                <li class="page-item"><a class="page-link"
+                                                         onClick="nextPage()"><i class="fa fa-angle-right"></i></a></li>
+                                <li class="page-item"><a class="page-link"
+                                                         onClick="lastPage()"><i
+                                        class="fa fa-angle-double-right"></i></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/vasonline/js/select2.min.js"></script>
+<script src="/vasonline/js/bootstrap-datepicker.min.js"></script>
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/authorized-person-search.js"></script>
+<script type="text/javascript">
+    //$(".select2").select2();
+    let agencyId = localStorage.getItem("agencyIdForAuthorized");
+    let areaId = localStorage.getItem("areaIdForAuthorized");
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        if(areaId != null){
+            $("#agencyArea").val(areaId);
+        }
+        if ($("#agencyArea").val() != '' && $("#agencyName1").val() == ""){
+            var linkPost = "/vasonline/agency-list?idAgencyArea=" + $("#agencyArea").val();
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+                    var str ='<option value="">--Chọn đại lý--</option>';
+                    for (let i = 0; i < data.length ; i++) {
+                        str +='<option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+                    }
+                    $('#agencyName1').html(str);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+        if(areaId != null && $("#agencyName1").val() == ""){
+            var linkPost = "/vasonline/agency-list?idAgencyArea=" + areaId;
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+                     var str = '<option value="">--Chọn đại lý--</option>';
+
+                    for (let i = 0; i < data.length; i++) {
+                        if(data[i].id == agencyId){
+                            str += ' <option value= "' + data[i].id + '" selected >' + data[i].agencyName + '</option>'
+                        }else {
+                            str += ' <option value= "' + data[i].id + '" >' + data[i].agencyName + '</option>'
+                        }
+                    }
+                    $('#agencyName1').html(str);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+    });
+    $("#agencyArea").on("change", function (e) {
+        var linkPost = "/vasonline/agency-list?idAgencyArea=" + $("#agencyArea").val();
+        $.ajax({
+            url: linkPost,
+            method: 'GET',
+            success: function (data) {
+                var str ='<option value="">--Chọn đại lý--</option>';
+                for (let i = 0; i < data.length ; i++) {
+                    str +='<option value= "'+data[i].id+'" >'+data[i].agencyName+'</option>'
+                }
+                $('#agencyName1').html(str);
+            },
+            error: function (request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+    })
+    $(function() {
+        $("#doSearch").click();
+        localStorage.removeItem("agencyIdForAuthorized");
+        localStorage.removeItem("areaIdForAuthorized");
+    });
+</script>
+</body>
+
+</html>

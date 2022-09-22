@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Chi tiết kích hoạt</title>
+</head>
+<body>
+	<table class="table table-bordered">
+		<thead>
+			<tr align="center">
+				<th>STT</th>
+				<th>Thời gian</th>
+				<th>Số lượng</th>
+				<th>TK kích hoạt</th>
+				<th>Trạng thái</th>
+				<th>Hành động</th>
+			</tr>
+		</thead>
+		<tbody id="tableBody">
+		<tr th:each="la,iter : ${listActive}">
+			<td th:text="${iter.index + 1}"></td>
+			<td th:text="${#dates.format(la.activated, 'dd-MM-yyyy HH:mm')}"></td>
+			<td th:text="${la.quantity}"></td>
+			<td th:text="${la.activator}"></td>
+			<td th:switch="${la.status}">
+				<span th:case="'0'">Lỗi trừ tiền</span>
+				<span th:case="'1'">Thành công</span>
+			</td>
+			<td>
+				<a th:if="${la.status == 0}" class='action recharge btn btn-primary-outline' th:onclick="'window.location.href=\'/vasonline/service-request/recharge-order/' + ${la.sraId} + '\''">
+					<i class='fa fa-cc-mastercard' title='Trừ tiền lại'></i></a>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+		});
+	</script>
+</body>
+
+</html>

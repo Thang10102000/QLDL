@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thêm mới gói cước</title>
+</head>
+
+<body>
+
+<form th:action="@{/new-area}" method="post" id="form">
+    <table class="table table-condensed col">
+        <tr>
+            <td><label for="areaCodeNew">Mã khu vực<b class="required">(*)</b></label>
+                <input type="text" name="areaCode"  class="form-control" placeholder="Mã khu vực" id="areaCodeNew"
+                  autocomplete="off"> <span class="required" id="messageareaCode"></span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="areaNameNew">Tên khu vực<b
+                    class="required">(*)</b></label>
+                <input type="text" name="areaName" class="form-control" placeholder="Tên khu vực" id="areaNameNew"
+                     autocomplete="off"> <span class="required" id="messageAreaName"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="areaTaxNew">Mã số thuế<b class="required">(*)</b></label>
+                <input type="text" name="areaTax" class="form-control" placeholder="Mã số thuế" id="areaTaxNew"
+                autocomplete="off"> <span class="required" id="messageAreaTax"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="description">Mô tả</label>
+                <textarea placeholder="Mô tả" name="description" class="form-control" id="description" autocomplete="off"></textarea>
+            </td>
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button type="submit" class="btn btn-primary button-control new"
+                        name="doNew" id="doNew">
+                    <i class="fa fa-plus-square"></i> Thêm mới
+                </button>
+                <a type="button" id="doBack"
+                   class="btn btn-primary button-control" data-dismiss="modal"><i
+                        class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#areaCodeNew , #areaNameNew").keydown(function () {
+            $("#messageareaCode").text("");
+            $("#messageAreaName").text("");
+        })
+    });
+    $('#form').submit(function(){
+        $("#doNew", this)
+            .html("Đang xử lý...")
+            .attr('disabled', 'disabled');
+        return true;
+    });
+    $(document).on('click',".new", function () {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        var reg = new RegExp('^[a-zA-Z0-9_]*$');
+        if (!reg.test($("#areaCode").val())) {
+            $("#messageareaCode").text(
+                "Mã khu vực không chứa ký tự đặc biệt và dấu");
+            $("#areaCode").focus();
+            return false;
+        }
+        if (format.test($("#areaNameNew").val())) {
+            $("#messageAreaName").text(
+                "Tên khu vực chứa ký tự đặc biệt");
+            $("#areaNameNew").focus();
+            return false;
+        }
+        if ($("#areaCodeNew").val().trim() === '') {
+            $("#messageareaCode").text("Bạn chưa nhập mã khu vực");
+            $("#areaCodeNew").focus();
+            return false;
+        }
+        if ($("#areaNameNew").val().trim() === '') {
+            $("#messageAreaName").text(
+                "Bạn chưa nhập tên khu vực");
+            $("#areaNameNew").focus();
+            return false;
+        }
+        if($("#areaTaxNew").val().trim() === '') {
+            $("#messageAreaTax").text(
+                "Bạn chưa nhập mã số thuế "
+            );
+            $("#areaTaxNew").focus();
+            return false;
+        }
+    })
+</script>
+</body>
+
+</html>

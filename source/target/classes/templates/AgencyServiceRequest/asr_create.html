@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Thêm mới yêu cầu dịch vụ</title>
+</head>
+<body>
+	<div class="wrapper" sec:authorize="isAuthenticated()">
+		<div class="box box-primary table-responsive">
+			<form th:action="@{/asr/create}" method='POST'>
+				<table class="table table-sm">
+					<tr>
+						<td style="width: 50%"><label for="description">Mô tả yêu cầu</label>
+							<input type="text" class="form-control" placeholder="Mô tả yêu cầu"
+							name="description" id="description"></td>
+						<td><label for="account_customer">Tài khoản khách hàng<b class="required">(*)</b></label>
+							<input type="text" class="form-control" placeholder="Nhập số điện thoại hoặc email"
+							name="account_customer" id="account_customer"></td>
+					</tr>
+					<tr>
+						<td>
+							<label for="service">Dịch vụ</label>
+							<select name="service" id="service" class="form-control">
+								<option value="">-- Chọn dịch vụ --</option>
+								<option th:each="s : ${services}" 
+										th:value="${s.id}" 
+										th:text="${s.serviceName}">
+								</option>
+							</select>
+						</td>
+						<td>
+							<label for="package_gr">Nhóm gói cước</label>
+							<select name="package_gr" id="package_gr" class="form-control">
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="pkg">Gói cước<b class="required">(*)</b></label>
+							<select name="pkg" id="pkg" class="form-control">
+							</select>
+						</td>
+						<td><label for="total_value">Tổng tiền<b class="required">(*)</b></label>
+							<input type="text" class="form-control"
+							name="total_value" id="total_value" readonly></td>
+					</tr>
+					<tr class='control'>
+						<td colspan='4' align='center'>
+							<button class="btn btn-primary button-control" id="doAdd"
+								type="submit">
+								<i class="fa fa-plus-square"></i> THÊM MỚI
+							</button>&nbsp;
+							<a type="button" id="doBack"
+								class="btn btn-primary button-control"  data-dismiss="modal"><i
+								class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+		});
+		$("#doAdd").on('click', function (e) {
+			if ($("#account_customer").val() === '') {
+				alert("Bạn chưa nhập tài khoản khách hàng");
+				return false;
+			}
+			if ($("#pkg").val() == null) {
+				alert("Bạn chưa chọn gói cước");
+				return false;
+			}
+		});
+		$("#service").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/brand-group-list?idService="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+
+					var str ='';
+					str +=' <option>-- Chọn nhóm gói cước --</option>'
+					for (let i = 0; i < data.length ; i++) {
+						str +=' <option value= "'+data[i].id+'" >'+data[i].groupName+'</option>'
+					}
+					$('#package_gr').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+		
+		$("#package_gr").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/brand-list?idBrand="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+
+					var str ='';
+					str +=' <option>-- Chọn gói cước --</option>'
+					for (let i = 0; i < data.length ; i++) {
+						str +=' <option value= "'+data[i].id+'" >'+data[i].brandName+'</option>'
+					}
+					$('#pkg').html(str);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+
+		$("#pkg").on("change", function (e) {
+			let value = Array.from(e.target.selectedOptions, option => option.value);
+			var linkPost = "/vasonline/asr/total-value?brandId="+ value.toString();
+
+			$.ajax({
+				url: linkPost,
+				method: 'GET',
+				success: function(data) {
+					$('#total_value').val(data);
+
+				},
+				error: function(request) {
+					alert("The request failed: " + request.responseText);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

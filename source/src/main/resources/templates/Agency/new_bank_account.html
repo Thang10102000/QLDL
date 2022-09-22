@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thêm mới tài khoản ngân hàng</title>
+</head>
+
+<body>
+    <form th:action="@{/bank-account}" method="post">
+        <table class="table table-condensed col">
+            <tr>
+                <td><label for="agencyAreaId">Công ty khu vực</label>
+                    <select name="agencyAreaId" id="agencyAreaId" class="form-control" th:if="${#lists.size(agencyArea) >= 2}">
+                        <option value="">--Chọn công ty khu vực--</option>
+                        <option th:each="ag : ${agencyArea}" th:value="${ag.areaId}" th:text="${ag.areaName}"></option>
+                    </select>
+                    <select name="agencyAreaId" id="agencyAreaId" class="form-control" th:if="${#lists.size(agencyArea) < 2}">
+                        <option th:each="ag : ${agencyArea}" th:value="${ag.areaId}" th:text="${ag.areaName}"></option>
+                    </select>
+                </td>
+                <td><label for="newAgencyName">Đại lý<b class="required">(*)</b></label>
+                    <select name="agencyName" id="newAgencyName" class="form-control" th:if="${agency} != null">
+                        <option th:each="ag : ${agency}" th:value="${ag.id}" th:text="${ag.agencyName}" ></option>
+                    </select>
+                    <select name="agencyName" id="newAgencyName" class="form-control" th:if="${agency} == null">
+                    <option value="">--Chọn đại lý--</option>
+                    </select>
+                    <span class="required" id="newAgencyNameMessage"></span>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="newBankName">Tên ngân hàng<b class="required">(*)</b></label> <input
+                        type="text" name="bankName" class="form-control" placeholder="Tên ngân hàng"
+                        id="newBankName" autocomplete="off">
+                    <span class="required" id="newBankNameMessage"></span>
+                </td>
+                <td><label for="newBankAccountNo">Số tài khoản <b class="required">(*)</b></label>
+                <input type="text" name="bankAccountNo" class="form-control"
+                       placeholder="Số tài khoản" id="newBankAccountNo" autocomplete="off">
+                <span class="required" id="newBankAccountNoMessage"></span>
+            </td>
+            </tr>
+            <tr>
+                <td><label for="newBankBranch">Chi nhánh<b class="required">(*)</b></label> <input
+                        type="text" name="bankBranch" class="form-control" placeholder="Chi nhánh"
+                        id="newBankBranch" autocomplete="off">
+                    <span class="required" id="newBankBranchMessage"></span>
+                </td>
+                <td><label for="newBankAddress">Địa chỉ
+                    <b class="required">(*)</b></label>
+                    <input type="text" name="bankAddress" class="form-control" placeholder="Địa chỉ"
+                           id="newBankAddress" autocomplete="off">
+                    <span class="required" id="newBankAddressNoMessage"></span>
+                </td>
+
+            </tr>
+            <tr class="control">
+                <td colspan='4' align='center'>
+                    <button type="submit" class="btn btn-primary" name="doNew" id="doNew">
+                        <i class="fa fa-plus-square"></i> Thêm mới
+                    </button>
+                    <a type="button" id="doBack" class="btn btn-primary button-control"
+                       th:href="@{/bank-account}"><i class="fa fa-undo" aria-hidden="true"></i>
+                        Quay lại</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+<script src="/vasonline/js/custom_service.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+
+        $("#newBankName , #newBankAccountNo, #newBankBranch, #newBankAddress").keydown(function () {
+            $("#newBankNameMessage").text("");
+            $("#newBankAccountNoMessage").text("");
+            $("#newBankBranchMessage").text("");
+            $("#newBankAddressNoMessage").text("");
+        })
+
+        if ($("#agencyAreaId").val() != '' && $("#newAgencyName").val() == ''){
+            var linkPost = "/vasonline/agency-list?idAgencyArea=" + $("#agencyArea").val();
+            $.ajax({
+                url: linkPost,
+                method: 'GET',
+                success: function (data) {
+
+                    var str = '<option value="">--Chọn đại lý--</option>';
+
+                    for (let i = 0; i < data.length; i++) {
+                        str += ' <option value= "' + data[i].id + '" >' + data[i].agencyName + '</option>'
+                    }
+                    $('#newAgencyName').html(str);
+                },
+                error: function (request) {
+                    alert("The request failed: " + request.responseText);
+                }
+            });
+        }
+    });
+
+    $("#agencyAreaId").on("change", function (e) {
+        var linkPost = "/vasonline/agency-list?idAgencyArea=" + $("#agencyAreaId").val();
+
+        $.ajax({
+            url: linkPost,
+            method: 'GET',
+            success: function (data) {
+
+                var str = '';
+
+                for (let i = 0; i < data.length; i++) {
+                    str += ' <option value= "' + data[i].id + '" >' + data[i].agencyName + '</option>'
+                }
+                $('#newAgencyName').append(str);
+
+            },
+            error: function (request) {
+                alert("The request failed: " + request.responseText);
+            }
+        });
+    });
+
+    $(document).on('click', "#doNew" ,function (e) {
+        var format = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (format.test($("#newBankName").val())) {
+            $("#newBankNameMessage").text(
+                "Tên ngân hàng chứa ký tự đặc biệt");
+            $("#newBankName").focus();
+            return false;
+        }
+        if ($("#newBankAccountNo").val() === '') {
+            $("#newBankAccountNoMessage").text(
+                "Bạn chưa nhập số tài khoản");
+            $("#newBankAccountNo").focus();
+            return false;
+        }
+        if ($("#newBankAccountNo").val() * 1 != $("#newBankAccountNo").val()) {
+            $("#newBankAccountNoMessage").text(
+                "Số tài khoản không đúng định dạng");
+            $("#newBankAccountNo").focus();
+            return false;
+        }
+        if ($("#newBankName").val() === '') {
+            $("#newBankNameMessage").text(
+                "Bạn chưa nhập tên ngân hàng");
+            $("#newBankName").focus();
+            return false;
+        }
+        if ($("#newBankBranch").val() === '') {
+            $("#newBankBranchMessage").text(
+                "Bạn chưa nhập chi nhánh");
+            $("#newBankBranch").focus();
+            return false;
+        }
+        if ($("#newBankAddress").val() === '') {
+            $("#newBankAddressNoMessage").text(
+                "Bạn chưa nhập địa chỉ");
+            $("#newBankAddress").focus();
+            return false;
+        }
+        if($("#newAgencyName").val() === ''){
+            $("#newAgencyNameMessage").text("Bạn chưa chọn đại lý");
+            $("#newAgencyName").focus();
+            return false;
+        }
+    })
+    var invalidChars = ["-", "+", "e", ",", "."];
+    $("#newBankAccountNo").on("keydown", function (e) {
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+
+</html>

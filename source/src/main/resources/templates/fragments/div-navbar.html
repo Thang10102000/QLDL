@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+<title></title>
+<meta charset="utf-8">
+</head>
+<body>
+	<div class="div-navbar" th:fragment="div-navbar">
+		<nav class="navbar navbar-expand-lg">
+			<div class="container-fluid">
+				<button type="button" id="sidebarCollapse" class="btn btn-info">
+					<i class="fa fa-bars"></i>
+					<!-- <span>Toggle Sidebar</span> -->
+				</button>
+				<button class="btn btn-dark d-inline-block d-lg-none ml-auto"
+					type="button" data-toggle="collapse"
+					data-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<i class="fa fa-align-justify"></i>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav">
+						<li class="nav-item dropdown"><a
+							class="nav-link dropdown-toggle" href="#"
+							id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
+							aria-haspopup="true" aria-expanded="false"> <img
+								src="/vasonline/image/fox.jpg" width="39" height="39"
+								class="rounded-circle"> <span
+								th:utext="${#request.userPrincipal.Principal.users.username}"
+								style="color: #fff"></span>
+						</a>
+							<div class="dropdown-menu"
+								aria-labelledby="navbarDropdownMenuLink">
+								<form method="post" th:action="@{/perform_logout}">
+									<button class="dropdown-item" type="submit">
+										<i class="fa fa-sign-out"></i>&nbsp;Đăng xuất
+									</button>
+								</form>
+									<button id="changePass" data-target="#modal-command-type-change" class="dropdown-item" type="submit">
+										<i style="color: #3C8DBC;" class="fa fa-key"></i>&nbsp;Đổi mật khẩu
+									</button>
+							</div></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+	<!--modal form change password-->
+	<div class="modal fade in" id="modal-command-type-change" style="display: none;"  data-backdrop="static" data-keyboard="false" >
+		<div class="modal-dialog" style="width: 75%; margin-top: 50px; height: auto;">
+			<div class="modal-content">
+				<div class="modal-header bg-yellow">
+					<h4 class="modal-title">ĐỔI MẬT KHẨU</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body" id="change_pass">
+
+				</div>
+				<div class="modal-footer" style="text-align: center;">
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	$("#changePass").on('click',function () {
+		$.ajax({
+			url: '/vasonline/admin/user-management/changePassword',
+			type: 'GET',
+			success:function(data){
+				$('#change_pass').html(data);
+				$('#modal-command-type-change').modal('toggle');
+			},
+			error: function(jqXHR, exception){
+				console.log(jqXHR, exception);
+			}
+		});
+	});
+</script>

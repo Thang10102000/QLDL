@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Quản lý nhóm tài khoản - Cấp quyền</title>
+</head>
+<body>
+	<div class="wrapper" sec:authorize="isAuthenticated()">
+		<!-- Sidebar  -->
+		<nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+		<!-- Page Content  -->
+		<div id="content">
+			<div class="div-navbar" th:replace="fragments/div-navbar"></div>
+			<div class="container-fluid">
+				<div class="heading">
+					<h4>QUẢN LÝ NHÓM TÀI KHOẢN: CẤP QUYỀN</h4>
+				</div>
+				<div class="box box-primary"
+					sec:authorize="hasAuthority('Quản lý nhóm tài khoản:Cấp quyền')">
+					<table class="table table-condensed col" id="usertable">
+						<tr>
+							<td><label for="username">Tên tài khoản <b
+									class="required">(*)</b></label> <input type="text"
+								class="form-control" placeholder="Username" name="username"
+								id="username" readonly></td>
+							<td><label for="levels">Cấp tài khoản <b
+									class="required">(*)</b></label> <select name="levels" id="levels"
+								class="form-control">
+									<option value="">--Chọn trạng thái--</option>
+									<option value="0">Hiệu lực</option>
+									<option value="1">Không hiệu lực</option>
+							</select></td>
+						</tr>
+					</table>
+					<span></span>
+					<table class="table table-condensed col" id="authorizedtable">
+						<thead>
+							<tr>
+								<th><input type="checkbox" class="form-check-input"
+									id="check-all" name="check-all"></th>
+								<th>Chức năng</th>
+								<th>Quyền hạn</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><input type="checkbox" class="form-check-input"
+									id="qltk"></td>
+								<td>Chức năng 1</td>
+								<td><button class="btn btn-primary-outline" name="view">
+										<i class="fa fa-eye"></i>
+									</button>
+									<button class="btn btn-primary-outline" name="create">
+										<i class="fa fa-plus"></i>
+									</button>
+									<button class="btn btn-primary-outline" name="edit">
+										<i class="fa fa-pencil"></i>
+									</button>
+									<button class="btn btn-primary-outline" name="delete">
+										<i class="fa fa-trash-o"></i>
+									</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Cập nhật tác quyền yêu cầu dịch vụ</title>
+</head>
+<body>
+	<form th:action="@{/service-request/approval}" method='POST' enctype="multipart/form-data">
+		<table class="table table-sm" th:object="${srData}">
+			<tr style="display:none;">
+				<td><input type="text" class="form-control"
+					name="srId" id="srId" th:field="*{srId}"></td>
+			</tr>
+			<tr>
+				<td><label for="status">Trạng thái</label>
+					<select name="status" id="status" class="form-control" th:field="*{status}">
+						<option value="2">Duyệt</option>
+						<option value="3">Từ chối</option>
+						<option value="4">Yêu cầu cập nhật</option>
+					</select></td>
+			</tr>
+			<tr>
+				<td><label for="description">Lời nhắn</label>
+					<textarea type="area" class="form-control"
+					name="description" id="description" th:field="*{description}"></textarea></td>
+			</tr>
+			<tr class='control'>
+				<td colspan='4' align='center'>
+					<button class="btn btn-primary button-control" id="doAction"
+						type="submit">
+						<i class="fa fa-rocket"></i> Cập nhật
+					</button>&nbsp;
+					<a type="button" id="doBack"
+						class="btn btn-primary button-control"  data-dismiss="modal"><i
+						class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+				</td>
+			</tr>
+		</table>
+	</form>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+		});
+	</script>
+</body>
+
+</html>

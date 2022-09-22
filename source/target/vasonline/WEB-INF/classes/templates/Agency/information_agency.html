@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Thêm mới đại lý</title>
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar" th:replace="fragments/sidebar"></nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        <div class="div-navbar" th:replace="fragments/div-navbar"></div>
+
+        <div class="container-fluid " style="padding-top: 40px">
+            <div class="box box-primary">
+                <div class="tab-base">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-target="#tab" data-toggle="tab">Thêm tài khoản ngân
+                                hàng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" data-target="#tab1">Thêm thông tin liên hệ đại
+                                lý</a>
+                        </li>
+<!--                        <li class="nav-item">-->
+<!--                            <a class="nav-link" data-toggle="tab" data-target="#tab2">Thêm thông tài khoản cấp đại-->
+<!--                                lý</a>-->
+<!--                        </li>-->
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div id="tab" class="tab-pane fade active in show">
+                        <form th:action="@{/create-bank-account}" method="post">
+                            <table class="table table-condensed col">
+                                <tr>
+                                    <td style="width: 50%;"><label for="agencyName">Đại
+                                        lý<b class="required">(*)</b>
+                                    </label> <select name="agencyName" id="agencyName" class="form-control">
+                                        <option th:each="ag : ${agency}" th:value="${ag.id}"
+                                                th:text="${ag.agencyName}" th:selected="(${maxId} == ${ag.id})">
+                                        </option>
+                                    </select></td>
+                                    <td><label for="bankAccountNo">Số tài khoản <b class="required">(*)</b></label>
+                                        <input type="text" name="bankAccountNo" class="form-control"
+                                               placeholder="Số tài khoản" id="bankAccountNo" autocomplete="off">
+                                        <span class="required" id="newBankAccountNoMessage"></span>
+                                    </td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label for="bankName">Tên ngân hàng<b class="required">(*)</b></label>
+                                        <input type="text" name="bankName" class="form-control"
+                                               placeholder="Tên ngân hàng" id="bankName" autocomplete="off">
+                                        <span class="required" id="newBankNameMessage"></span>
+                                    </td>
+                                    <td><label for="bankBranch">Chi nhánh<b class="required">(*)</b></label> <input
+                                            type="text" name="bankBranch" class="form-control"
+                                            placeholder="Chi nhánh" id="bankBranch" autocomplete="off">
+                                        <span class="required" id="newBankBranchMessage"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label for="bankAddress">Địa chỉ<b class="required">(*)</b></label> <input
+                                            type="text" name="bankAddress" class="form-control"
+                                            placeholder="Địa chỉ" id="bankAddress" autocomplete="off">
+                                        <span class="required" id="newBankAddressNoMessage"></span>
+                                    </td>
+                                    <td><input type="hidden" id="createdBy" name="createdBy"
+                                               th:value="${#request.userPrincipal.Principal.users.username}">
+                                    </td>
+                                </tr>
+
+                                <tr class='control'>
+                                    <td colspan='4' align='center'>
+                                        <button type="submit" class="btn btn-primary button-control"
+                                                name="doNewBank" id="doNewBank">
+                                            <i class="fa fa-plus-square"></i> Thêm mới
+                                        </button>
+                                        <a type="button" id="doBack" class="btn btn-primary button-control"
+                                           th:href="@{/agency}"><i class="fa fa-undo" aria-hidden="true"></i> Quay
+                                            lại</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                    <div id="tab1" class="tab-pane fade">
+                        <form th:action="@{/author-agency}" method="post">
+                            <table class="table table-condensed col">
+                                <tr>
+                                    <td style="width: 50%;"><label for="agencyName1">Đại
+                                        lý<b class="required">(*)</b>
+                                    </label> <select name="agencyName1" id="agencyName1" class="form-control">
+                                        <option th:each="ag : ${agency}" th:value="${ag.id}"
+                                                th:text="${ag.agencyName}" th:selected="(${maxId} == ${ag.id})">
+                                        </option>
+                                    </select></td>
+                                    <td><label for="agencyFullName">Họ và tên<b class="required">(*)</b></label>
+                                        <input type="text" name="fullName" class="form-control"
+                                               placeholder="Họ và tên" id="agencyFullName" autocomplete="off">
+                                        <span class="required" id="fullNameMessage"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label for="birthday">Ngày sinh</label>
+                                        <input type="text" name="birthday" class="form-control"
+                                               placeholder="Ngày sinh" id="birthday" autocomplete="off">
+                                        <span class="required" id="birthdayMessage"></span>
+                                    </td>
+                                    <td><label for="position">Chức vụ</label>
+                                        <input type="text" name="position" class="form-control"
+                                               placeholder="Chức vụ" id="position" autocomplete="off">
+                                        <span class="required" id="positionMessage"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label for="phoneNumber">Số điện thoại<b class="required">(*)</b></label>
+                                        <input type="text" name="phoneNumber" class="form-control"
+                                               placeholder="Số điện thoại" id="phoneNumber" autocomplete="off">
+                                        <span class="required" id="phoneNumberMessage"></span>
+                                    </td>
+                                    <td><label for="type">Thông tin<b class="required">(*)</b></label>
+                                        <select name="type" id="type" class="form-control">
+                                            <option value="0">Người đại diện</option>
+                                            <option value="1">Người ủy quyển</option>
+                                            <option value="2">Đầu mối liên hệ</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label for="agencyEmail">Email<b class="required">(*)</b></label>
+                                        <input type="text" name="agency" class="form-control" placeholder="Email"
+                                               id="agencyEmail" autocomplete="off">
+                                        <span class="required" id="emailMessage"></span>
+                                    </td>
+                                    <td><input type="hidden" id="createdByAuthor" name="createdByAuthor"
+                                               th:value="${#request.userPrincipal.Principal.users.username}">
+                                    </td>
+                                </tr>
+
+                                <tr class='control'>
+                                    <td colspan='4' align='center'>
+                                        <button type="submit" class="btn btn-primary button-control"
+                                                name="doNewAuthor" id="doNewAuthor">
+                                            <i class="fa fa-plus-square"></i> Thêm mới
+                                        </button>
+                                        <a type="button" id="doBackAuthor" class="btn btn-primary button-control"
+                                           th:href="@{/agency}"><i class="fa fa-undo" aria-hidden="true"></i> Quay
+                                            lại</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/validate_information_agency.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+    });
+    $("#levels").on("change", function (e) {
+        let value = Array.from(e.target.selectedOptions, option => option.value);
+        let url = "/vasonline/admin/group/select?groupLevel=" + value.toString();
+        if (!isNaN(value) && value != "") {
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (data) {
+                    let str = '';
+                    let requestGroupData = Object.keys(data);
+                    requestGroupData.sort();
+                    requestGroupData.forEach((item) => {
+                        let jsonItem = JSON.parse(item);
+                        str += ' <option value= "' + jsonItem.groupId + '" >' + jsonItem.groupName + '</option>';
+                    })
+                    $('#groups').html(str);
+                },
+                error: function (request) {
+                    alert("Chọn cấp tài khoản");
+                    let errStr = '<option value= "" >--Chọn nhóm tài khoản--</option>';
+                    $('#groups').html(errStr);
+                }
+            });
+        } else {
+            let errStr = '<option value= "" >--Chọn nhóm tài khoản--</option>';
+            $('#groups').html(errStr);
+        }
+    })
+</script>
+</body>
+
+</html>

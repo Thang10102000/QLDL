@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+	lang="vi">
+<head th:replace="fragments/html-head">
+<meta charset="utf-8">
+<title>Tạo request api</title>
+</head>
+<body>
+	<form th:action="@{/transaction-api/create}" method='POST' enctype="multipart/form-data">
+		<table class="table table-condensed col">
+			<tr>
+				<td>
+					<label for="saleTransDate">Ngày giao dịch</label>
+					<input type="text" class="form-control"
+					name="saleTransDate" id="saleTransDate">
+				</td>
+				<td>
+					<label for="saleTransType">Loại GD</label>
+					<select name="saleTransType" id="saleTransType" class="form-control">
+						<option value="1">Giao dịch bán lẻ</option>
+						<option value="5">Giao dịch đại lý</option>
+					</select>
+				</td>
+				<td>
+					<label for="shopCode">Mã đơn vị BH</label>
+					<input type="text" class="form-control"
+					name="shopCode" id="shopCode">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="staffCode">Mã nhân viên TH</label>
+					<input type="text" class="form-control"
+					name="staffCode" id="staffCode">
+				</td>
+				<td>
+					<label for="customerName">Tên KH</label>
+					<input type="text" class="form-control"
+					name="customerName" id="customerName">
+				</td>
+				<td>
+					<label for="telNumber">SĐT KH</label>
+					<input type="text" class="form-control"
+					name="telNumber" id="telNumber">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="email">Email KH</label>
+					<input type="text" class="form-control"
+					name="email" id="email">
+				</td>
+				<td>
+					<label for="company">Tên công ty</label>
+					<input type="text" class="form-control"
+					name="company" id="company">
+				</td>
+				<td>
+					<label for="address">Địa chỉ KH</label>
+					<input type="text" class="form-control"
+					name="address" id="address">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="tin">Mã số thuế KH</label>
+					<input type="text" class="form-control"
+					name="tin" id="tin">
+				</td>
+				<td>
+					<label for="note">Ghi chú</label>
+					<input type="text" class="form-control"
+					name="note" id="note">
+				</td>
+				<td>
+					<label for="amount">Tổng tiền</label>
+					<input type="text" class="form-control"
+					name="amount" id="amount">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="vat">VAT</label>
+					<input type="text" class="form-control"
+					name="vat" id="vat" value="10">
+				</td>
+				<td>
+					<label for="discount">Tiền chiết khấu</label>
+					<input type="text" class="form-control"
+					name="discount" id="discount">
+				</td>
+				<td>
+					<label for="reasonCode">Lí do xuất bản</label>
+					<input type="text" class="form-control"
+					name="reasonCode" id="reasonCode" value="BH">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="payMethod">Hình thức TT</label>
+					<select name="payMethod" id="payMethod" class="form-control">
+						<option value="1">Tiền mặt</option>
+						<option value="2">Chuyển khoản</option>
+						<option value="3">TM + CK</option>
+					</select>
+				</td>
+				<td>
+					<label for="goodCode1">Mã mặt hàng1</label>
+					<input type="text" class="form-control"
+					name="goodCode1" id="goodCode1">
+				</td>
+				<td>
+					<label for="quantity1">Số lượng1</label>
+					<input type="text" class="form-control"
+					name="quantity1" id="quantity1">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="price1">Đơn giá1</label>
+					<input type="text" class="form-control"
+					name="price1" id="price1">
+				</td>
+				<td>
+					<label for="goodCode2">Mã mặt hàng2</label>
+					<input type="text" class="form-control"
+					name="goodCode2" id="goodCode2">
+				</td>
+				<td>
+					<label for="quantity2">Số lượng2</label>
+					<input type="text" class="form-control"
+					name="quantity2" id="quantity2">
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="price2">Đơn giá2</label>
+					<input type="text" class="form-control"
+					name="price2" id="price2">
+				</td>
+			</tr>
+			<tr class='control'>
+				<td colspan='4' align='center'>
+					<button class="btn btn-primary button-control" id="doAdd"
+						type="submit">
+						<i class="fa fa-plus-square"></i> CALL
+					</button>&nbsp;
+					<a type="button" id="doBack"
+						class="btn btn-primary button-control"  data-dismiss="modal"><i
+						class="fa fa-undo" aria-hidden="true"></i> Quay lại</a>&nbsp;
+				</td>
+			</tr>
+		</table>
+	</form>
+	<script src="/vasonline/js/custom_service.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sidebarCollapse').on('click', function() {
+				$('#sidebar').toggleClass('active');
+			});
+		});
+		$("#saleTransDate").datepicker({
+			format: "dd/mm/yyyy",
+			todayHighlight: true
+		});
+	</script>
+</body>
+
+</html>

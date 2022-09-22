@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="vi">
+<head th:replace="fragments/html-head">
+    <meta charset="utf-8">
+    <title>Chỉnh sửa tham số hệ thống</title>
+</head>
+
+<body>
+
+<form th:action="@{/system-attr/edit}" method="post" th:object="${systemAttr}">
+    <table class="table table-condensed col">
+        <tr>
+            <input type="hidden" id="saId" name="saId" th:field="*{saId}">
+            <td style="width: 50%"><label for="typeAttr">Loại<b class="required">(*)</b></label>
+                <input type="text" name="typeAttr" th:field="*{type}" class="form-control" placeholder="Loại" id="typeAttr"
+                       autocomplete="off">
+            </td>
+            <td><label for="nameAttr">Tên<b class="required">(*)</b></label>
+                <input type="text" name="nameAttr" th:field="*{name}" class="form-control" placeholder="Tên" id="nameAttr"
+                       autocomplete="off">
+            </td>
+        </tr>
+        <tr>
+            <td><label for="valueAttr">Giá trị<b class="required">(*)</b></label>
+                <input type="text" name="valueAttr" th:field="*{value}" class="form-control" placeholder="Giá trị" id="valueAttr"
+                       autocomplete="off">
+            </td>
+            <td><label for="descriptionAttr">Mô tả<b class="required">(*)</b></label>
+                <input type="text" name="descriptionAttr" th:field="*{description}" class="form-control" placeholder="Mô tả" id="descriptionAttr"
+                       autocomplete="off">
+            </td>
+        </tr>
+        <tr class='control'>
+            <td colspan='4' align='center'>
+                <button type="submit" class="btn btn-primary button-control" id="doEdit"><i
+                        class="fa fa-pencil" aria-hidden="true"></i>
+                    Thực hiện
+                </button>
+                <button type="button" id="doBack" data-dismiss="modal" class="btn btn-primary button-control" >
+                    <i class="fa fa-undo" aria-hidden="true"></i> Quay lại
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<script src="/vasonline/js/custom_service.js"></script>
+<script src="/vasonline/js/select2.min.js"></script>
+<script type="text/javascript">
+    $(document).on('click', "#doEdit", function () {
+        if ($("#typeAttr").val().trim() === '') {
+            toastr.error('Bạn chưa nhập loại');
+            return false;
+        }
+        if ($("#nameAttr").val().trim() === '') {
+            toastr.error('Bạn chưa nhập tên');
+            return false;
+        }
+        if ($("#valueAttr").val().trim() === '') {
+            toastr.error('Bạn chưa nhập giá trị');
+            return false;
+        }
+        if ($("#descriptionAttr").val().trim() === '') {
+            toastr.error('Bạn chưa nhập mô tả');
+            return false;
+        }
+    });
+    $('#form').submit(function () {
+        $("#doEdit", this).html("Đang xử lý...").attr('disabled', 'disabled');
+        return true;
+    });
+</script>
+</body>
+
+</html>
