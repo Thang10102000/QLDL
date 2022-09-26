@@ -37,6 +37,11 @@
       <option name="url" value="https://git.captcha.com/botdetect-java-captcha.git/blob_plain/HEAD:/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="lib" />
+      <option name="name" value="lib" />
+      <option name="url" value="file://C:\Users\Admin\Documents\GitHub\QLDL\MBFpay_source/lib" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Maven Central repository" />
       <option name="url" value="https://repo1.maven.org/maven2" />
@@ -45,6 +50,11 @@
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="birtReport" />
+      <option name="name" value="birtReport" />
+      <option name="url" value="file://C:\Users\Admin\Documents\GitHub\QLDL\MBFpay_source/lib/birtReport" />
     </remote-repository>
   </component>
 </project>

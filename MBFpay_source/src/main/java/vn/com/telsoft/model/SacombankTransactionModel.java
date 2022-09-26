@@ -41,7 +41,8 @@ public class SacombankTransactionModel extends AMDataPreprocessor implements Ser
                     "    $SEARCH_INPUT$\n" +
                     "    $FILE_TYPE$\n" +
                     "    $TRANSACTION_DATE_FROM$\n" +
-                    "    $TRANSACTION_DATE_TO$\n"
+                    "    $TRANSACTION_DATE_TO$\n" +
+                    "    $VALUEDATE$ \n"
             ;
 
 //                Filter by Search Input
@@ -54,6 +55,21 @@ public class SacombankTransactionModel extends AMDataPreprocessor implements Ser
                 sqlString = sqlString.replace("$SEARCH_INPUT$",
                         "");
             }
+
+            //                filter by ValueDate
+//            if (valueDate != null)
+//            {
+//                sqlString = sqlString.replace("$VALUEDATE$",
+//                        "AND trunc(value_date) = ?");
+//                vtRow = new Vector();
+//                vtRow.addElement("Timestamp");
+//                vtRow.addElement(vn.com.telsoft.util.DateUtil.getSqlTimestamp(transactionDateFrom));
+//                vtParams.add(vtRow);
+//            } else {
+//                sqlString = sqlString.replace("$VALUEDATE$",
+//                        "");
+//            }
+
 
             //                Filter by Created Time
             if (transactionDateFrom != null) {
